@@ -13,6 +13,7 @@ from app.api.endpoints import (
     locations,
     logs,
     owner_portal,
+    packages,
     projects,
     rules,
     search,
@@ -190,6 +191,7 @@ app.include_router(ingestion.router, prefix="/api/v1/ingest", tags=["ingestion"]
 
 app.include_router(assets.router, prefix="/api/v1/assets", tags=["assets"])
 app.include_router(locations.router, prefix="/api/v1/locations", tags=["locations"])
+app.include_router(packages.router, prefix="/api/v1/packages", tags=["packages"])
 
 app.include_router(metamodel_router.router, prefix="/api/v1", tags=["metamodel"])
 app.include_router(mock.router, prefix="/api/v1", tags=["mock"])

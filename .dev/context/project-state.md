@@ -51,6 +51,7 @@
 
 | Version | Name | Status | Completion Date |
 |---------|------|--------|----------------|
+| v0.2.4 | Templates & Package Export | ✅ DONE | 2025-11-28 |
 | v0.2.3 | MVP Backend Traceability | ✅ DONE | 2025-11-28 |
 | v0.2.2 | UX Professional + MVP Week 1 | ✅ DONE | 2025-11-27 |
 | v0.2.1 | Logging & Monitoring | ✅ DONE | 2025-11-24 |
@@ -59,6 +60,51 @@
 ---
 
 ## 🎯 Recent Major Changes
+
+### 2025-11-28: v0.2.4 - Templates & Package Export System COMPLETE ✅
+**Week 2 Sprint - Package Generation & UI Components!**
+
+**Nouveaux fichiers créés:**
+- `app/services/template_service.py` - Service de génération templates Excel (400+ lignes)
+- `app/api/endpoints/packages.py` - Package CRUD + Export endpoints (350+ lignes)
+- `app/schemas/packages.py` - Pydantic schemas pour packages
+- `frontend/src/components/AssetHistory.tsx` - UI Version history avec diff view (300+ lignes)
+- `frontend/src/hooks/useWorkflowAPI.ts` - Hook pour Workflow & Traceability API
+- `frontend/src/hooks/usePackages.ts` - Hook pour Package Management & Export
+
+**Fonctionnalités implémentées:**
+- ✅ **Template Service** - Génération Excel avec openpyxl + Jinja2
+- ✅ **Templates IN-P040** - Instrument Index (panel instrumentation list)
+- ✅ **Templates CA-P040** - Cable Schedule (power & signal cables)
+- ✅ **Package API** - CRUD complet pour packages
+- ✅ **Package Export** - Endpoint `/api/v1/packages/{id}/export`
+- ✅ **Asset Assignment** - Ajout/retrait assets dans packages
+- ✅ **Export Preview** - Preview des données avant export
+- ✅ **AssetHistory UI** - Composant React avec version history & diff viewer
+- ✅ **Workflow Hooks** - useWorkflowAPI & usePackages pour intégration frontend
+
+**Endpoints ajoutés (Packages):**
+```
+GET    /api/v1/packages                        # List packages
+POST   /api/v1/packages                        # Create package
+GET    /api/v1/packages/{id}                   # Get package
+PATCH  /api/v1/packages/{id}                   # Update package
+DELETE /api/v1/packages/{id}                   # Delete package
+GET    /api/v1/packages/{id}/assets            # List package assets
+POST   /api/v1/packages/{id}/assets/{asset_id} # Add asset
+DELETE /api/v1/packages/{id}/assets/{asset_id} # Remove asset
+GET    /api/v1/packages/{id}/export            # Export Excel/PDF
+GET    /api/v1/packages/{id}/export/preview    # Preview data
+```
+
+**Templates supportés:**
+- **IN-P040**: Instrument Index - Panels, instruments, IO points
+- **CA-P040**: Cable Schedule - Cables, routing, terminations
+
+**Key Achievement:** Système complet de génération de livrables prêt pour MVP demo!
+> "Import BBA → Rules create assets → Export IN-P040 package → Demo complete!"
+
+**Next:** Tests backend + Frontend integration (AssetHistory dans AssetDetails)
 
 ### 2025-11-28: MVP Backend Traceability COMPLETE ✅
 **Implementation Week 1 terminée avec succès!**
