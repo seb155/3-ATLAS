@@ -99,19 +99,24 @@ def export_assets_csv(
 @router.post("/import", response_model=ImportSummaryResponse, status_code=200)
 async def import_assets_csv(
     file: UploadFile = File(...),
+    mapping: str = Form(None),  # JSON string of mapping: {"system_field": "csv_header"}
     project_id: str = Header(..., alias="X-Project-ID"),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_active_user),
 ):
     """
-    Import assets from CSV file.
+    Import assets from CSV file with optional column mapping.
 
     **Multi-tenant:** Scoped to project_id from X-Project-ID header.
 
     **CSV Format:**
-    - Required columns: tag, type
+    - Required columns: tag, type (or mapped equivalents)
     - Optional columns: description, area, system, io_type, etc.
     - Nested fields: electrical.voltage, process.fluid, purchasing.status
+
+    **Mapping:**
+    - Optional JSON string mapping system fields to CSV headers.
+    - Example: {"tag": "Equipment Tag", "description": "Desc"}
 
     **Behavior:**
     - Creates new assets if tag doesn't exist
@@ -124,6 +129,15 @@ async def import_assets_csv(
     """
     if not file.filename.endswith(".csv"):
         raise FileValidationError(file.filename, "Please upload a CSV file")
+
+    # Parse mapping if provided
+    column_map = {}
+    if mapping:
+        try:
+            import json
+            column_map = json.loads(mapping)
+        except Exception as e:
+            print(f"Warning: Failed to parse mapping JSON: {e}")
 
     content = await file.read()
     decoded = content.decode("utf-8-sig")  # Handle BOM
@@ -145,7 +159,7 @@ async def import_assets_csv(
         description=f"CSV Import: {file.filename}",
         project_id=project_id,
         entity_type="IMPORT",
-        details={"filename": file.filename},
+        details={"filename": file.filename, "mapping": column_map},
     )
 
     # Helper to parse nested keys like "electrical.voltage"
@@ -154,12 +168,26 @@ async def import_assets_csv(
             d = d.setdefault(key, {})
         d[keys[-1]] = value
 
+    # Helper to get value from row using mapping
+    def get_mapped_value(row, system_field):
+        # 1. Try mapped column
+        if system_field in column_map:
+            csv_header = column_map[system_field]
+            if csv_header in row:
+                return row[csv_header]
+        
+        # 2. Try direct match
+        if system_field in row:
+            return row[system_field]
+            
+        return None
+
     for row_idx, row in enumerate(csv_reader):
         summary["total_rows"] += 1
         try:
             # 1. Identify Asset
-            asset_id = row.get("id")
-            tag = row.get("tag")
+            asset_id = get_mapped_value(row, "id")
+            tag = get_mapped_value(row, "tag")
 
             if not tag:
                 summary["errors"].append(
@@ -171,28 +199,60 @@ async def import_assets_csv(
             # 2. Prepare Data Structure
             asset_data = {
                 "tag": tag,
-                "description": row.get("description"),
-                "area": row.get("area"),
-                "system": row.get("system"),
-                "manufacturer_part_id": row.get("manufacturer_part_id"),
-                "location_id": row.get("location_id") or None,  # Handle empty string as None
+                "description": get_mapped_value(row, "description"),
+                "area": get_mapped_value(row, "area"),
+                "system": get_mapped_value(row, "system"),
+                "manufacturer_part_id": get_mapped_value(row, "manufacturer_part_id"),
+                "location_id": get_mapped_value(row, "location_id") or None,
                 "electrical": {},
                 "process": {},
                 "purchasing": {},
             }
 
             # Enums
-            if row.get("type"):
-                asset_data["type"] = row.get("type")
-            if row.get("io_type"):
-                asset_data["io_type"] = row.get("io_type")
+            type_val = get_mapped_value(row, "type")
+            if type_val:
+                asset_data["type"] = type_val
+                
+            io_type_val = get_mapped_value(row, "io_type")
+            if io_type_val:
+                asset_data["io_type"] = io_type_val
 
-            # Nested Fields
+            # Nested Fields & Unmapped fields
+            # We iterate through the row to find nested fields that might be mapped OR unmapped
+            # But for mapped nested fields (e.g. "electrical.voltage"), the mapping key is "electrical.voltage"
+            
+            # Strategy:
+            # 1. Check for specific known nested fields via mapping
+            known_nested = [
+                "electrical.voltage", "electrical.powerKW", "electrical.loadType",
+                "process.fluid", "process.minRange", "process.maxRange", "process.units",
+                "purchasing.workPackageId", "purchasing.status"
+            ]
+            
+            for field in known_nested:
+                val = get_mapped_value(row, field)
+                if val:
+                    parts = field.split(".")
+                    set_nested(asset_data, parts, val)
+
+            # 2. Also check for direct nested columns in CSV (legacy support)
             for key, value in row.items():
                 if key and "." in key and value:
+                    # Only if NOT already set by mapping
                     parts = key.split(".")
                     if parts[0] in ["electrical", "process", "purchasing"]:
-                        set_nested(asset_data, parts, value)
+                        # Check if this specific nested path was already set via mapping
+                        # This is a bit complex to check efficiently, so we just overwrite if it wasn't mapped
+                        # Or better: only process if key is NOT a value in column_map
+                        is_mapped_column = False
+                        for map_key, map_val in column_map.items():
+                            if map_val == key:
+                                is_mapped_column = True
+                                break
+                        
+                        if not is_mapped_column:
+                            set_nested(asset_data, parts, value)
 
             # 3. Find Existing
             existing_asset = None
@@ -313,6 +373,7 @@ async def import_assets_csv(
         "created": summary["created"],
         "updated": summary["updated"],
         "errors": len(summary["errors"]),
+        "mapping": column_map
     }
     db.commit()
 
