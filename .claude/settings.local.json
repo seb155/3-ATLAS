@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(done)",
+      "Bash(mkdir -p:*)",
+      "Bash(xcopy:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: AXIOM Platform structure\n\n- SYNAPSE: MBSE Platform (migrated from EPCB-Tools)\n- NEXUS: Knowledge Graph Portal (migrated)\n- PRISM: Enterprise Portal (ex-portal)\n- ATLAS: AI Collaboration Environment (new)\n- FORGE: Shared Infrastructure (ex-workspace)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh repo create:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(find . -type f ( -name \"*.yml\" -o -name \"*.yaml\" -o -name \"*.md\" -o -name \"*.ps1\" -o -name \"*.sh\" -o -name \"*.py\" -o -name \"*.json\" -o -name \"*.bat\" ) -not -path \"./node_modules/*\" -not -path \"./.git/*\" -exec sed -i 's/workspace-postgres/forge-postgres/g; s/workspace-redis/forge-redis/g; s/workspace-network/forge-network/g; s/workspace-loki/forge-loki/g; s/workspace-grafana/forge-grafana/g; s/workspace-promtail/forge-promtail/g; s/workspace-pgadmin/forge-pgadmin/g; s/workspace-prisma/forge-prisma/g; s/workspace-meilisearch/forge-meilisearch/g; s/workspace-traefik/forge-traefik/g; s/workspace-homepage/forge-homepage/g; s/Workspace PostgreSQL/FORGE PostgreSQL/g' {} ;)",
+      "Bash(docker ps:*)",
+      "Bash(docker network ls:*)",
+      "Bash(docker network rm:*)",
+      "Bash(docker system prune:*)",
+      "Bash(git push:*)",
+      "Bash(gh api:*)",
+      "Bash(gh repo view:*)",
+      "Bash(npx docsify-cli:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker logs:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
