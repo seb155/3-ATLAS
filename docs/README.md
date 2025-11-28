@@ -1,70 +1,103 @@
-# SYNAPSE Documentation
+# AXIOM Platform Documentation
 
-> **Model-Based Systems Engineering Platform for EPCM Automation**
+> **Unified Enterprise Platform for Engineering, Knowledge & AI Collaboration**
 
-Welcome to SYNAPSE! This documentation will help you get started, develop features, and contribute.
-
----
-
-## 🚀 Getting Started (5 minutes)
-
-**New to SYNAPSE?** Start here:
-
-1. **[Installation](getting-started/01-installation.md)** - Setup in 5 minutes with `.\dev.ps1`
-2. **[First Steps](getting-started/02-first-steps.md)** - Login, navigate, import data
-3. **[Architecture Overview](getting-started/03-architecture-overview.md)** - Understand the system
+Welcome to AXIOM! This documentation covers all applications and infrastructure.
 
 ---
 
-## 🔧 Developer Guide
+## Platform Overview
 
-**Building features?** Deep dive here:
+**AXIOM** is an integrated enterprise platform containing four specialized applications:
 
-- **[Project Structure](developer-guide/01-project-structure.md)** - Monorepo, workspace/apps
-- **[Backend Guide](developer-guide/02-backend-guide.md)** - FastAPI services & modules
-- **[Frontend Guide](developer-guide/03-frontend-guide.md)** - React apps (SYNAPSE + Owner Portal)
-- **[Database](developer-guide/04-database.md)** - Postgres layout & schemas
-- **[Testing](developer-guide/08-testing.md)** - pytest, Playwright, Vitest UI
-- **[Deployment](developer-guide/06-deployment.md)** - DEV vs PROD, Docker, Proxmox
+| Application | Purpose | Status |
+|-------------|---------|--------|
+| **SYNAPSE** | Model-Based Systems Engineering (MBSE) | Production |
+| **NEXUS** | Knowledge Graph & Personal Portal | Production |
+| **PRISM** | Enterprise Portal & Dashboard | Development |
+| **ATLAS** | AI Collaboration Environment | Planning |
 
----
-
-## 📚 Reference
-
-**Looking something up?**
-
-- **[API Endpoints](reference/api-endpoints.md)** - REST API reference
-- **[Database Schema](reference/database-schema.md)** - Tables, relationships
-- **[Rule Engine](reference/rule-engine.md)** - Rules deep dive
-- **[Logging Infrastructure](reference/logging-infrastructure.md)** - Loki, Grafana, WebSocket
-- **[Tech Stack](reference/tech-stack.md)** - Technologies used
-
-**Roadmap & Planning:**
-
-- **[Roadmap Overview](../.dev/roadmap/README.md)** - v0.2.x → v1.0.0 complete roadmap
-- **[3-Tier Asset Model](../.dev/roadmap/backlog/3-tier-asset-model.md)** - Engineering/Catalog/Physical
-- **[Breakdown Structures](../.dev/roadmap/backlog/breakdown-structures.md)** - FBS/LBS/WBS/CBS/PBS/OBS
-- **[Package Generation](../.dev/roadmap/backlog/package-generation.md)** - Excel/PDF deliverables
-- **[Search & Navigation](../.dev/roadmap/backlog/search-navigation.md)** - MeiliSearch integration
-- **[Change Management](../.dev/roadmap/backlog/change-management.md)** - Impact analysis, versioning, baselines
-- **[Rule Visualization & Editor](../.dev/roadmap/backlog/rule-visualization-editor.md)** - Visual rule management
-- **[Background Processing](../.dev/roadmap/backlog/background-processing.md)** - Celery + Redis
+All applications share the **FORGE** infrastructure (PostgreSQL, Redis, Grafana, etc.)
 
 ---
 
-## 🤝 Contributing
+## Quick Start
 
-**Want to contribute?**
+```powershell
+# Clone the repository
+git clone https://github.com/seb155/AXIOM.git
+cd AXIOM
 
-- **[Code Guidelines](contributing/code-guidelines.md)** - Standards, conventions
-- **[Git Workflow](contributing/git-workflow.md)** - Branches, PRs, commits
-- **[AI Collaboration](contributing/ai-collaboration.md)** - Working with AI agents
+# Start FORGE infrastructure
+.\dev.ps1
+
+# Access applications
+# SYNAPSE: http://localhost:8080
+# NEXUS:   http://localhost:3001
+# PRISM:   http://localhost:3002
+```
 
 ---
 
-## 📦 Archive
+## Documentation Structure
 
-Old documentation structure is preserved in [`archive/`](archive/) for reference.
+### Getting Started
+- [Installation](getting-started/01-installation.md) - Setup in 5 minutes
+- [First Steps](getting-started/02-first-steps.md) - Login, navigate, explore
+- [Architecture Overview](getting-started/03-architecture-overview.md) - System design
+
+### Applications
+
+#### SYNAPSE - MBSE Platform
+Engineering data management with rule engines, impact analysis, and package generation.
+- [Project Structure](developer-guide/01-project-structure.md)
+- [Rule Engine](developer-guide/rule-engine-event-sourcing.md)
+- [Workflow Engine](developer-guide/workflow-engine.md)
+
+#### NEXUS - Knowledge Graph
+Personal knowledge management with graph visualization and search.
+- Coming soon
+
+#### PRISM - Enterprise Portal
+Unified dashboard for project management and analytics.
+- Coming soon
+
+#### ATLAS - AI Collaboration
+AI-powered development and collaboration tools.
+- Coming soon
+
+### Developer Guide
+- [Tools Setup](developer-guide/tools-setup.md)
+- [Testing](developer-guide/08-testing.md)
+- [Deployment](developer-guide/06-deployment.md)
+
+### Reference
+- [Design System](reference/design-system.md)
+- [Asset Lifecycle](reference/asset-lifecycle.md)
+- [Rule Engine API](reference/rule-engine-api.md)
+- [Logging Infrastructure](reference/logging-infrastructure.md)
+
+### Workflows
+- [Using DevConsole](workflows/using-devconsole.md)
+- [Creating Baselines](workflows/creating-baselines.md)
+- [Package Generation](workflows/package-generation.md)
+- [Impact Analysis](workflows/using-impact-analysis.md)
+
+---
+
+## FORGE Infrastructure
+
+Shared services available to all applications:
+
+| Service | Port | URL |
+|---------|------|-----|
+| PostgreSQL | 5433 | `localhost:5433` |
+| Redis | 6379 | `localhost:6379` |
+| pgAdmin | 5050 | http://localhost:5050 |
+| Prisma Studio | 5555 | http://localhost:5555 |
+| Grafana | 3000 | http://localhost:3000 |
+| Loki | 3100 | http://localhost:3100 |
+| MeiliSearch | 7700 | http://localhost:7700 |
 
 ---
 
@@ -72,17 +105,23 @@ Old documentation structure is preserved in [`archive/`](archive/) for reference
 
 | I want to... | Go to... |
 |--------------|----------|
-| **Install SYNAPSE** | [Installation](getting-started/01-installation.md) |
-| **Add a backend endpoint** | [Backend Guide](developer-guide/02-backend-guide.md) |
-| **Add a UI component** | [Frontend Guide](developer-guide/03-frontend-guide.md) |
-| **Understand the database** | [Database](developer-guide/04-database.md) |
+| **Install AXIOM** | [Installation](getting-started/01-installation.md) |
+| **Understand the architecture** | [Architecture Overview](getting-started/03-architecture-overview.md) |
 | **Run tests** | [Testing Guide](developer-guide/08-testing.md) |
 | **Deploy to production** | [Deployment](developer-guide/06-deployment.md) |
-| **See API docs** | [API Reference](reference/api-endpoints.md) |
 | **View logs** | [Logging Infrastructure](reference/logging-infrastructure.md) |
 | **Contribute code** | [Code Guidelines](contributing/code-guidelines.md) |
+| **See migration history** | [Migration Guide](MIGRATION-AXIOM.md) |
 
 ---
 
-**Version:** 1.1
-**Last Updated:** 2025-11-26
+## Contributing
+
+- [Code Guidelines](contributing/code-guidelines.md) - Standards and conventions
+- [Git Workflow](contributing/git-workflow.md) - Branches, PRs, commits
+
+---
+
+**Platform Version:** 1.0.0
+**Last Updated:** November 28, 2025
+**Repository:** [github.com/seb155/AXIOM](https://github.com/seb155/AXIOM)
