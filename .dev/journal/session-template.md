@@ -1,8 +1,9 @@
-# Development Session - [DATE]
+# Development Session - YYYY-MM-DD HH:MM
 
 **Focus:** [Brief description of main goal]
 **Sprint:** MVP Week [1-4]
-**Start Time:** [HH:MM]
+**Start Time:** HH:MM
+**Date Format:** YYYY-MM-DD HH:MM (Example: 2025-11-28 14:30)
 
 ---
 
@@ -147,9 +148,19 @@ git log --oneline --since="today" --author="[Your Name]"
 
 ---
 
-**End Time:** [HH:MM]
+**End Time:** HH:MM
+**Duration:** [Calculate: End - Start]
 **Status:** [ON TRACK / BEHIND / AHEAD]
 **Next Focus:** [Brief description for next session]
+
+---
+
+## Timestamp Format (IMPORTANT)
+
+**Always use:** `YYYY-MM-DD HH:MM`
+- Example: `2025-11-28 14:30`
+- Never just date without time
+- Never just time without date
 
 ---
 

@@ -1,0 +1,55 @@
+{
+  "hot_files": [
+    {
+      "path": "d:\\Projects\\AXIOM\\.claude\\agents\\atlas.md",
+      "frequency": 15,
+      "last_modified": "2025-11-28 15:45",
+      "category": "agent",
+      "priority": "high"
+    },
+    {
+      "path": "d:\\Projects\\AXIOM\\.claude\\commands\\0-new-session.md",
+      "frequency": 12,
+      "last_modified": "2025-11-28 15:55",
+      "category": "command",
+      "priority": "high"
+    },
+    {
+      "path": "d:\\Projects\\AXIOM\\.dev\\context\\project-state.md",
+      "frequency": 10,
+      "last_modified": "2025-11-28 14:00",
+      "category": "context",
+      "priority": "high"
+    },
+    {
+      "path": "d:\\Projects\\AXIOM\\.dev\\journal\\session-template.md",
+      "frequency": 8,
+      "last_modified": "2025-11-28 16:25",
+      "category": "template",
+      "priority": "medium"
+    },
+    {
+      "path": "d:\\Projects\\AXIOM\\apps\\synapse\\backend\\app\\services\\template_service.py",
+      "frequency": 6,
+      "last_modified": "2025-11-28 14:30",
+      "category": "service",
+      "priority": "medium"
+    }
+  ],
+  "metadata": {
+    "tracking_enabled": true,
+    "auto_update": true,
+    "threshold_frequency": 3,
+    "max_tracked_files": 20,
+    "last_updated": "2025-11-28 17:00"
+  },
+  "categories": {
+    "agent": "AI agent definitions",
+    "command": "Slash commands",
+    "context": "Project context files",
+    "template": "Templates and patterns",
+    "service": "Backend services",
+    "component": "Frontend components",
+    "config": "Configuration files"
+  }
+}

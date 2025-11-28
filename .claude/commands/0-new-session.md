@@ -1,6 +1,12 @@
-# /new-session
+---
+description: Start new development session - full context load (Mode FULL)
+---
+
+# /0-new-session
 
 Demarre une nouvelle session de developpement.
+
+**Mode:** FULL (Complete context loading)
 
 ## Actions
 
@@ -26,7 +32,7 @@ Demarre une nouvelle session de developpement.
 ## Exemple
 
 ```text
-User: /new-session
+User: /0-new-session
 
 ATLAS: "Bonjour! Je charge le contexte...
 
@@ -51,7 +57,11 @@ ATLAS: "Bonjour! Je charge le contexte...
 2. Integration NEXUS
 3. UI polish
 
-Par quoi veux-tu commencer?"
+**Que veux-tu faire?**
+1. Continuer priorité #1 (Tests notifications)
+2. Démarrer priorité #2 (Integration NEXUS)
+3. Autre tâche (précise)
+4. Voir roadmap complet (/0-progress)"
 ```
 
 ## Agent invoque

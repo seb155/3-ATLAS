@@ -1,0 +1,24 @@
+{
+  "sessions": [
+    {
+      "id": "2025-11-28-1530",
+      "mode": "FULL",
+      "command": "/0-new-session",
+      "started_at": "2025-11-28 15:30",
+      "ended_at": "2025-11-28 17:00",
+      "duration_minutes": 90,
+      "tasks_completed": 12,
+      "commits": 3,
+      "status": "completed",
+      "notes": "Created Atlas orchestration system - all commands and tracking files"
+    }
+  ],
+  "stats": {
+    "total_sessions": 1,
+    "avg_duration_minutes": 90,
+    "most_used_mode": "FULL",
+    "total_tasks_completed": 12,
+    "total_commits": 3
+  },
+  "last_updated": "2025-11-28 17:00"
+}

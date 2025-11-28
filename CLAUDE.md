@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## AI Orchestration
+
+**ATLAS** is your main entry point - the orchestrator agent that manages all sessions and task routing.
+
+**Start every session with:**
+- `/0-new-session` - First session of the day (Mode FULL)
+- `/0-next` - Continue next task (Mode QUICK)
+- `/0-resume` - After /compact during development (Mode RECOVERY)
+
+**See:** [.claude/agents/atlas.md](.claude/agents/atlas.md) for complete Atlas capabilities.
+
+**Quick commands** (type `/0` to see all):
+- `/0-progress` - Roadmap overview (compact)
+- `/0-dashboard` - Current session status
+- `/0-ship` - Git workflow (test + commit + push)
+
+---
+
 ## Platform Overview
 
 **AXIOM** is the unified AXoiq development platform - a monorepo containing:
