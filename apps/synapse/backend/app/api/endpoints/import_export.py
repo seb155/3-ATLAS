@@ -3,7 +3,7 @@ import io
 import os
 import uuid
 
-from fastapi import APIRouter, Depends, File, Header, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Header, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -13,9 +13,12 @@ from app.core.exceptions import DatabaseError, FileValidationError, RuleExecutio
 from app.core.exceptions import ValidationError as SynapseValidationError
 from app.models.action_log import ActionType
 from app.models.models import Asset
+from app.models.workflow import BatchOperationType, LogLevel, LogSource, WorkflowActionType
 from app.schemas.import_export import CSVRowError, ImportSummaryResponse
 from app.services.action_logger import ActionLogger
 from app.services.metamodel import MetamodelService
+from app.services.versioning_service import VersioningService
+from app.services.workflow_logger import BatchOperationManager, WorkflowLogger
 
 router = APIRouter()
 
@@ -152,7 +155,7 @@ async def import_assets_csv(
         "total_rows": 0,
     }
 
-    # Create parent log for this import
+    # Create parent log for this import (legacy ActionLogger)
     import_log = ActionLogger.log(
         db=db,
         action_type=ActionType.CREATE,
@@ -160,6 +163,32 @@ async def import_assets_csv(
         project_id=project_id,
         entity_type="IMPORT",
         details={"filename": file.filename, "mapping": column_map},
+    )
+
+    # NEW: Initialize WorkflowLogger and BatchOperationManager for MVP traceability
+    workflow_logger = WorkflowLogger(
+        db=db,
+        project_id=project_id,
+        user_id=current_user.id if current_user else None,
+    )
+    batch_manager = BatchOperationManager(
+        db=db,
+        project_id=project_id,
+        user_id=current_user.id if current_user else None,
+    )
+    versioning_service = VersioningService(db)
+
+    # Start workflow and batch operation
+    correlation_id = workflow_logger.start_workflow(
+        source=LogSource.IMPORT,
+        action_type=WorkflowActionType.IMPORT,
+        message=f"CSV Import: {file.filename}",
+        details={"filename": file.filename, "mapping": column_map},
+    )
+    batch_id = batch_manager.start_batch(
+        operation_type=BatchOperationType.IMPORT,
+        description=f"CSV Import: {file.filename}",
+        correlation_id=correlation_id,
     )
 
     # Helper to parse nested keys like "electrical.voltage"
@@ -270,12 +299,24 @@ async def import_assets_csv(
 
             # 4. Update or Create
             if existing_asset:
+                # Capture old state for versioning
+                old_snapshot = {
+                    "tag": existing_asset.tag,
+                    "description": existing_asset.description,
+                    "type": existing_asset.type,
+                    "area": existing_asset.area,
+                    "system": existing_asset.system,
+                    "electrical": existing_asset.electrical,
+                    "process": existing_asset.process,
+                    "purchasing": existing_asset.purchasing,
+                }
+
                 # Update
                 for key, value in asset_data.items():
                     if value is not None:
                         setattr(existing_asset, key, value)
                 summary["updated"] += 1
-                # Log update
+                # Log update (legacy)
                 ActionLogger.log(
                     db=db,
                     action_type=ActionType.UPDATE,
@@ -286,6 +327,28 @@ async def import_assets_csv(
                     entity_id=uuid.UUID(existing_asset.id),
                     details={"tag": tag, "type": asset_data.get("type")},
                 )
+
+                # NEW: Log to WorkflowLogger for real-time traceability
+                workflow_logger.log_update(
+                    source=LogSource.IMPORT,
+                    message=f"Updated asset: {tag}",
+                    entity_type="ASSET",
+                    entity_id=existing_asset.id,
+                    entity_tag=tag,
+                    correlation_id=correlation_id,
+                    details={"row": row_idx, "changes": asset_data},
+                )
+
+                # NEW: Create version for rollback support
+                try:
+                    versioning_service.create_version(
+                        asset=existing_asset,
+                        user_id=current_user.id if current_user else None,
+                        change_reason=f"CSV Import: {file.filename}",
+                        batch_id=batch_id,
+                    )
+                except Exception as ve:
+                    print(f"Warning: Failed to create version for {tag}: {ve}")
 
                 # Sync to Metamodel
                 try:
@@ -309,7 +372,7 @@ async def import_assets_csv(
                 db.add(new_asset)
                 db.flush()  # Get the ID
                 summary["created"] += 1
-                # Log creation
+                # Log creation (legacy)
                 ActionLogger.log(
                     db=db,
                     action_type=ActionType.CREATE,
@@ -320,6 +383,27 @@ async def import_assets_csv(
                     entity_id=uuid.UUID(new_asset.id),
                     details={"tag": tag, "type": asset_data.get("type")},
                 )
+
+                # NEW: Log to WorkflowLogger for real-time traceability
+                workflow_logger.log_create(
+                    source=LogSource.IMPORT,
+                    message=f"Created asset: {tag}",
+                    entity_type="ASSET",
+                    entity_id=new_asset.id,
+                    entity_tag=tag,
+                    correlation_id=correlation_id,
+                    details={"type": asset_data.get("type"), "row": row_idx},
+                )
+
+                # NEW: Create initial version for rollback support
+                try:
+                    versioning_service.create_initial_version(
+                        asset=new_asset,
+                        user_id=current_user.id if current_user else None,
+                        batch_id=batch_id,
+                    )
+                except Exception as ve:
+                    print(f"Warning: Failed to create initial version for {tag}: {ve}")
 
                 # Sync to Metamodel
                 try:
@@ -375,9 +459,29 @@ async def import_assets_csv(
         "errors": len(summary["errors"]),
         "mapping": column_map
     }
+
+    # NEW: Complete batch operation and workflow
+    affected_count = summary["created"] + summary["updated"]
+    batch_manager.complete_batch(batch_id, affected_assets=affected_count)
+
+    if summary["failed"] > 0:
+        workflow_logger.fail_workflow(
+            correlation_id=correlation_id,
+            error=f"{summary['failed']} rows failed to import",
+        )
+    else:
+        workflow_logger.complete_workflow(
+            correlation_id=correlation_id,
+            details={
+                "created": summary["created"],
+                "updated": summary["updated"],
+                "total_rows": summary["total_rows"],
+            },
+        )
+
     db.commit()
 
-    # ✨ NEW: Auto-execute rules after import if assets were created
+    # ✨ Auto-execute rules after import if assets were created
     if summary["created"] > 0:
         try:
             import time

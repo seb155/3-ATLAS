@@ -209,23 +209,50 @@ Le status line affiche en temps reel les informations de session Claude Code.
 ### Affichage
 
 ```
-[OPUS] [master +3] [$0.42] [AXIOM] [FORGE 3/7] [Sn] [5m32s]
+<< OPUS >> --- [ AXIOM/backend ] --- < master*3 > --- { A:1/2 } --- $0.42 --- 5m32s
 ```
 
-| Badge | Description | Couleurs |
-|-------|-------------|----------|
-| `[OPUS]` | Modele actif | Bleu=Opus, Magenta=Sonnet, Vert=Haiku |
-| `[master +3]` | Git branch + fichiers modifies | Vert=clean, Jaune=dirty |
-| `[$0.42]` | Cout de session USD | Vert<$1, Jaune$1-5, Rouge>$5 |
-| `[AXIOM]` | App active (par path) | Cyan=SYNAPSE, Vert=NEXUS, Bleu=ATLAS, Magenta=PRISM, Rouge=FORGE |
-| `[FORGE 3/7]` | Containers FORGE up/total | Vert=all up, Jaune=partiel, Rouge=down |
-| `[Sn]` | Apps Docker (S=Synapse, N=Nexus) | Majuscule verte=up, minuscule grise=down |
-| `[5m32s]` | Duree de session | Gris |
+| Section | Description |
+|---------|-------------|
+| `<< OPUS >>` | Modele actif (OPUS, SONNET, HAIKU) |
+| `[ AXIOM/backend ]` | App + repertoire courant |
+| `< master*3 >` | Branche git + fichiers modifies |
+| `{ A:1/2 }` | Agents: running/total (optionnel) |
+| `$0.42` | Cout de session USD |
+| `5m32s` | Duree de session |
+
+### Agent Tracking
+
+Le badge `{ A:x/y }` affiche le nombre d'agents Task en cours d'execution.
+
+**Fichier de status**: `.claude/context/agent-status.json`
+
+```json
+{
+  "session_id": "2025-11-28-abc123",
+  "agents": [
+    {
+      "id": "task-001",
+      "name": "BACKEND-BUILDER",
+      "task": "Create CSV endpoint",
+      "status": "running",
+      "started_at": "2025-11-28T10:30:00Z"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "running": 1,
+    "completed": 1,
+    "failed": 0
+  }
+}
+```
 
 ### Configuration
 
 Fichiers:
 - `.claude/scripts/statusline.ps1` - Script PowerShell
+- `.claude/context/agent-status.json` - Status des agents Task
 - `.claude/settings.json` - Configuration Claude Code
 
 ### Utilisation

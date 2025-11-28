@@ -486,6 +486,7 @@ def detect_rule_conflicts(
 @router.post("/execute", response_model=RuleExecutionSummary)
 def execute_all_rules(
     project_id: str,
+    use_enhanced_engine: bool = Query(True, description="Use enhanced engine with traceability"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -496,8 +497,14 @@ def execute_all_rules(
     1. Load all active rules sorted by priority
     2. Get all assets in project
     3. For each rule × asset: evaluate condition and execute action
-    4. Log all executions to action_log table
-    5. Return summary statistics
+    4. Log all executions to workflow_events table
+    5. Create asset versions for rollback support
+    6. Return summary statistics
+
+    Query Parameters:
+        - use_enhanced_engine: If True (default), uses the new RuleExecutionService
+          with full traceability, versioning, and batch rollback support.
+          If False, uses the legacy RuleEngine.
 
     Returns:
         - total_rules: Number of rules processed
@@ -514,7 +521,7 @@ def execute_all_rules(
 
     start_time = time.time()
 
-    # Create root action log
+    # Create root action log (legacy for backwards compatibility)
     root_log = ActionLogger.log(
         db,
         ActionType.RULE_EXECUTION,
@@ -522,16 +529,38 @@ def execute_all_rules(
         project_id=project_id,
     )
 
-    # Execute via RuleEngine
-    from app.services.rule_engine import RuleEngine
+    if use_enhanced_engine:
+        # NEW: Use enhanced RuleExecutionService with full traceability
+        from app.services.rule_execution_service import RuleExecutionService
 
-    result = RuleEngine.apply_rules(db, project_id)
+        executor = RuleExecutionService(
+            db=db,
+            project_id=project_id,
+            user_id=current_user.id if current_user else None,
+        )
+        summary = executor.execute_rules()
+
+        result = {
+            "total_rules": summary.total_rules,
+            "total_assets": summary.total_assets,
+            "total_executions": summary.total_executions,
+            "actions_taken": summary.actions_taken,
+            "skipped": summary.skipped,
+            "errors": summary.errors,
+            "time_elapsed_ms": summary.duration_ms,
+        }
+    else:
+        # Legacy: Use original RuleEngine
+        from app.services.rule_engine import RuleEngine
+
+        result = RuleEngine.apply_rules(db, project_id)
 
     # Update root log with results
     root_log.details = {
         "execution_mode": "execute_all",
-        "total_rules": result["total_rules"],
-        "actions_taken": result["actions_taken"],
+        "enhanced_engine": use_enhanced_engine,
+        "total_rules": result.get("total_rules", 0),
+        "actions_taken": result.get("actions_taken", 0),
         "time_ms": int((time.time() - start_time) * 1000),
     }
     db.commit()

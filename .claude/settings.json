@@ -1,5 +1,6 @@
 {
-  "env": {
-    "CLAUDE_CODE_STATUS_LINE": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/statusline.ps1"
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/statusline.ps1"
   }
 }

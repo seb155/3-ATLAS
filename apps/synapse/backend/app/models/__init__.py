@@ -8,3 +8,16 @@ from .metamodel import MetamodelEdge, MetamodelNode
 from .models import Asset, AssetType, Connection, IOType, LBSNode, LocationType
 from .packages import Package, PackageStatus
 from .rules import RuleActionType, RuleDefinition, RuleExecution, RuleSource
+from .workflow import (
+    AssetChange,
+    AssetVersion,
+    BatchOperation,
+    BatchOperationType,
+    ChangeSource,
+    LogLevel,
+    LogSource,
+    PropertyChange,
+    WorkflowActionType,
+    WorkflowEvent,
+    WorkflowStatus,
+)
