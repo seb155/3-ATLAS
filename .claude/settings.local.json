@@ -23,7 +23,12 @@
       "Bash(gh repo view:*)",
       "Bash(npx docsify-cli:*)",
       "Bash(docker compose:*)",
-      "Bash(docker logs:*)"
+      "Bash(docker logs:*)",
+      "Bash(git -C D:/Projects/AXIOM branch:*)",
+      "Bash(cat:*)",
+      "Bash(powershell -Command \"Get-Content ''D:\\Projects\\AXIOM\\.claude\\settings.local.json''\")",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)"
     ],
     "deny": [],
     "ask": []

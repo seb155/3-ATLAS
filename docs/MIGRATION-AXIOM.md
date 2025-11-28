@@ -205,7 +205,7 @@ docs/
 **Local Development:**
 - Edit Markdown files in `docs/`
 - Changes appear immediately (hot reload)
-- Doc server runs in `forge-docs` container
+- Doc server runs in `forge-wiki` container
 
 ---
 
@@ -237,7 +237,7 @@ docs/
 | Loki | `forge-loki` | 3100 | Log aggregation |
 | Promtail | `forge-promtail` | - | Log collection |
 | MeiliSearch | `forge-meilisearch` | 7700 | Full-text search |
-| Documentation | `forge-docs` | 3080 | Docsify doc server |
+| Wiki | `forge-wiki` | 3080 | Docsify wiki server |
 
 ---
 

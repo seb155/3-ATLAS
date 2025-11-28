@@ -166,10 +166,10 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Docsify - AXIOM Documentation Server
-  docs:
+  # Wiki - AXIOM Documentation Server (GitHub-style wiki)
+  forge-wiki:
     image: node:20-alpine
-    container_name: forge-docs
+    container_name: forge-wiki
     working_dir: /docs
     volumes:
       - ../docs:/docs:ro

@@ -229,7 +229,7 @@ Read `.agent/workflows/01-new-session.md`
 | Grafana | `forge-grafana` | 3000 | http://localhost:3000 |
 | Loki | `forge-loki` | 3100 | http://localhost:3100 |
 | MeiliSearch | `forge-meilisearch` | 7700 | http://localhost:7700 |
-| Documentation | `forge-docs` | 3080 | http://localhost:3080 |
+| Wiki | `forge-wiki` | 3080 | http://localhost:3080 |
 
 ---
 

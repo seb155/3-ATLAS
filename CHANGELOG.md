@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2025-11-28
 
 ### Added
-- **Docsify Documentation Server** (`forge-docs` on port 3080)
+- **Docsify Wiki Server** (`forge-wiki` on port 3080)
   - Dark theme with AXIOM branding
   - Full-text search
   - Application badges (SYNAPSE, NEXUS, PRISM, ATLAS, FORGE)
@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated `docs/README.md` as AXIOM platform home page
-- Updated `forge/docker-compose.yml` with `forge-docs` service
+- Updated `forge/docker-compose.yml` with `forge-wiki` service
 
 ---
 
