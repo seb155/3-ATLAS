@@ -152,17 +152,21 @@ class TemplateService:
         elif template_type == "CA-P040":
             # Load cables for this package
             asset_ids = [a.id for a in assets]
-            cables = (
-                self.db.query(Cable)
-                .filter(
-                    and_(
-                        Cable.from_asset_id.in_(asset_ids),
-                        Cable.to_asset_id.in_(asset_ids),
+            try:
+                cables = (
+                    self.db.query(Cable)
+                    .filter(
+                        and_(
+                            Cable.from_asset_id.in_(asset_ids),
+                            Cable.to_asset_id.in_(asset_ids),
+                        )
                     )
+                    .all()
                 )
-                .all()
-            )
-            context.cables = cables
+                context.cables = cables
+            except Exception:
+                # Cable table may not exist or have different schema
+                context.cables = []
             return self._export_cable_schedule(context, format)
         else:
             return ExportResult(
@@ -218,16 +222,17 @@ class TemplateService:
             # Data rows
             row = 7
             for idx, asset in enumerate(context.assets, start=1):
+                props = asset.properties or {}
                 ws.cell(row, 1, idx)
                 ws.cell(row, 2, asset.tag)
-                ws.cell(row, 3, asset.properties.get("description", ""))
-                ws.cell(row, 4, asset.asset_type)
-                ws.cell(row, 5, asset.properties.get("location", ""))
-                ws.cell(row, 6, asset.properties.get("power_supply", ""))
-                ws.cell(row, 7, asset.properties.get("signal_type", ""))
-                ws.cell(row, 8, asset.properties.get("io_points", ""))
-                ws.cell(row, 9, asset.properties.get("panel", ""))
-                ws.cell(row, 10, asset.properties.get("remarks", ""))
+                ws.cell(row, 3, asset.description or props.get("description", ""))
+                ws.cell(row, 4, asset.type)
+                ws.cell(row, 5, props.get("location", ""))
+                ws.cell(row, 6, props.get("power_supply", ""))
+                ws.cell(row, 7, props.get("signal_type", ""))
+                ws.cell(row, 8, props.get("io_points", ""))
+                ws.cell(row, 9, props.get("panel", ""))
+                ws.cell(row, 10, props.get("remarks", ""))
                 row += 1
 
             # Auto-size columns
@@ -466,7 +471,7 @@ class TemplateService:
 
     def _get_project_info(self, project_id: str) -> dict:
         """Get project information for header."""
-        from app.models.models import Project
+        from app.models.auth import Project
 
         project = self.db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -474,7 +479,7 @@ class TemplateService:
 
         return {
             "name": project.name,
-            "description": project.description,
+            "description": project.description or "",
             "created_at": project.created_at,
         }
 
