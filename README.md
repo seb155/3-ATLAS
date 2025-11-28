@@ -1,239 +1,382 @@
-<p align="center">
-  <h1 align="center">AXIOM</h1>
-  <p align="center">
-    <strong>AXoiq Enterprise Platform</strong>
-  </p>
-  <p align="center">
-    Unified development ecosystem for engineering, knowledge management, and AI collaboration
-  </p>
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="#applications">Applications</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#documentation">Documentation</a>
-</p>
+# AXIOM
+
+### **The Unified Engineering & Knowledge Platform**
+
+*Streamline your engineering workflows, centralize knowledge, and collaborate with AI*
+
+[![Platform](https://img.shields.io/badge/Platform-AXIOM-blue?style=for-the-badge)](https://github.com/seb155/AXIOM)
+[![Version](https://img.shields.io/badge/Version-1.0.0-green?style=for-the-badge)](./CHANGELOG.md)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
+
+[**Get Started**](#-quick-start) · [**Applications**](#-applications) · [**Documentation**](#-documentation) · [**Tech Stack**](#-technology-stack)
 
 ---
 
-## Overview
+</div>
 
-**AXIOM** is a comprehensive enterprise platform built with modern technologies, designed for engineering workflows, knowledge management, and AI-assisted development.
+## What is AXIOM?
 
-| Application | Description | Status |
-|-------------|-------------|--------|
-| **SYNAPSE** | Model-Based Systems Engineering (MBSE) Platform | MVP Dec 2025 |
-| **NEXUS** | Personal Knowledge Graph & Notes Portal | Phase 1.5 |
-| **PRISM** | Enterprise Dashboard & Project Portal | Development |
-| **ATLAS** | AI Collaboration Environment | Planning |
+**AXIOM** is an integrated enterprise platform that brings together engineering automation, knowledge management, and AI-powered development into a single, cohesive ecosystem.
 
-**Infrastructure:** **FORGE** - Shared development infrastructure (PostgreSQL, Redis, Traefik, Logging)
+### The Problem
 
----
+- Engineering data scattered across Excel files, emails, and disconnected tools
+- Knowledge trapped in silos - notes here, tasks there, documentation elsewhere
+- Manual processes eating up valuable engineering time
+- No traceability or audit trail for critical decisions
 
-## Applications
+### The Solution
 
-### SYNAPSE - MBSE Platform
-> Engineering automation for EPCM projects
+AXIOM provides **four integrated applications** that work together seamlessly:
 
-- Asset & Instrument management
-- Rule engine with event sourcing
-- CSV/Excel import/export
-- Graph-based metamodel visualization
-- Package generation for deliverables
+<div align="center">
 
-**Tech:** FastAPI • React 19 • PostgreSQL • SQLAlchemy • Zustand
+| | Application | What it does | Who it's for |
+|:---:|:---|:---|:---|
+| ⚡ | [**SYNAPSE**](#-synapse---engineering-automation) | Automates engineering workflows & generates deliverables | Engineers, Project Managers |
+| 🔮 | [**NEXUS**](#-nexus---knowledge-hub) | Centralizes notes, wiki, tasks with visual knowledge graphs | Everyone |
+| 💎 | [**PRISM**](#-prism---enterprise-dashboard) | Project dashboards, metrics, and team oversight | Managers, Stakeholders |
+| 🤖 | [**ATLAS**](#-atlas---ai-collaboration) | AI-assisted development and decision support | Developers, Engineers |
 
-### NEXUS - Knowledge Graph
-> Personal & team knowledge management
-
-- Notes with Markdown support
-- Wiki-style documentation
-- Task management
-- 3D Graph visualization
-- 13 pre-built themes
-
-**Tech:** React 19 • FastAPI • Zustand • Tailwind CSS
-
-### PRISM - Enterprise Portal
-> Project dashboard and team collaboration
-
-- Project overview & metrics
-- Team management
-- Infrastructure monitoring
-- Technical debt tracking
-
-**Tech:** React 19 • TypeScript • Tailwind CSS
-
-### ATLAS - AI Collaboration
-> AI-assisted development environment
-
-- Multi-agent workflows
-- Context-aware assistance
-- Knowledge graph integration
-- Real-time collaboration
-
-**Status:** Planning phase
+</div>
 
 ---
 
-## Quick Start
+## 🚀 Applications
 
-### Prerequisites
+### ⚡ SYNAPSE - Engineering Automation
 
-- Docker & Docker Compose
-- Node.js 20+
-- Python 3.11+
-- PowerShell (Windows)
+> **Model-Based Systems Engineering (MBSE) for EPCM Projects**
 
-### 1. Clone the repository
+Transform your engineering data into actionable deliverables automatically.
 
-```bash
-git clone https://github.com/seb155/AXIOM.git
-cd AXIOM
+**Key Features:**
+- 📥 **Smart Import** - CSV/Excel data ingestion with validation
+- 🔧 **Rule Engine** - Automated cable sizing, equipment creation, package generation
+- 📊 **Visual Metamodel** - Graph-based asset relationships
+- 📦 **Package Export** - Generate Excel/PDF deliverables from templates
+- 📜 **Full Traceability** - Complete audit trail of every action
+
+**Use Case:** Import a BBA list → Rules auto-create cables, instruments, packages → Export ready-to-use deliverables
+
+```
+Status: MVP Development (Target: December 2025)
 ```
 
-### 2. Start the platform
+<details>
+<summary>📸 Screenshots (coming soon)</summary>
 
-```powershell
-# Start FORGE infrastructure + SYNAPSE
-.\dev.ps1
-```
+*Interface screenshots will be added here*
 
-### 3. Access applications
-
-| Application | URL |
-|-------------|-----|
-| SYNAPSE | http://localhost:4000 |
-| NEXUS | http://localhost:5173 |
-| pgAdmin | http://localhost:5050 |
-| Grafana | http://localhost:3000 |
-| Prisma Studio | http://localhost:5555 |
-
-**Default credentials:** `admin@axoiq.com` / `admin123!`
+</details>
 
 ---
 
-## Architecture
+### 🔮 NEXUS - Knowledge Hub
+
+> **Your Second Brain - Notes, Wiki, Tasks, and Knowledge Graphs**
+
+Stop losing information. Connect your thoughts visually.
+
+**Key Features:**
+- 📝 **Rich Notes** - Markdown with live preview
+- 📚 **Team Wiki** - Collaborative documentation
+- ✅ **Task Management** - Kanban boards and lists
+- 🌐 **3D Knowledge Graph** - Visualize connections between ideas
+- 🎨 **13 Themes** - From Tokyo Night to Catppuccin
+
+**Use Case:** Take meeting notes → Link to project wiki → See connections in graph → Never lose context
+
+```
+Status: Phase 1.5 (Visual Polish Complete)
+```
+
+---
+
+### 💎 PRISM - Enterprise Dashboard
+
+> **See Everything. Decide Faster.**
+
+One dashboard for all your projects and teams.
+
+**Key Features:**
+- 📈 **Project Metrics** - Real-time health indicators
+- 👥 **Team Overview** - Workload and capacity
+- 🏗️ **Infrastructure Status** - Service health monitoring
+- 📋 **Technical Debt** - Track and prioritize improvements
+
+```
+Status: In Development
+```
+
+---
+
+### 🤖 ATLAS - AI Collaboration
+
+> **Your AI Engineering Partner**
+
+Leverage AI to accelerate development and decision-making.
+
+**Planned Features:**
+- 🧠 **Context-Aware AI** - Understands your codebase and domain
+- 🔄 **Multi-Agent Workflows** - Specialized agents for different tasks
+- 🔗 **Knowledge Integration** - Connected to NEXUS for full context
+- 💬 **Natural Interaction** - Chat interface for complex queries
+
+```
+Status: Planning Phase
+```
+
+---
+
+## 🏗️ Architecture
+
+<div align="center">
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        AXIOM PLATFORM                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│   │ SYNAPSE  │  │  NEXUS   │  │  PRISM   │  │  ATLAS   │       │
+│   │   ⚡     │  │    🔮    │  │    💎    │  │    🤖    │       │
+│   │ :4000    │  │  :5173   │  │  :5174   │  │  :5175   │       │
+│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘       │
+│        │             │             │             │              │
+│        └─────────────┴─────────────┴─────────────┘              │
+│                            │                                     │
+│   ┌────────────────────────┴────────────────────────┐           │
+│   │                  FORGE Infrastructure           │           │
+│   │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐ │           │
+│   │  │PostgreSQL│ │  Redis  │ │ Grafana │ │ Loki  │ │           │
+│   │  │  :5433  │ │  :6379  │ │  :3000  │ │ :3100 │ │           │
+│   │  └─────────┘ └─────────┘ └─────────┘ └───────┘ │           │
+│   └─────────────────────────────────────────────────┘           │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+### Project Structure
 
 ```
 AXIOM/
-├── apps/
-│   ├── synapse/          # MBSE Platform
-│   │   ├── backend/      # FastAPI + SQLAlchemy
-│   │   └── frontend/     # React 19 + Vite
-│   ├── nexus/            # Knowledge Graph
-│   ├── prism/            # Enterprise Portal
-│   └── atlas/            # AI Collaboration
+├── 📁 apps/
+│   ├── 📁 synapse/           # ⚡ MBSE Platform
+│   │   ├── backend/          #    FastAPI + SQLAlchemy
+│   │   └── frontend/         #    React 19 + Vite
+│   ├── 📁 nexus/             # 🔮 Knowledge Graph
+│   ├── 📁 prism/             # 💎 Enterprise Portal
+│   └── 📁 atlas/             # 🤖 AI Collaboration
 │
-├── forge/                # Shared Infrastructure
-│   ├── docker-compose.yml
-│   ├── config/           # Service configs
-│   └── databases/        # Data persistence
+├── 📁 forge/                 # 🔧 Shared Infrastructure
+│   ├── docker-compose.yml    #    All services
+│   ├── config/               #    Service configurations
+│   └── databases/            #    Data persistence
 │
-├── docs/                 # Documentation
-├── .agent/               # AI Workflows
-└── .dev/                 # Development Context
+├── 📁 docs/                  # 📚 Documentation
+├── 📁 .agent/                # 🤖 AI Development Workflows
+└── 📁 .dev/                  # 📋 Development Context
 ```
-
-### Technology Stack
-
-**Backend**
-- FastAPI 0.121+
-- Python 3.11+
-- SQLAlchemy 2.0+
-- PostgreSQL 15
-- Redis 7
-- Alembic (migrations)
-
-**Frontend**
-- React 19
-- TypeScript (strict)
-- Vite 7.2+
-- Zustand (state)
-- Shadcn/ui + Radix UI
-- Tailwind CSS 4+
-
-**Infrastructure**
-- Docker Compose
-- Traefik (reverse proxy)
-- Loki + Grafana (logging)
-- Prisma Studio
 
 ---
 
-## FORGE Infrastructure
+## 💻 Technology Stack
 
-Shared services available to all applications:
+<div align="center">
 
-| Service | Container | Port | Description |
-|---------|-----------|------|-------------|
-| PostgreSQL | `forge-postgres` | 5433 | Main database |
-| Redis | `forge-redis` | 6379 | Cache & sessions |
-| pgAdmin | `forge-pgadmin` | 5050 | Database admin UI |
-| Prisma Studio | `forge-prisma` | 5555 | Schema viewer |
-| Grafana | `forge-grafana` | 3000 | Log visualization |
-| Loki | `forge-loki` | 3100 | Log aggregation |
-| MeiliSearch | `forge-meilisearch` | 7700 | Full-text search |
+### Backend
+
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.121+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-D71F00?style=flat-square)](https://sqlalchemy.org)
+
+### Frontend
+
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-7.2+-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-4+-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Zustand](https://img.shields.io/badge/Zustand-5+-000000?style=flat-square)](https://zustand-demo.pmnd.rs)
+
+### Infrastructure
+
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
+[![Traefik](https://img.shields.io/badge/Traefik-3.x-24A1C1?style=flat-square&logo=traefik&logoColor=white)](https://traefik.io)
+[![Grafana](https://img.shields.io/badge/Grafana-11-F46800?style=flat-square&logo=grafana&logoColor=white)](https://grafana.com)
+
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- [Docker Desktop](https://docker.com/products/docker-desktop) (required)
+- [Node.js 20+](https://nodejs.org) (for frontend development)
+- [Python 3.11+](https://python.org) (for backend development)
+- PowerShell (Windows) or Bash (Linux/Mac)
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/seb155/AXIOM.git
+cd AXIOM
+
+# 2. Start the platform
+.\dev.ps1          # Windows
+# ./dev.sh         # Linux/Mac (coming soon)
+```
+
+### Access Your Applications
+
+| Application | URL | Description |
+|:---:|:---|:---|
+| ⚡ SYNAPSE | [localhost:4000](http://localhost:4000) | Engineering Platform |
+| 🔮 NEXUS | [localhost:5173](http://localhost:5173) | Knowledge Hub |
+| 📊 Grafana | [localhost:3000](http://localhost:3000) | Monitoring Dashboard |
+| 🗄️ pgAdmin | [localhost:5050](http://localhost:5050) | Database Admin |
+| 🔍 Prisma | [localhost:5555](http://localhost:5555) | Schema Browser |
+
+**Default Login:** `admin@axoiq.com` / `admin123!`
+
+---
+
+## 🔧 FORGE Infrastructure
+
+All applications share a common infrastructure layer called **FORGE**:
+
+| Service | Purpose | Port |
+|:---|:---|:---:|
+| **PostgreSQL** | Primary database for all apps | 5433 |
+| **Redis** | Caching, sessions, queues | 6379 |
+| **Grafana** | Metrics & log visualization | 3000 |
+| **Loki** | Log aggregation | 3100 |
+| **MeiliSearch** | Full-text search engine | 7700 |
+| **Prisma Studio** | Database schema browser | 5555 |
+| **pgAdmin** | PostgreSQL admin interface | 5050 |
 
 ```powershell
-# Start FORGE only
+# Start only infrastructure
 cd forge
-docker-compose up -d
-
-# Start specific services
 docker-compose up -d forge-postgres forge-redis
+
+# Start all FORGE services
+docker-compose up -d
 ```
 
 ---
 
-## Documentation
+## 📚 Documentation
 
 | Document | Description |
-|----------|-------------|
-| [CLAUDE.md](./CLAUDE.md) | AI assistant guide |
-| [CHANGELOG.md](./CHANGELOG.md) | Version history |
-| [docs/](./docs/) | Full documentation |
-| [.agent/workflows/](./.agent/workflows/) | Development workflows |
-| [.dev/](./.dev/) | Development context & journals |
+|:---|:---|
+| 📖 [**CLAUDE.md**](./CLAUDE.md) | AI assistant development guide |
+| 📋 [**CHANGELOG.md**](./CHANGELOG.md) | Version history and releases |
+| 🔄 [**Migration Guide**](./docs/MIGRATION-AXIOM.md) | Platform migration documentation |
+| 🛠️ [**AI Workflows**](./.agent/workflows/) | Development workflow templates |
+| 📊 [**Project State**](./.dev/context/project-state.md) | Current development status |
+
+### Application Documentation
+
+| App | Docs |
+|:---|:---|
+| ⚡ SYNAPSE | [README](./apps/synapse/README.md) · [CHANGELOG](./apps/synapse/CHANGELOG.md) · [Deployment](./apps/synapse/DEPLOYMENT.md) |
+| 🔮 NEXUS | [README](./apps/nexus/README.md) · [CLAUDE](./apps/nexus/CLAUDE.md) · [Architecture](./apps/nexus/docs/ARCHITECTURE.md) |
+| 💎 PRISM | [README](./apps/prism/README.md) |
+| 🤖 ATLAS | [README](./apps/atlas/README.md) |
 
 ---
 
-## Development
+## 🧪 Development
 
 ### Running Tests
 
 ```bash
-# Backend tests
+# Backend (SYNAPSE)
 cd apps/synapse/backend
-pytest --cov=app
+pytest --cov=app --cov-report=html
 
-# Frontend tests
+# Frontend (SYNAPSE)
 cd apps/synapse/frontend
 npm run test
+npm run test:coverage
 ```
 
 ### Code Quality
 
 ```bash
-# Backend
-ruff check .
+# Backend linting
+ruff check . --fix
 black .
 
-# Frontend
-npm run lint
+# Frontend linting
+npm run lint:fix
 npm run type-check
+```
+
+### Docker Commands
+
+```bash
+# View logs
+docker logs synapse-backend -f --tail 100
+
+# Restart a service
+docker restart synapse-backend
+
+# Access database
+docker exec -it forge-postgres psql -U postgres -d synapse
 ```
 
 ---
 
-## License
+## 🗺️ Roadmap
 
-Proprietary - All rights reserved
+### Current Focus (Q4 2025)
+- [ ] SYNAPSE MVP - Demo-ready by December 20, 2025
+- [ ] CSV Import → Rule Engine → Package Export pipeline
+- [ ] Full traceability and audit logging
+
+### Next Up (Q1 2026)
+- [ ] NEXUS Phase 2 - Backend integration
+- [ ] PRISM initial release
+- [ ] ATLAS planning and prototyping
+
+### Future
+- [ ] Multi-tenant support
+- [ ] Advanced AI integrations
+- [ ] Mobile companion app
 
 ---
 
-<p align="center">
-  <sub>Built with precision by <strong>AXoiq</strong></sub>
-</p>
+## 🤝 Contributing
+
+This is currently a private project. For access or collaboration inquiries, please contact the repository owner.
+
+---
+
+## 📄 License
+
+**Proprietary** - All rights reserved.
+
+This software and its documentation are proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+
+---
+
+<div align="center">
+
+### Built with ❤️ by **AXoiq**
+
+*Engineering the future, one platform at a time*
+
+[![GitHub](https://img.shields.io/badge/GitHub-seb155-181717?style=flat-square&logo=github)](https://github.com/seb155)
+
+</div>
