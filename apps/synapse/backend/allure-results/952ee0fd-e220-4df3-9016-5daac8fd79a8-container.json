@@ -1,0 +1,1 @@
+{"uuid": "28904fa0-60e4-4951-9638-dd02e358d699", "children": ["c16df57a-86f7-4eaa-9884-823a5d6956c6"], "befores": [{"name": "relationship_rule", "status": "passed", "start": 1764121105652, "stop": 1764121105663}], "afters": [{"name": "relationship_rule::0", "status": "passed", "start": 1764121105701, "stop": 1764121105811}], "start": 1764121105652, "stop": 1764121105811}

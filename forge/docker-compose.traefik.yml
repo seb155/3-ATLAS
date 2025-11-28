@@ -1,0 +1,82 @@
+# TRAEFIK - Reverse Proxy & SSL Manager
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+# Dashboard: http://localhost:8888
+
+services:
+  traefik:
+    image: traefik:v3.6.2  # Latest stable - Docker 29 compatible
+    container_name: workspace-traefik
+    command:
+      # API & Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=true"  # Dashboard without auth (dev only)
+
+      # Providers
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=workspace-network"
+      # File provider for Windows/Docker 29 compatibility
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+      # HTTP -> HTTPS redirect (disabled for dev *.localhost)
+      # - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      # - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+
+      # SSL/TLS
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@localhost}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      # Dev: Use staging server (comment out for prod)
+      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+
+      # Logs
+      - "--log.level=INFO"
+      - "--accesslog=true"
+
+      # Metrics (optional)
+      - "--metrics.prometheus=true"
+
+    ports:
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+      - "8888:8080"   # Dashboard
+
+    volumes:
+      # Docker socket - works on Linux, WSL2, and Docker Desktop for Windows
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+      - traefik-logs:/var/log/traefik
+      # Dynamic configuration for file provider
+      - ./config/traefik:/etc/traefik/dynamic:ro
+
+    networks:
+      - workspace-network
+
+    labels:
+      # Traefik dashboard routing
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  traefik-certs:
+  traefik-logs:
+
+networks:
+  workspace-network:
+    external: true

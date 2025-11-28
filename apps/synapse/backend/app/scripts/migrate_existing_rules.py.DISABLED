@@ -1,0 +1,215 @@
+"""
+Migrate Existing Hardcoded Rules to Database
+
+Migrates the 3 existing hardcoded rules from rule_engine.py to the database:
+1. PUMP → MOTOR
+2. TANK → LEVEL_TRANSMITTER
+3. AGITATOR → MOTOR
+
+This script ensures backward compatibility while transitioning to database-driven rules.
+"""
+
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from app.core.database import SessionLocal
+from app.models.rules import RuleDefinition, RuleSource, RuleActionType
+
+
+def migrate_rules(db):
+    """Migrate hardcoded rules to database"""
+    print("Migrating existing hardcoded rules...")
+    print()
+
+    # These 3 rules match the original hardcoded logic in rule_engine.py
+    legacy_rules = [
+        # Rule 1: PUMP → MOTOR (original hardcoded rule)
+        {
+            "name": "Legacy: Pump requires Motor",
+            "description": "Migrated from hardcoded rule_engine.py - All pumps require a motor driver",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "PUMP",
+            },
+            "action": {
+                "create_child": {
+                    "type": "MOTOR",
+                    "naming": "{parent_tag}-MO",  # Original used {parent_tag}-{child_type[:2]}
+                    "relation": "powers",
+                    "discipline": "ELECTRICAL",
+                    "semantic_type": "ASSET",
+                    "properties": {
+                        "lod": 2,
+                        "isa95_level": 1,
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 2: TANK → LEVEL_TRANSMITTER (original hardcoded rule)
+        {
+            "name": "Legacy: Tank requires Level Transmitter",
+            "description": "Migrated from hardcoded rule_engine.py - All tanks need level measurement",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "TANK",
+            },
+            "action": {
+                "create_child": {
+                    "type": "LEVEL_TRANSMITTER",
+                    "naming": "{parent_tag}-LE",  # Original used {parent_tag}-{child_type[:2]}
+                    "relation": "measured_by",
+                    "discipline": "AUTOMATION",
+                    "semantic_type": "ASSET",
+                    "properties": {
+                        "lod": 2,
+                        "isa95_level": 1,
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 3: AGITATOR → MOTOR (original hardcoded rule)
+        {
+            "name": "Legacy: Agitator requires Motor",
+            "description": "Migrated from hardcoded rule_engine.py - All agitators require a motor driver",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "AGITATOR",
+            },
+            "action": {
+                "create_child": {
+                    "type": "MOTOR",
+                    "naming": "{parent_tag}-MO",  # Original used {parent_tag}-{child_type[:2]}
+                    "relation": "powers",
+                    "discipline": "ELECTRICAL",
+                    "semantic_type": "ASSET",
+                    "properties": {
+                        "lod": 2,
+                        "isa95_level": 1,
+                    }
+                }
+            },
+            "is_active": True,
+        },
+    ]
+
+    created_count = 0
+    skipped_count = 0
+
+    for rule_data in legacy_rules:
+        # Check if rule already exists
+        existing = db.query(RuleDefinition).filter(
+            RuleDefinition.name == rule_data["name"]
+        ).first()
+
+        if existing:
+            print(f"  ⏭  SKIP: {rule_data['name']}")
+            print(f"       Already exists with ID: {existing.id}")
+            skipped_count += 1
+            continue
+
+        rule = RuleDefinition(**rule_data)
+        db.add(rule)
+        created_count += 1
+        print(f"  ✓ Migrated: {rule_data['name']}")
+        print(f"       Condition: {rule_data['condition']}")
+        print(f"       Action: {rule_data['action_type']}")
+
+    db.commit()
+
+    print()
+    print(f"✓ Migration complete: {created_count} rules migrated, {skipped_count} skipped")
+    print()
+
+
+def verify_migration(db):
+    """Verify all rules are in database"""
+    print("Verifying migration...")
+    print()
+
+    total_rules = db.query(RuleDefinition).count()
+    firm_rules = db.query(RuleDefinition).filter(
+        RuleDefinition.source == RuleSource.FIRM
+    ).count()
+    active_rules = db.query(RuleDefinition).filter(
+        RuleDefinition.is_active == True
+    ).count()
+
+    print(f"  Total rules in database: {total_rules}")
+    print(f"  FIRM-level rules: {firm_rules}")
+    print(f"  Active rules: {active_rules}")
+    print()
+
+    # List all rules
+    all_rules = db.query(RuleDefinition).order_by(
+        RuleDefinition.priority.desc()
+    ).all()
+
+    print("All rules (by priority):")
+    for rule in all_rules:
+        status = "✓ ACTIVE" if rule.is_active else "✗ INACTIVE"
+        print(f"  [{status}] {rule.name}")
+        print(f"           Source: {rule.source.value}, Priority: {rule.priority}")
+
+    print()
+
+
+def main():
+    """Main migration function"""
+    print("=" * 80)
+    print("LEGACY RULE MIGRATION")
+    print("=" * 80)
+    print()
+    print("Migrating 3 hardcoded rules from rule_engine.py to database:")
+    print("  1. PUMP → MOTOR")
+    print("  2. TANK → LEVEL_TRANSMITTER")
+    print("  3. AGITATOR → MOTOR")
+    print()
+
+    db = SessionLocal()
+
+    try:
+        # Migrate rules
+        migrate_rules(db)
+
+        # Verify migration
+        verify_migration(db)
+
+        print("=" * 80)
+        print("✓ MIGRATION COMPLETE")
+        print("=" * 80)
+        print()
+        print("Next steps:")
+        print("  1. The legacy hardcoded rules have been migrated to the database")
+        print("  2. You can now manage these rules via the UI at /rules-management")
+        print("  3. The new RuleEngine.apply_rules() will use database rules")
+        print("  4. Consider deactivating legacy rules if baseline rules are sufficient")
+        print()
+
+    except Exception as e:
+        print(f"\n❌ ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        db.rollback()
+
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()

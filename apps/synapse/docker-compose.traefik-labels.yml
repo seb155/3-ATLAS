@@ -1,0 +1,38 @@
+# Traefik Labels for Synapse Application
+# Usage: docker-compose -f docker-compose.dev.yml -f docker-compose.traefik-labels.yml up -d
+
+services:
+  # Synapse Backend API
+  backend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.synapse-api.rule=Host(`api.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.synapse-api.entrypoints=websecure"
+      - "traefik.http.routers.synapse-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synapse-api.loadbalancer.server.port=8000"
+
+      # CORS middleware
+      - "traefik.http.middlewares.synapse-api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.synapse-api-cors.headers.accesscontrolalloworiginlist=https://synapse.${DOMAIN:-localhost}"
+      - "traefik.http.middlewares.synapse-api-cors.headers.accesscontrolallowcredentials=true"
+      - "traefik.http.middlewares.synapse-api-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.routers.synapse-api.middlewares=synapse-api-cors"
+
+  # Synapse Frontend
+  frontend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.synapse.rule=Host(`synapse.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.synapse.entrypoints=websecure"
+      - "traefik.http.routers.synapse.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synapse.loadbalancer.server.port=4000"
+
+      # Security headers
+      - "traefik.http.middlewares.synapse-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.synapse-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.synapse-headers.headers.stsPreload=true"
+      - "traefik.http.routers.synapse.middlewares=synapse-headers"
+
+networks:
+  workspace-network:
+    external: true

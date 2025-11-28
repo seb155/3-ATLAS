@@ -1,0 +1,27 @@
+{
+  "name": "axiom-platform",
+  "version": "1.0.0",
+  "description": "AXIOM Platform - AXoiq Enterprise Suite",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File ./dev.ps1",
+    "stop": "powershell -ExecutionPolicy Bypass -File ./stop.ps1",
+    "deps:check": "npx npm-check-updates",
+    "deps:update": "npx npm-check-updates -u"
+  },
+  "dependencies": {
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "cmdk": "^1.1.1",
+    "prisma": "^7.0.0",
+    "react-hot-toast": "^2.6.0"
+  },
+  "devDependencies": {
+    "npm-check-updates": "^19.1.2"
+  },
+  "keywords": ["axiom", "axoiq", "synapse", "nexus", "prism", "atlas"],
+  "author": "AXoiq",
+  "license": "UNLICENSED"
+}

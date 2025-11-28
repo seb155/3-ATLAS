@@ -1,0 +1,190 @@
+# WORKSPACE - Development Infrastructure
+# Tools partagés pour tous les projets
+# Réseau: workspace-network (services accessibles par nom: workspace-postgres, workspace-redis)
+
+services:
+  # PostgreSQL - Shared Database Server
+  workspace-postgres:
+    image: postgres:15-alpine
+    container_name: workspace-postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./databases/postgres/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - workspace-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Prisma Studio - Database Viewer (Prisma v7)
+  prisma-studio:
+    image: node:20-alpine
+    container_name: workspace-prisma
+    working_dir: /workspace/prisma
+    volumes:
+      - ./prisma:/workspace/prisma
+      - prisma-cache:/workspace/prisma/node_modules
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse
+    command: sh -c "npm install && npx prisma db pull && npx prisma generate && npx prisma studio --port 5555 --browser none"
+    ports:
+      - "5555:5555"
+    networks:
+      - workspace-network
+    depends_on:
+      workspace-postgres:
+        condition: service_healthy
+
+  # pgAdmin - PostgreSQL Admin Tool
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: workspace-pgadmin
+    user: root
+    entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    configs:
+      - source: servers_config
+        target: /pgadmin4/servers.json
+      - source: pgpass_config
+        target: /pgpass
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - workspace-network
+    depends_on:
+      workspace-postgres:
+        condition: service_healthy
+
+  # Redis - Cache & Sessions
+  workspace-redis:
+    image: redis:7-alpine
+    container_name: workspace-redis
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - workspace-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: workspace-loki
+    volumes:
+      - ./config/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - workspace-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Promtail - Log Collector
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: workspace-promtail
+    volumes:
+      - ./config/promtail/promtail-config.yaml:/etc/promtail/config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-positions:/tmp
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - workspace-network
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Grafana - Log Visualization
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: workspace-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - workspace-network
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # MeiliSearch - Full-Text Search Engine (MIT License - 100% Free)
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    container_name: workspace-meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch-data:/meili_data
+    ports:
+      - "7700:7700"
+    networks:
+      - workspace-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+  redis-data:
+  prisma-cache:
+  loki-data:
+  grafana-data:
+  promtail-positions:
+  meilisearch-data:
+
+
+networks:
+  workspace-network:
+    name: workspace-network
+    driver: bridge
+
+configs:
+  servers_config:
+    content: |
+      {"Servers": {"1": {"Group": "Servers", "Name": "Workspace PostgreSQL", "Host": "workspace-postgres", "Port": 5432, "MaintenanceDB": "postgres", "Username": "postgres", "PassFile": "/pgpass", "SSLMode": "prefer"}}}
+  pgpass_config:
+    content: workspace-postgres:5432:*:postgres:postgres

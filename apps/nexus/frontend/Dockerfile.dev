@@ -1,0 +1,81 @@
+# ==============================================================================
+# NEXUS FRONTEND - Development Dockerfile
+# ==============================================================================
+# React 19 + Vite 7 + TypeScript development environment
+#
+# Features:
+#   - Hot module replacement (HMR)
+#   - TypeScript type checking
+#   - Fast refresh for React components
+#   - Volume mounts for live code updates
+#
+# Build:
+#   docker build -f Dockerfile.dev -t nexus-frontend:dev .
+#
+# Run (via docker-compose.dev.yml):
+#   docker-compose -f docker-compose.dev.yml up frontend
+# ==============================================================================
+
+FROM node:20-alpine
+
+LABEL maintainer="Nexus Team"
+LABEL version="0.2.0"
+LABEL description="Nexus Frontend Development Environment"
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+# - dumb-init: Proper signal handling for Node.js in containers
+RUN apk add --no-cache dumb-init
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+# Note: node_modules will be in a Docker volume to persist across rebuilds
+RUN npm install && \
+    npm cache clean --force
+
+# Copy application files
+# Note: src/ will be bind-mounted in docker-compose for live updates
+COPY . .
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:5173 || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start Vite dev server
+# --host 0.0.0.0: Bind to all interfaces (required for Docker)
+# --port 5173: Default Vite port
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+# 1. This Dockerfile is for DEVELOPMENT only
+#    - For production, use a multi-stage build with nginx
+#
+# 2. Volume Mounts (configured in docker-compose.dev.yml):
+#    - ./frontend/src:/app/src (live code updates)
+#    - /app/node_modules (persist dependencies)
+#
+# 3. Hot Module Replacement (HMR):
+#    - Vite automatically detects file changes
+#    - Use polling mode if running on Windows/WSL (configured in vite.config.ts)
+#
+# 4. Port Mapping:
+#    - Container: 5173
+#    - Host: 5173 (configurable in docker-compose.dev.yml)
+#
+# 5. Environment Variables:
+#    - Set in docker-compose.dev.yml
+#    - VITE_API_URL: Backend API endpoint
+#    - NODE_ENV: development
+# ==============================================================================

@@ -1,0 +1,6 @@
+tag,description,type,area,system,electrical.voltage,electrical.powerKW,process.fluid,process.minRange,process.maxRange
+P-101,Main Feed Pump,PUMP,Area 100,Pumping System,480V,75.0,Water,0,100
+M-101,Pump Motor,MOTOR,Area 100,Pumping System,480V,100.0,,,
+V-101,Control Valve,VALVE,Area 100,Control System,24VDC,,Air,0,10
+T-101,Storage Tank,TANK,Area 100,Storage,,,Water,0,1000
+LT-101,Level Transmitter,LEVEL_TRANSMITTER,Area 100,Instrumentation,24VDC,,Water,0,100

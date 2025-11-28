@@ -1,0 +1,178 @@
+/* AG Grid Dark Theme Override - SYNAPSE Style */
+/* Apply to all AG Grids globally */
+
+/* Global Dark Theme Overrides for AG Grid (Quartz) - Supabase Style */
+.ag-theme-quartz-dark {
+  /* --- Core Colors (Supabase Slate Palette) --- */
+  --ag-background-color: #1e293b !important;
+  /* slate-800 - Lighter than pure black */
+  --ag-foreground-color: #f8fafc !important;
+  /* slate-50 */
+  --ag-border-color: #334155 !important;
+  /* slate-700 */
+
+  /* --- Headers --- */
+  --ag-header-background-color: #0f172a !important;
+  /* slate-950 - Darker header for contrast */
+  --ag-header-foreground-color: #e2e8f0 !important;
+  /* slate-200 */
+  --ag-header-column-separator-color: #334155 !important;
+
+  /* --- Rows --- */
+  --ag-row-hover-color: #334155 !important;
+  /* slate-700 */
+  --ag-odd-row-background-color: #1e293b !important;
+  /* slate-800 */
+  --ag-row-border-color: #334155 !important;
+  /* slate-700 */
+
+  /* --- Selection & Accents (Teal - SYNAPSE Brand) --- */
+  --ag-selected-row-background-color: rgba(20, 184, 166, 0.2) !important;
+  /* teal-500 20% */
+  --ag-checkbox-checked-color: #14b8a6 !important;
+  /* teal-500 */
+  --ag-range-selection-border-color: #14b8a6 !important;
+  --ag-input-focus-border-color: #14b8a6 !important;
+
+  /* --- Typography --- */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 13px !important;
+  letter-spacing: 0.01em;
+}
+
+/* --- Viewport & Wrapper Fixes --- */
+.ag-theme-quartz-dark .ag-root-wrapper,
+.ag-theme-quartz-dark .ag-body-viewport,
+.ag-theme-quartz-dark .ag-center-cols-viewport {
+  background-color: #1e293b !important;
+  /* Match core background */
+}
+
+/* --- Header Styling (Card-like) --- */
+.ag-theme-quartz-dark .ag-header {
+  border-bottom: 1px solid #334155 !important;
+  background-color: #0f172a !important;
+}
+
+.ag-theme-quartz-dark .ag-header-cell-text {
+  color: #e2e8f0 !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Row Styling --- */
+.ag-theme-quartz-dark .ag-row {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.ag-theme-quartz-dark .ag-cell {
+  display: flex;
+  align-items: center;
+  line-height: normal !important;
+  color: #f8fafc !important;
+}
+
+/* --- Pagination Styling --- */
+.ag-theme-quartz-dark .ag-paging-panel {
+  background-color: #0f172a !important;
+  /* Dark footer like header */
+  border-top: 1px solid #334155 !important;
+  color: #94a3b8 !important;
+}
+
+/* --- Pagination Dropdown (Supabase Style) --- */
+.ag-theme-quartz-dark .ag-paging-panel select {
+  background-color: #1e293b !important;
+  /* slate-800 */
+  color: #f8fafc !important;
+  border: 1px solid #475569 !important;
+  /* slate-600 */
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  outline: none;
+  font-size: 12px;
+}
+
+/* Custom Arrow */
+.ag-theme-quartz-dark .ag-paging-panel select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+.ag-theme-quartz-dark .ag-paging-panel select:hover {
+  border-color: #14b8a6 !important;
+  /* Teal hover */
+}
+
+/* --- Scrollbars --- */
+.ag-theme-quartz-dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: #0f172a;
+}
+
+.ag-theme-quartz-dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 5px;
+}
+
+.ag-theme-quartz-dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Pagination */
+.ag-theme-quartz .ag-paging-panel,
+.ag-theme-alpine-dark .ag-paging-panel,
+.ag-theme-alpine .ag-paging-panel {
+  background-color: #0f172a !important;
+  border-top: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Status bar */
+.ag-theme-quartz .ag-status-bar,
+.ag-theme-alpine-dark .ag-status-bar,
+.ag-theme-alpine .ag-status-bar {
+  background-color: #0f172a !important;
+  border-top: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Filter panel */
+.ag-theme-quartz .ag-filter,
+.ag-theme-alpine-dark .ag-filter,
+.ag-theme-alpine .ag-filter {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+/* Context menu */
+.ag-theme-quartz .ag-menu,
+.ag-theme-alpine-dark .ag-menu,
+.ag-theme-alpine .ag-menu {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+.ag-theme-quartz .ag-menu-option-active,
+.ag-theme-alpine-dark .ag-menu-option-active,
+.ag-theme-alpine .ag-menu-option-active {
+  background-color: #334155 !important;
+}
+
+/* Ensure white text is always readable */
+.ag-theme-quartz,
+.ag-theme-alpine-dark,
+.ag-theme-alpine {
+  color: #f1f5f9 !important;
+}

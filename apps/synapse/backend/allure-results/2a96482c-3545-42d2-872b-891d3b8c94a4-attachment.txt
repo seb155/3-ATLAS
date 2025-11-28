@@ -1,0 +1,4 @@
+{"timestamp": "2025-11-26T01:38:24.964198", "level": "DEBUG", "message": "POST /api/v1/assets/import", "source": "BACKEND", "action_type": "REQUEST", "entity_id": null, "discipline": null}
+{"timestamp": "2025-11-26T01:38:24.964798", "level": "WARN", "message": "POST /api/v1/assets/import \u2192 405 (1ms)", "source": "BACKEND", "action_type": "RESPONSE", "entity_id": null, "discipline": null}
+❌ Request failed: 405
+{"detail":"Method Not Allowed"}

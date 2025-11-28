@@ -1,0 +1,4 @@
+TAG,DESCRIPTION,SERVICE,TYPE
+101-P-001,Primary Feed Pump,Slurry Feed,PUMP
+101-M-001,Pump Motor,Drive,MOTOR
+102-TK-001,Storage Tank,Storage,TANK

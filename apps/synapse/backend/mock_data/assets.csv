@@ -1,0 +1,4 @@
+tag,description,type,area,system,electrical.voltage,electrical.powerKW,process.fluid
+TEST-PUMP-001,Test Centrifugal Pump,PUMP,310,GRINDING,600V,10,Slurry
+TEST-MOTOR-001,Test Electric Motor,MOTOR,310,GRINDING,600V,15,
+TEST-TANK-001,Test Storage Tank,TANK,310,GRINDING,,,Water

@@ -1,0 +1,62 @@
+{
+    "project_name": "Gold Mine Pilot",
+    "areas": [
+        {
+            "name": "300-GRINDING",
+            "description": "Ball Mill and Cyclone Circuit",
+            "assets": [
+                {
+                    "tag": "310-BM-001",
+                    "type": "BALL_MILL",
+                    "description": "Primary Ball Mill"
+                },
+                {
+                    "tag": "310-PP-001",
+                    "type": "PUMP",
+                    "description": "Cyclone Feed Pump 1"
+                },
+                {
+                    "tag": "310-PP-002",
+                    "type": "PUMP",
+                    "description": "Cyclone Feed Pump 2"
+                },
+                {
+                    "tag": "310-TK-001",
+                    "type": "TANK",
+                    "description": "Discharge Sump"
+                }
+            ]
+        },
+        {
+            "name": "400-LEACHING",
+            "description": "CIL and Elution Circuit",
+            "assets": [
+                {
+                    "tag": "410-TK-001",
+                    "type": "TANK",
+                    "description": "CIL Tank 1"
+                },
+                {
+                    "tag": "410-AG-001",
+                    "type": "AGITATOR",
+                    "description": "CIL Agitator 1"
+                },
+                {
+                    "tag": "410-TK-002",
+                    "type": "TANK",
+                    "description": "CIL Tank 2"
+                },
+                {
+                    "tag": "410-AG-002",
+                    "type": "AGITATOR",
+                    "description": "CIL Agitator 2"
+                },
+                {
+                    "tag": "420-PP-001",
+                    "type": "PUMP",
+                    "description": "Carbon Transfer Pump"
+                }
+            ]
+        }
+    ]
+}

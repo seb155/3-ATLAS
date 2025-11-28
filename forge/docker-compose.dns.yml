@@ -1,0 +1,41 @@
+# ==============================================================================
+# DNSMASQ - Local DNS Server for Workspace
+# ==============================================================================
+# Provides wildcard DNS resolution for *.axoiq.com → 127.0.0.1
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.dns.yml up -d
+#
+# Configuration:
+#   - All *.axoiq.com domains resolve to 127.0.0.1
+#   - Forwards other DNS queries to Google DNS (8.8.8.8)
+#   - Available on host port 53 (standard DNS port)
+# ==============================================================================
+
+services:
+  dnsmasq:
+    image: jpillora/dnsmasq:latest
+    container_name: workspace-dnsmasq
+    ports:
+      - "53:53/udp"  # DNS port
+      - "53:53/tcp"  # DNS over TCP
+      - "5380:8080"  # Web UI (optional)
+    environment:
+      # Wildcard DNS: *.axoiq.com → 127.0.0.1
+      # This makes ALL subdomains resolve locally
+      HTTP_USER: admin
+      HTTP_PASS: admin
+    volumes:
+      - ./config/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
+    networks:
+      - workspace-network
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    labels:
+      - "traefik.enable=false"
+
+networks:
+  workspace-network:
+    external: true
+    name: workspace-network

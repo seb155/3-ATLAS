@@ -1,0 +1,101 @@
+# Homepage Services Configuration - SYNAPSE Platform
+# https://gethomepage.dev/latest/configs/services/
+
+---
+# ============================================================================
+# APPLICATIONS
+# ============================================================================
+- Applications:
+    - Frontend:
+        icon: mdi-react
+        href: http://localhost:4000
+        description: React 19 Application
+        widget:
+          type: docker
+          container: synapse-frontend-1
+          server: docker-socket
+
+    - Backend API:
+        icon: mdi-api
+        href: http://localhost:8001/docs
+        description: FastAPI Documentation
+        widget:
+          type: docker
+          container: synapse-backend
+          server: docker-socket
+
+# ============================================================================
+# TESTING & REPORTING
+# ============================================================================
+- Testing:
+    - Backend HTML Reports:
+        icon: mdi-file-chart
+        href: http://localhost:8001/docs
+        description: pytest HTML reports (generated locally)
+
+    - Playwright HTML Reports:
+        icon: mdi-web
+        href: http://localhost:4000
+        description: E2E HTML report (Playwright)
+
+# ============================================================================
+# DATABASES & TOOLS
+# ============================================================================
+- Databases:
+    - pgAdmin:
+        icon: mdi-database
+        href: http://localhost:5050
+        description: PostgreSQL Admin UI
+        widget:
+          type: docker
+          container: workspace-pgadmin
+          server: docker-socket
+
+    - Prisma Studio:
+        icon: mdi-database-eye
+        href: http://localhost:5555
+        description: Visual Database Viewer
+        widget:
+          type: docker
+          container: workspace-prisma
+          server: docker-socket
+
+# ============================================================================
+# MONITORING & LOGGING
+# ============================================================================
+- Monitoring:
+    - Grafana:
+        icon: mdi-chart-line
+        href: http://localhost:3000
+        description: Metrics & Log Dashboards
+        widget:
+          type: docker
+          container: workspace-grafana
+          server: docker-socket
+
+    - Loki API:
+        icon: mdi-math-log
+        href: http://localhost:3100/ready
+        description: Log Aggregation Service
+        widget:
+          type: docker
+          container: workspace-loki
+          server: docker-socket
+
+# ============================================================================
+# INFRASTRUCTURE
+# ============================================================================
+- Infrastructure:
+    - Traefik Dashboard:
+        icon: mdi-routes
+        href: http://localhost:8888
+        description: Reverse Proxy & SSL Manager
+        widget:
+          type: docker
+          container: workspace-traefik
+          server: docker-socket
+
+    - Portainer:
+        icon: mdi-docker
+        href: http://localhost:9000
+        description: Docker Management UI

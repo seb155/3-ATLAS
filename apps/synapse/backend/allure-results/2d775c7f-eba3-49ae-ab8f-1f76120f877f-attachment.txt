@@ -1,0 +1,2 @@
+{"timestamp": "2025-11-26T01:38:26.830003", "level": "DEBUG", "message": "POST /api/v1/assets/", "source": "BACKEND", "action_type": "REQUEST", "entity_id": null, "discipline": null}
+{"timestamp": "2025-11-26T01:38:26.831999", "level": "WARN", "message": "POST /api/v1/assets/ \u2192 401 (2ms)", "source": "BACKEND", "action_type": "RESPONSE", "entity_id": null, "discipline": null}

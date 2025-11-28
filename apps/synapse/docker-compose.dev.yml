@@ -1,0 +1,62 @@
+version: '3.8'
+
+# SYNAPSE - Development Mode
+# Connects to workspace infrastructure
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: synapse-backend
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+      - backend-cache:/app/__pycache__
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse
+      ANALYTICS_DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse_analytics
+      TEST_DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse_test
+      POSTGRES_SERVER: workspace-postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: synapse
+      ENVIRONMENT: development
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+      LOKI_URL: http://loki:3100
+      MEILISEARCH_URL: http://workspace-meilisearch:7700
+      MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
+    labels:
+      logging: "promtail"
+      logging_jobname: "synapse-backend"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - default
+      - workspace-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.tsx:/app/index.tsx
+      - ./frontend/index.html:/app/index.html
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8001
+      NODE_ENV: development
+    depends_on:
+      - backend
+
+volumes:
+  backend-cache:
+
+
+networks:
+  workspace-network:
+    external: true

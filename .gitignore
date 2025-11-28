@@ -1,0 +1,164 @@
+# =============================================================================
+# AXIOM Platform - Git Ignore
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env.local
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# -----------------------------------------------------------------------------
+# Environment & Secrets
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+!.env.template
+
+# Credentials
+credentials.json
+secrets.json
+*.pem
+*.key
+*.crt
+!forge/config/traefik/certs/.gitkeep
+
+# -----------------------------------------------------------------------------
+# IDE & Editors
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# -----------------------------------------------------------------------------
+# Build & Output
+# -----------------------------------------------------------------------------
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+*.tsbuildinfo
+
+# Coverage & Testing
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.nyc_output/
+junit.xml
+test-results/
+playwright-report/
+test-results/
+
+# -----------------------------------------------------------------------------
+# Docker
+# -----------------------------------------------------------------------------
+# Database volumes (keep structure, ignore data)
+forge/databases/postgres/data/
+forge/databases/pgadmin/data/
+forge/databases/redis/data/
+
+# Logs
+*.log
+logs/
+forge/config/loki/data/
+forge/config/grafana/data/
+
+# -----------------------------------------------------------------------------
+# OS Files
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# -----------------------------------------------------------------------------
+# Temporary Files
+# -----------------------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.backup
+.cache/
+.temp/
+tmp/
+
+# -----------------------------------------------------------------------------
+# Project Specific
+# -----------------------------------------------------------------------------
+# Alembic versions (keep migrations, ignore temp)
+*.pyc
+
+# Frontend builds in dev
+apps/*/frontend/dist/
+apps/*/frontend/.vite/
+
+# Backend temp
+apps/*/backend/*.egg-info/
+
+# SSL Certificates (generated locally)
+forge/config/traefik/certs/*.pem
+forge/config/traefik/certs/*.crt
+forge/config/traefik/certs/*.key
+!forge/config/traefik/certs/.gitkeep
+
+# Prisma
+apps/*/prisma/*.db
+apps/*/prisma/*.db-journal
+
+# -----------------------------------------------------------------------------
+# AI/Development Context (Optional - uncomment if you want to ignore)
+# -----------------------------------------------------------------------------
+# .dev/journal/
+# .dev/context/credentials.md
+
+# -----------------------------------------------------------------------------
+# Large Files
+# -----------------------------------------------------------------------------
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.iso
+*.dmg
+
+# Media (uncomment if needed)
+# *.mp4
+# *.mov
+# *.avi

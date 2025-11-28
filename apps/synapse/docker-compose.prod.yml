@@ -1,0 +1,167 @@
+# SYNAPSE - Production Configuration
+# Self-hosted deployment for 10-100 users
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Scale backend:
+#   docker compose -f docker-compose.prod.yml up -d --scale backend=4
+#
+# Requirements:
+#   - workspace-network must exist (run workspace/docker-compose.yml first)
+#   - SSL certificates in ./nginx/ssl/ (or use Let's Encrypt)
+
+services:
+  # ============================================================================
+  # FRONTEND - Static files served by Nginx
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: synapse-frontend
+    restart: unless-stopped
+    networks:
+      - synapse-internal
+
+  # ============================================================================
+  # BACKEND - FastAPI with Gunicorn (scalable replicas)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    environment:
+      # Database
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@workspace-postgres:5432/synapse
+      ANALYTICS_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@workspace-postgres:5432/synapse_analytics
+
+      # Security (CHANGE IN PRODUCTION!)
+      SECRET_KEY: ${SECRET_KEY:-CHANGE_THIS_IN_PRODUCTION_SECRET_KEY}
+
+      # AI Provider Configuration
+      AI_PROVIDER: ${AI_PROVIDER:-ollama}
+      AI_MODEL: ${AI_MODEL:-llama3.2}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+
+      # Production settings
+      ENVIRONMENT: production
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      WORKERS: ${BACKEND_WORKERS:-4}
+
+      # Connection pooling for 50+ users
+      SQLALCHEMY_POOL_SIZE: ${DB_POOL_SIZE:-20}
+      SQLALCHEMY_MAX_OVERFLOW: ${DB_MAX_OVERFLOW:-30}
+    deploy:
+      mode: replicated
+      replicas: ${BACKEND_REPLICAS:-2}
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - synapse-internal
+      - workspace-network
+    depends_on:
+      - ollama
+
+  # ============================================================================
+  # NGINX - Reverse Proxy & Load Balancer
+  # ============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: synapse-nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - synapse-internal
+      - workspace-network
+    depends_on:
+      - frontend
+      - backend
+
+  # ============================================================================
+  # OLLAMA - Local AI Inference (FREE)
+  # ============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: synapse-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      # GPU support (uncomment for NVIDIA GPU)
+      # NVIDIA_VISIBLE_DEVICES: all
+      OLLAMA_HOST: 0.0.0.0
+    # Uncomment for GPU support:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - synapse-internal
+    # Pull model on startup (run once after container starts)
+    # docker exec synapse-ollama ollama pull llama3.2
+
+  # ============================================================================
+  # REDIS - Session Cache (optional, for scaling)
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: synapse-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - synapse-internal
+
+volumes:
+  ollama-models:
+    name: synapse-ollama-models
+  redis-data:
+    name: synapse-redis-data
+
+networks:
+  synapse-internal:
+    name: synapse-internal
+    driver: bridge
+  workspace-network:
+    external: true

@@ -1,0 +1,30 @@
+# Homepage Bookmarks - SYNAPSE Platform
+# https://gethomepage.dev/latest/configs/bookmarks/
+
+---
+- Development:
+    - SYNAPSE GitHub:
+        - icon: mdi-github
+          href: https://github.com/seb155/EPCB-Tools
+          description: Project Repository
+
+    - Project Documentation:
+        - icon: mdi-file-document-multiple
+          href: https://github.com/seb155/EPCB-Tools/tree/main/docs
+          description: Technical Documentation
+
+- Resources:
+    - FastAPI Documentation:
+        - icon: si-fastapi
+          href: https://fastapi.tiangolo.com
+          description: Backend Framework
+
+    - React 19 Documentation:
+        - icon: si-react
+          href: https://react.dev
+          description: Frontend Framework
+
+    - Homepage Documentation:
+        - icon: mdi-view-dashboard
+          href: https://gethomepage.dev
+          description: Portal Configuration

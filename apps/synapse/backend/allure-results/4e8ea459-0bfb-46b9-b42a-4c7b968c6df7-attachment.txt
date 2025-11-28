@@ -1,0 +1,4 @@
+[WS] Client connected. Total: 1
+[WS] Client connected. Total: 2
+[WS] Send error: Connection lost
+[WS] Client disconnected. Total: 1

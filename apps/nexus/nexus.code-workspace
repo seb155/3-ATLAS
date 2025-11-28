@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../HomeAssistant"
+		},
+		{
+			"path": "../EPCB-Tools"
+		}
+	],
+	"settings": {}
+}

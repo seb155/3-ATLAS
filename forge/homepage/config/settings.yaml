@@ -1,0 +1,68 @@
+# Homepage Settings - Modern Tech Startup Design
+# https://gethomepage.dev/latest/configs/settings/
+
+title: ⚡ SYNAPSE Platform
+# favicon: /icons/favicon.svg
+
+# Modern dark theme (slate = pro tech look)
+theme: dark
+color: slate
+
+# Custom CSS for startup-style design
+customCSS: /config/custom.css
+
+# Layout: Modern grid design
+layout:
+  Applications:
+    style: row
+    columns: 3
+    icon: mdi-rocket-launch
+  Testing:
+    style: row
+    columns: 3
+    icon: mdi-test-tube
+  Databases:
+    style: row
+    columns: 3
+    icon: mdi-database
+  Monitoring:
+    style: row
+    columns: 3
+    icon: mdi-chart-line
+  Infrastructure:
+    style: row
+    columns: 2
+    icon: mdi-server-network
+
+# Enable Docker integration
+providers:
+  docker:
+    socket: /var/run/docker.sock
+
+# Quick search
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  hideVisitURL: true
+
+# Compact mode
+headerStyle: boxed
+cardBlur: md
+
+# Disable telemetry
+disableCollapse: false
+
+# Language
+language: en
+
+# Features
+showStats: true
+statusStyle: dot
+
+# Background (optional)
+# background:
+#   image: /images/background.jpg
+#   blur: sm
+#   saturate: 50
+#   brightness: 50
+#   opacity: 50

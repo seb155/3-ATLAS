@@ -1,0 +1,6 @@
+# Docker Socket Configuration
+# https://gethomepage.dev/latest/configs/docker/
+
+---
+docker-socket:
+  socket: /var/run/docker.sock

@@ -1,0 +1,8 @@
+# Local SSL Certificates for Development
+# Generated with mkcert for axoiq.com
+
+tls:
+  certificates:
+    # Wildcard certificate for *.axoiq.com
+    - certFile: /etc/traefik/dynamic/axoiq.com.crt
+      keyFile: /etc/traefik/dynamic/axoiq.com.key

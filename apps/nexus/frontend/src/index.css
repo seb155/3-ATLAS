@@ -1,0 +1,547 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   THEME SYSTEM - CSS VARIABLES WITH DATA ATTRIBUTES
+   ============================================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* GitHub Light Theme (Default) */
+  --background: 0 0% 100%;
+  --foreground: 217 13% 15%;
+  --card: 240 100% 98%;
+  --card-foreground: 217 13% 15%;
+  --border: 214 32% 91%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 215 16% 47%;
+  --primary: 218 100% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 257 100% 38%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 218 100% 33%;
+  --accent-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 100%;
+  --warning: 45 100% 51%;
+  --warning-foreground: 0 0% 9%;
+  --error: 0 86% 54%;
+  --error-foreground: 0 0% 100%;
+  --info: 214 97% 58%;
+  --info-foreground: 0 0% 100%;
+  --destructive: 0 86% 54%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 240 100% 98%;
+  --ring: 218 100% 33%;
+  --chart-1: 218 100% 33%;
+  --chart-2: 257 100% 38%;
+  --chart-3: 142 76% 36%;
+  --chart-4: 45 100% 51%;
+  --chart-5: 0 86% 54%;
+}
+
+/* Nord Dark Theme */
+[data-theme="nord-dark"] {
+  color-scheme: dark;
+  --background: 220 16% 22%;
+  --foreground: 220 16% 94%;
+  --card: 220 12% 26%;
+  --card-foreground: 220 16% 94%;
+  --border: 220 13% 34%;
+  --muted: 220 13% 34%;
+  --muted-foreground: 220 10% 88%;
+  --primary: 193 43% 67%;
+  --primary-foreground: 220 16% 22%;
+  --secondary: 218 39% 56%;
+  --secondary-foreground: 220 16% 22%;
+  --accent: 193 43% 67%;
+  --accent-foreground: 220 16% 22%;
+  --success: 89 58% 48%;
+  --success-foreground: 220 16% 22%;
+  --warning: 39 77% 55%;
+  --warning-foreground: 220 16% 22%;
+  --error: 11 59% 54%;
+  --error-foreground: 220 16% 94%;
+  --info: 218 39% 56%;
+  --info-foreground: 220 16% 22%;
+  --destructive: 11 59% 54%;
+  --destructive-foreground: 220 16% 94%;
+  --input: 220 12% 26%;
+  --ring: 193 43% 67%;
+  --chart-1: 193 43% 67%;
+  --chart-2: 218 39% 56%;
+  --chart-3: 89 58% 48%;
+  --chart-4: 39 77% 55%;
+  --chart-5: 11 59% 54%;
+}
+
+/* Dracula Dark Theme */
+[data-theme="dracula-dark"] {
+  color-scheme: dark;
+  --background: 231 15% 18%;
+  --foreground: 60 30% 96%;
+  --card: 231 15% 15%;
+  --card-foreground: 60 30% 96%;
+  --border: 231 15% 26%;
+  --muted: 231 15% 26%;
+  --muted-foreground: 60 30% 96%;
+  --primary: 265 89% 78%;
+  --primary-foreground: 231 15% 18%;
+  --secondary: 326 100% 74%;
+  --secondary-foreground: 231 15% 18%;
+  --accent: 265 89% 78%;
+  --accent-foreground: 231 15% 18%;
+  --success: 135 74% 55%;
+  --success-foreground: 231 15% 18%;
+  --warning: 48 100% 71%;
+  --warning-foreground: 231 15% 18%;
+  --error: 0 100% 67%;
+  --error-foreground: 60 30% 96%;
+  --info: 191 100% 73%;
+  --info-foreground: 231 15% 18%;
+  --destructive: 0 100% 67%;
+  --destructive-foreground: 60 30% 96%;
+  --input: 231 15% 15%;
+  --ring: 265 89% 78%;
+  --chart-1: 265 89% 78%;
+  --chart-2: 326 100% 74%;
+  --chart-3: 135 74% 55%;
+  --chart-4: 48 100% 71%;
+  --chart-5: 191 100% 73%;
+}
+
+/* Tokyo Night Dark Theme */
+[data-theme="tokyo-night-dark"] {
+  color-scheme: dark;
+  --background: 233 19% 14%;
+  --foreground: 231 20% 93%;
+  --card: 233 19% 11%;
+  --card-foreground: 231 20% 93%;
+  --border: 233 19% 17%;
+  --muted: 233 19% 17%;
+  --muted-foreground: 231 15% 53%;
+  --primary: 217 85% 68%;
+  --primary-foreground: 233 19% 14%;
+  --secondary: 265 66% 82%;
+  --secondary-foreground: 233 19% 14%;
+  --accent: 217 85% 68%;
+  --accent-foreground: 233 19% 14%;
+  --success: 92 87% 63%;
+  --success-foreground: 233 19% 14%;
+  --warning: 39 83% 69%;
+  --warning-foreground: 233 19% 14%;
+  --error: 0 83% 74%;
+  --error-foreground: 231 20% 93%;
+  --info: 217 85% 68%;
+  --info-foreground: 233 19% 14%;
+  --destructive: 0 83% 74%;
+  --destructive-foreground: 231 20% 93%;
+  --input: 233 19% 11%;
+  --ring: 217 85% 68%;
+  --chart-1: 217 85% 68%;
+  --chart-2: 265 66% 82%;
+  --chart-3: 92 87% 63%;
+  --chart-4: 39 83% 69%;
+  --chart-5: 0 83% 74%;
+}
+
+/* One Dark Theme */
+[data-theme="one-dark"] {
+  color-scheme: dark;
+  --background: 220 13% 20%;
+  --foreground: 220 14% 71%;
+  --card: 220 12% 13%;
+  --card-foreground: 220 14% 71%;
+  --border: 220 13% 27%;
+  --muted: 220 13% 27%;
+  --muted-foreground: 220 10% 49%;
+  --primary: 198 99% 66%;
+  --primary-foreground: 220 13% 20%;
+  --secondary: 270 100% 74%;
+  --secondary-foreground: 220 13% 20%;
+  --accent: 198 99% 66%;
+  --accent-foreground: 220 13% 20%;
+  --success: 119 54% 47%;
+  --success-foreground: 220 13% 20%;
+  --warning: 38 92% 68%;
+  --warning-foreground: 220 13% 20%;
+  --error: 9 76% 55%;
+  --error-foreground: 220 14% 71%;
+  --info: 198 99% 66%;
+  --info-foreground: 220 13% 20%;
+  --destructive: 9 76% 55%;
+  --destructive-foreground: 220 14% 71%;
+  --input: 220 12% 13%;
+  --ring: 198 99% 66%;
+  --chart-1: 198 99% 66%;
+  --chart-2: 270 100% 74%;
+  --chart-3: 119 54% 47%;
+  --chart-4: 38 92% 68%;
+  --chart-5: 9 76% 55%;
+}
+
+/* Gruvbox Dark Theme */
+[data-theme="gruvbox-dark"] {
+  color-scheme: dark;
+  --background: 30 29% 16%;
+  --foreground: 39 23% 84%;
+  --card: 30 24% 20%;
+  --card-foreground: 39 23% 84%;
+  --border: 30 19% 31%;
+  --muted: 30 19% 31%;
+  --muted-foreground: 30 8% 63%;
+  --primary: 140 48% 55%;
+  --primary-foreground: 30 29% 16%;
+  --secondary: 14 79% 58%;
+  --secondary-foreground: 30 29% 16%;
+  --accent: 140 48% 55%;
+  --accent-foreground: 30 29% 16%;
+  --success: 74 68% 52%;
+  --success-foreground: 30 29% 16%;
+  --warning: 35 84% 63%;
+  --warning-foreground: 30 29% 16%;
+  --error: 10 87% 60%;
+  --error-foreground: 39 23% 84%;
+  --info: 140 48% 55%;
+  --info-foreground: 30 29% 16%;
+  --destructive: 10 87% 60%;
+  --destructive-foreground: 39 23% 84%;
+  --input: 30 24% 20%;
+  --ring: 140 48% 55%;
+  --chart-1: 140 48% 55%;
+  --chart-2: 14 79% 58%;
+  --chart-3: 74 68% 52%;
+  --chart-4: 35 84% 63%;
+  --chart-5: 10 87% 60%;
+}
+
+/* Catppuccin Mocha Dark Theme */
+[data-theme="catppuccin-mocha"] {
+  color-scheme: dark;
+  --background: 240 21% 15%;
+  --foreground: 240 21% 85%;
+  --card: 240 21% 18%;
+  --card-foreground: 240 21% 85%;
+  --border: 240 21% 27%;
+  --muted: 240 21% 27%;
+  --muted-foreground: 240 10% 66%;
+  --primary: 217 100% 76%;
+  --primary-foreground: 240 21% 15%;
+  --secondary: 316 100% 89%;
+  --secondary-foreground: 240 21% 15%;
+  --accent: 217 100% 76%;
+  --accent-foreground: 240 21% 15%;
+  --success: 115 54% 76%;
+  --success-foreground: 240 21% 15%;
+  --warning: 41 86% 83%;
+  --warning-foreground: 240 21% 15%;
+  --error: 343 81% 75%;
+  --error-foreground: 240 21% 85%;
+  --info: 217 100% 76%;
+  --info-foreground: 240 21% 15%;
+  --destructive: 343 81% 75%;
+  --destructive-foreground: 240 21% 85%;
+  --input: 240 21% 18%;
+  --ring: 217 100% 76%;
+  --chart-1: 217 100% 76%;
+  --chart-2: 316 100% 89%;
+  --chart-3: 115 54% 76%;
+  --chart-4: 41 86% 83%;
+  --chart-5: 343 81% 75%;
+}
+
+/* Solarized Light Theme */
+[data-theme="solarized-light"] {
+  color-scheme: light;
+  --background: 44 100% 86%;
+  --foreground: 184 13% 41%;
+  --card: 46 100% 86%;
+  --card-foreground: 184 13% 41%;
+  --border: 44 85% 79%;
+  --muted: 44 85% 79%;
+  --muted-foreground: 184 29% 64%;
+  --primary: 205 69% 53%;
+  --primary-foreground: 44 100% 86%;
+  --secondary: 237 79% 59%;
+  --secondary-foreground: 44 100% 86%;
+  --accent: 205 69% 53%;
+  --accent-foreground: 44 100% 86%;
+  --success: 68 100% 34%;
+  --success-foreground: 44 100% 86%;
+  --warning: 37 100% 43%;
+  --warning-foreground: 44 100% 86%;
+  --error: 1 79% 44%;
+  --error-foreground: 44 100% 86%;
+  --info: 205 69% 53%;
+  --info-foreground: 44 100% 86%;
+  --destructive: 1 79% 44%;
+  --destructive-foreground: 44 100% 86%;
+  --input: 46 100% 86%;
+  --ring: 205 69% 53%;
+  --chart-1: 205 69% 53%;
+  --chart-2: 237 79% 59%;
+  --chart-3: 68 100% 34%;
+  --chart-4: 37 100% 43%;
+  --chart-5: 1 79% 44%;
+}
+
+/* Gruvbox Light Theme */
+[data-theme="gruvbox-light"] {
+  color-scheme: light;
+  --background: 39 39% 78%;
+  --foreground: 30 29% 22%;
+  --card: 39 46% 79%;
+  --card-foreground: 30 29% 22%;
+  --border: 39 23% 84%;
+  --muted: 39 23% 84%;
+  --muted-foreground: 30 8% 56%;
+  --primary: 190 68% 43%;
+  --primary-foreground: 39 39% 78%;
+  --secondary: 14 61% 37%;
+  --secondary-foreground: 39 39% 78%;
+  --accent: 190 68% 43%;
+  --accent-foreground: 39 39% 78%;
+  --success: 60 59% 35%;
+  --success-foreground: 39 39% 78%;
+  --warning: 24 79% 47%;
+  --warning-foreground: 39 39% 78%;
+  --error: 4 85% 44%;
+  --error-foreground: 39 39% 78%;
+  --info: 190 68% 43%;
+  --info-foreground: 39 39% 78%;
+  --destructive: 4 85% 44%;
+  --destructive-foreground: 39 39% 78%;
+  --input: 39 46% 79%;
+  --ring: 190 68% 43%;
+  --chart-1: 190 68% 43%;
+  --chart-2: 14 61% 37%;
+  --chart-3: 60 59% 35%;
+  --chart-4: 24 79% 47%;
+  --chart-5: 4 85% 44%;
+}
+
+/* Catppuccin Latte Light Theme */
+[data-theme="catppuccin-latte"] {
+  color-scheme: light;
+  --background: 240 21% 94%;
+  --foreground: 240 25% 33%;
+  --card: 240 25% 91%;
+  --card-foreground: 240 25% 33%;
+  --border: 240 15% 88%;
+  --muted: 240 15% 88%;
+  --muted-foreground: 240 10% 55%;
+  --primary: 243 100% 64%;
+  --primary-foreground: 240 21% 94%;
+  --secondary: 316 73% 60%;
+  --secondary-foreground: 240 21% 94%;
+  --accent: 243 100% 64%;
+  --accent-foreground: 240 21% 94%;
+  --success: 132 52% 44%;
+  --success-foreground: 240 21% 94%;
+  --warning: 35 89% 47%;
+  --warning-foreground: 240 21% 94%;
+  --error: 1 88% 54%;
+  --error-foreground: 240 21% 94%;
+  --info: 243 100% 64%;
+  --info-foreground: 240 21% 94%;
+  --destructive: 1 88% 54%;
+  --destructive-foreground: 240 21% 94%;
+  --input: 240 25% 91%;
+  --ring: 243 100% 64%;
+  --chart-1: 243 100% 64%;
+  --chart-2: 316 73% 60%;
+  --chart-3: 132 52% 44%;
+  --chart-4: 35 89% 47%;
+  --chart-5: 1 88% 54%;
+}
+
+/* One Light Theme */
+[data-theme="one-light"] {
+  color-scheme: light;
+  --background: 240 100% 98%;
+  --foreground: 220 13% 22%;
+  --card: 240 100% 97%;
+  --card-foreground: 220 13% 22%;
+  --border: 214 32% 91%;
+  --muted: 214 32% 91%;
+  --muted-foreground: 220 10% 62%;
+  --primary: 220 90% 56%;
+  --primary-foreground: 240 100% 98%;
+  --secondary: 270 100% 65%;
+  --secondary-foreground: 240 100% 98%;
+  --accent: 220 90% 56%;
+  --accent-foreground: 240 100% 98%;
+  --success: 119 58% 42%;
+  --success-foreground: 240 100% 98%;
+  --warning: 30 100% 50%;
+  --warning-foreground: 240 100% 98%;
+  --error: 0 86% 54%;
+  --error-foreground: 240 100% 98%;
+  --info: 220 90% 56%;
+  --info-foreground: 240 100% 98%;
+  --destructive: 0 86% 54%;
+  --destructive-foreground: 240 100% 98%;
+  --input: 240 100% 97%;
+  --ring: 220 90% 56%;
+  --chart-1: 220 90% 56%;
+  --chart-2: 270 100% 65%;
+  --chart-3: 119 58% 42%;
+  --chart-4: 30 100% 50%;
+  --chart-5: 0 86% 54%;
+}
+
+/* Tokyo Day Light Theme */
+[data-theme="tokyo-day"] {
+  color-scheme: light;
+  --background: 240 5% 90%;
+  --foreground: 220 37% 37%;
+  --card: 240 100% 98%;
+  --card-foreground: 220 37% 37%;
+  --border: 240 15% 85%;
+  --muted: 240 15% 85%;
+  --muted-foreground: 220 13% 51%;
+  --primary: 217 100% 54%;
+  --primary-foreground: 240 5% 90%;
+  --secondary: 270 85% 65%;
+  --secondary-foreground: 240 5% 90%;
+  --accent: 217 100% 54%;
+  --accent-foreground: 240 5% 90%;
+  --success: 95 51% 42%;
+  --success-foreground: 240 5% 90%;
+  --warning: 28 86% 43%;
+  --warning-foreground: 240 5% 90%;
+  --error: 0 100% 41%;
+  --error-foreground: 240 5% 90%;
+  --info: 217 100% 54%;
+  --info-foreground: 240 5% 90%;
+  --destructive: 0 100% 41%;
+  --destructive-foreground: 240 5% 90%;
+  --input: 240 100% 98%;
+  --ring: 217 100% 54%;
+  --chart-1: 217 100% 54%;
+  --chart-2: 270 85% 65%;
+  --chart-3: 95 51% 42%;
+  --chart-4: 28 86% 43%;
+  --chart-5: 0 100% 41%;
+}
+
+/* Gmining Corporate Dark Theme */
+[data-theme="gmining-corporate"] {
+  color-scheme: dark;
+  --background: 210 25% 12%;
+  --foreground: 210 14% 93%;
+  --card: 210 20% 18%;
+  --card-foreground: 210 14% 93%;
+  --border: 210 18% 26%;
+  --muted: 210 18% 26%;
+  --muted-foreground: 210 10% 70%;
+  --primary: 209 100% 24%;
+  --primary-foreground: 210 14% 93%;
+  --secondary: 205 57% 42%;
+  --secondary-foreground: 210 14% 93%;
+  --accent: 43 100% 52%;
+  --accent-foreground: 210 25% 12%;
+  --success: 146 65% 46%;
+  --success-foreground: 210 25% 12%;
+  --warning: 39 100% 61%;
+  --warning-foreground: 210 25% 12%;
+  --error: 10 82% 54%;
+  --error-foreground: 210 14% 93%;
+  --info: 204 71% 62%;
+  --info-foreground: 210 25% 12%;
+  --destructive: 10 82% 54%;
+  --destructive-foreground: 210 14% 93%;
+  --input: 210 20% 18%;
+  --ring: 43 100% 52%;
+  --chart-1: 209 100% 24%;
+  --chart-2: 43 100% 52%;
+  --chart-3: 146 65% 46%;
+  --chart-4: 39 100% 61%;
+  --chart-5: 204 71% 62%;
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+@keyframes blob {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+.hover-lift {
+  @apply transition-transform hover:-translate-y-1;
+}
+
+.hover-glow {
+  @apply transition-shadow hover:shadow-lg;
+}
+
+.hover-scale {
+  @apply transition-transform hover:scale-[1.02];
+}
+
+.shadow-elegant {
+  box-shadow:
+    0 1px 2px 0 rgb(0 0 0 / 0.05),
+    0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.shadow-elegant-lg {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px -5px hsl(var(--primary));
+}
+
+.text-gradient {
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(270 100% 65%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass {
+  background-color: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+}

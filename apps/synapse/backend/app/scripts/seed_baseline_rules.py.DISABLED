@@ -1,0 +1,391 @@
+"""
+Seed Baseline Engineering Rules
+
+Seeds the database with FIRM-level and COUNTRY-level baseline rules:
+- 8 FIRM rules (Rockwell PlantPAX 5.0 standards)
+- 3 COUNTRY rules (Canada, Brazil, Greece voltage standards)
+
+Run this script once during initial setup.
+"""
+
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from app.core.database import SessionLocal
+from app.models.rules import RuleDefinition, RuleSource, RuleActionType
+
+
+def seed_firm_rules(db):
+    """Seed FIRM-level rules (Rockwell PlantPAX 5.0 standards)"""
+    print("Seeding FIRM-level rules...")
+
+    firm_rules = [
+        # Rule 1: PLC per Area (PlantPAX standard)
+        {
+            "name": "PlantPAX: One PLC per Area",
+            "description": "Rockwell PlantPAX 5.0 standard: Each area requires exactly one ControlLogix PLC",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "category": "ASSET_CREATION",
+            "is_enforced": False,
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "node_type": "AREA",
+            },
+            "action": {
+                "create_child": {
+                    "type": "PLC",
+                    "naming": "{parent_tag}-PLC",
+                    "relation": "controls",
+                    "discipline": "AUTOMATION",
+                    "semantic_type": "ASSET",
+                    "properties": {
+                        "manufacturer": "Rockwell Automation",
+                        "product_line": "ControlLogix",
+                        "model": "1756-L83E",
+                        "communication": "EtherNet/IP",
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 2: CPC Cabinet per Area (PlantPAX standard)
+        {
+            "name": "PlantPAX: CPC Cabinet per Area",
+            "description": "Each area requires a Central Process Cabinet (CPC) housing the PLC and IO",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "ELECTRICAL",
+            "category": "ASSET_CREATION",
+            "is_enforced": False,
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "node_type": "AREA",
+            },
+            "action": {
+                "create_child": {
+                    "type": "CABINET",
+                    "naming": "{parent_tag}-CPC",
+                    "relation": "contains",
+                    "discipline": "ELECTRICAL",
+                    "semantic_type": "ASSET",
+                    "properties": {
+                        "cabinet_type": "CPC",
+                        "description": "Central Process Cabinet",
+                        "manufacturer": "Rockwell Automation",
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 3: Pump → Motor
+        {
+            "name": "FIRM: Centrifugal Pumps require Electric Motor",
+            "description": "All centrifugal pumps require an electric motor driver",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "PUMP",
+                "property_filters": [
+                    {"key": "pump_type", "op": "==", "value": "CENTRIFUGAL"}
+                ]
+            },
+            "action": {
+                "create_child": {
+                    "type": "MOTOR",
+                    "naming": "{parent_tag}-M",
+                    "relation": "powers",
+                    "discipline": "ELECTRICAL",
+                    "semantic_type": "ASSET",
+                    "inherit_properties": ["area", "system"],
+                    "properties": {
+                        "motor_type": "Electric",
+                        "enclosure": "TEFC",
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 4: Tank → Level Transmitter
+        {
+            "name": "FIRM: Tanks require Level Transmitter",
+            "description": "All tanks require a level measurement transmitter",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "TANK",
+            },
+            "action": {
+                "create_child": {
+                    "type": "LEVEL_TRANSMITTER",
+                    "naming": "{parent_tag}-LT",
+                    "relation": "measured_by",
+                    "discipline": "AUTOMATION",
+                    "semantic_type": "ASSET",
+                    "inherit_properties": ["area", "system"],
+                    "properties": {
+                        "signal_type": "4-20mA HART",
+                        "measurement_type": "Level",
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 5: Agitator → Motor
+        {
+            "name": "FIRM: Agitators require Electric Motor",
+            "description": "All agitators require an electric motor driver",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.CREATE_CHILD,
+            "condition": {
+                "asset_type": "AGITATOR",
+            },
+            "action": {
+                "create_child": {
+                    "type": "MOTOR",
+                    "naming": "{parent_tag}-M",
+                    "relation": "powers",
+                    "discipline": "ELECTRICAL",
+                    "semantic_type": "ASSET",
+                    "inherit_properties": ["area", "system"],
+                    "properties": {
+                        "motor_type": "Electric",
+                        "enclosure": "TEFC",
+                    }
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 6: Endress+Hauser Default for Instrumentation
+        {
+            "name": "FIRM: E+H Default Manufacturer for Instruments",
+            "description": "Endress+Hauser is the default manufacturer for all field instruments",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "LEVEL_TRANSMITTER",
+            },
+            "action": {
+                "set_property": {
+                    "manufacturer": "Endress+Hauser",
+                    "signal_type": "4-20mA HART",
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 7: Pressure Transmitters E+H
+        {
+            "name": "FIRM: E+H Default for Pressure Transmitters",
+            "description": "Endress+Hauser is the default manufacturer for pressure transmitters",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "PRESSURE_TRANSMITTER",
+            },
+            "action": {
+                "set_property": {
+                    "manufacturer": "Endress+Hauser",
+                    "signal_type": "4-20mA HART",
+                }
+            },
+            "is_active": True,
+        },
+
+        # Rule 8: Flow Transmitters E+H
+        {
+            "name": "FIRM: E+H Default for Flow Transmitters",
+            "description": "Endress+Hauser is the default manufacturer for flow transmitters",
+            "source": RuleSource.FIRM,
+            "priority": 10,
+            "discipline": "AUTOMATION",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "FLOW_TRANSMITTER",
+            },
+            "action": {
+                "set_property": {
+                    "manufacturer": "Endress+Hauser",
+                    "signal_type": "4-20mA HART",
+                }
+            },
+            "is_active": True,
+        },
+    ]
+
+    created_count = 0
+    for rule_data in firm_rules:
+        # Check if rule already exists
+        existing = db.query(RuleDefinition).filter(
+            RuleDefinition.name == rule_data["name"]
+        ).first()
+
+        if existing:
+            print(f"  [SKIP] {rule_data['name']} (already exists)")
+            continue
+
+        rule = RuleDefinition(**rule_data)
+        db.add(rule)
+        created_count += 1
+        print(f"  [OK] Created: {rule_data['name']}")
+
+    db.commit()
+    print(f"[OK] FIRM rules: {created_count} created\n")
+
+
+def seed_country_rules(db):
+    """Seed COUNTRY-level rules (voltage standards)"""
+    print("Seeding COUNTRY-level rules...")
+
+    country_rules = [
+        # Canada: 600V / 60Hz / CEC
+        {
+            "name": "COUNTRY-CA: 600V Standard Voltage",
+            "description": "Canada: All motors use 600V 3-phase 60Hz (CEC standard)",
+            "source": RuleSource.COUNTRY,
+            "source_id": "CA",
+            "priority": 30,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "MOTOR",
+            },
+            "action": {
+                "set_property": {
+                    "voltage": "600V",
+                    "frequency": "60Hz",
+                    "phases": "3-phase",
+                    "electrical_code": "CEC",
+                }
+            },
+            "is_active": True,
+        },
+
+        # Brazil: 380V / 60Hz / ABNT
+        {
+            "name": "COUNTRY-BR: 380V Standard Voltage",
+            "description": "Brazil: All motors use 380V 3-phase 60Hz (ABNT NBR-5410)",
+            "source": RuleSource.COUNTRY,
+            "source_id": "BR",
+            "priority": 30,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "MOTOR",
+            },
+            "action": {
+                "set_property": {
+                    "voltage": "380V",
+                    "frequency": "60Hz",
+                    "phases": "3-phase",
+                    "electrical_code": "ABNT NBR-5410",
+                }
+            },
+            "is_active": True,
+        },
+
+        # Greece: 400V / 50Hz / IEC
+        {
+            "name": "COUNTRY-GR: 400V Standard Voltage",
+            "description": "Greece: All motors use 400V 3-phase 50Hz (IEC 60038)",
+            "source": RuleSource.COUNTRY,
+            "source_id": "GR",
+            "priority": 30,
+            "discipline": "ELECTRICAL",
+            "action_type": RuleActionType.SET_PROPERTY,
+            "condition": {
+                "asset_type": "MOTOR",
+            },
+            "action": {
+                "set_property": {
+                    "voltage": "400V",
+                    "frequency": "50Hz",
+                    "phases": "3-phase",
+                    "electrical_code": "IEC 60038",
+                }
+            },
+            "is_active": True,
+        },
+    ]
+
+    created_count = 0
+    for rule_data in country_rules:
+        # Check if rule already exists
+        existing = db.query(RuleDefinition).filter(
+            RuleDefinition.name == rule_data["name"]
+        ).first()
+
+        if existing:
+            print(f"  [SKIP] {rule_data['name']} (already exists)")
+            continue
+
+        rule = RuleDefinition(**rule_data)
+        db.add(rule)
+        created_count += 1
+        print(f"  [OK] Created: {rule_data['name']}")
+
+    db.commit()
+    print(f"[OK] COUNTRY rules: {created_count} created\n")
+
+
+def main():
+    """Main seeding function"""
+    print("=" * 80)
+    print("BASELINE RULE SEEDING")
+    print("=" * 80)
+    print()
+
+    db = SessionLocal()
+
+    try:
+        # Seed FIRM rules (8 rules)
+        seed_firm_rules(db)
+
+        # Seed COUNTRY rules (3 rules)
+        seed_country_rules(db)
+
+        print("=" * 80)
+        print("[OK] SEEDING COMPLETE")
+        print("=" * 80)
+        print()
+        print("Summary:")
+        print("  - 8 FIRM rules (PlantPAX standards)")
+        print("  - 3 COUNTRY rules (CA, BR, GR voltage standards)")
+        print()
+        print("Next steps:")
+        print("  1. Run backend/app/scripts/migrate_existing_rules.py")
+        print("  2. Start the backend server")
+        print("  3. Test rules via UI at /rules-management")
+        print()
+
+    except Exception as e:
+        print(f"\n[ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        db.rollback()
+
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()

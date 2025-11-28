@@ -1,0 +1,1 @@
+{"uuid": "0e74fe6f-0e51-446e-8d43-c615d0abc0aa", "children": ["e70e1314-4353-4393-973e-1a5f3f7b821c"], "befores": [{"name": "validate_rule", "status": "passed", "start": 1764121105875, "stop": 1764121105878}], "afters": [{"name": "validate_rule::0", "status": "passed", "start": 1764121105892, "stop": 1764121105897}], "start": 1764121105875, "stop": 1764121105897}

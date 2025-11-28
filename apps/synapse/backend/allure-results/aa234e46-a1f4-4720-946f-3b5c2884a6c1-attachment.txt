@@ -1,0 +1,1 @@
+✅ test_create_asset_valid_voltage passed
