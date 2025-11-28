@@ -16,8 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Running Modes
 
 **1. Workspace Mode (Recommended for Development)**
-- Shared PostgreSQL (workspace-postgres)
-- Shared Redis (workspace-redis)
+- Shared PostgreSQL (forge-postgres)
+- Shared Redis (forge-redis)
 - Shared authentication (workspace_auth.users)
 - Traefik routing with SSL (nexus.localhost)
 - Loki/Grafana logging
@@ -59,9 +59,9 @@ Users are stored in `workspace_auth.users` schema and shared across Nexus, Synap
 
 **Environment variables (workspace mode):**
 ```env
-DATABASE_URL=postgresql://postgres:postgres@workspace-postgres:5432/nexus
-AUTH_DATABASE_URL=postgresql://postgres:postgres@workspace-postgres:5432/postgres?options=-csearch_path%3Dworkspace_auth
-REDIS_URL=redis://workspace-redis:6379
+DATABASE_URL=postgresql://postgres:postgres@forge-postgres:5432/nexus
+AUTH_DATABASE_URL=postgresql://postgres:postgres@forge-postgres:5432/postgres?options=-csearch_path%3Dworkspace_auth
+REDIS_URL=redis://forge-redis:6379
 REDIS_KEY_PREFIX=nexus:
 SECRET_KEY=<shared-workspace-secret>  # MUST match across apps
 ```

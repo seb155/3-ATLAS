@@ -108,7 +108,7 @@ docker-compose up -d
 **Verify:**
 ```bash
 docker ps | grep workspace
-# Should show: workspace-postgres, workspace-prisma, workspace-pgadmin, workspace-redis
+# Should show: forge-postgres, forge-prisma, forge-pgadmin, forge-redis
 ```
 
 ### Step 2: Start SYNAPSE
@@ -180,7 +180,7 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 
 **Verify workspace is running:**
 ```bash
-docker exec workspace-postgres pg_isready -U postgres
+docker exec forge-postgres pg_isready -U postgres
 # Expected: "accepting connections"
 ```
 

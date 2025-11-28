@@ -78,13 +78,13 @@ SYNAPSE uses **Celery + Redis** for background job processing:
 services:
   redis:
     image: redis:7-alpine
-    container_name: workspace-redis
+    container_name: forge-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - workspace-network
+      - forge-network
 
   celery-worker:
     build: ./apps/synapse/backend
@@ -93,13 +93,13 @@ services:
     volumes:
       - ./apps/synapse/backend:/app
     environment:
-      - DATABASE_URL=postgresql://user:pass@workspace-postgres:5432/synapse
-      - REDIS_URL=redis://workspace-redis:6379/0
+      - DATABASE_URL=postgresql://user:pass@forge-postgres:5432/synapse
+      - REDIS_URL=redis://forge-redis:6379/0
     depends_on:
       - postgres
       - redis
     networks:
-      - workspace-network
+      - forge-network
 
   celery-beat:
     build: ./apps/synapse/backend
@@ -108,13 +108,13 @@ services:
     volumes:
       - ./apps/synapse/backend:/app
     environment:
-      - DATABASE_URL=postgresql://user:pass@workspace-postgres:5432/synapse
-      - REDIS_URL=redis://workspace-redis:6379/0
+      - DATABASE_URL=postgresql://user:pass@forge-postgres:5432/synapse
+      - REDIS_URL=redis://forge-redis:6379/0
     depends_on:
       - postgres
       - redis
     networks:
-      - workspace-network
+      - forge-network
 
   flower:
     build: ./apps/synapse/backend
@@ -123,12 +123,12 @@ services:
     ports:
       - "5555:5555"
     environment:
-      - REDIS_URL=redis://workspace-redis:6379/0
+      - REDIS_URL=redis://forge-redis:6379/0
     depends_on:
       - redis
       - celery-worker
     networks:
-      - workspace-network
+      - forge-network
 
 volumes:
   redis_data:
@@ -149,8 +149,8 @@ import os
 
 celery_app = Celery(
     "synapse",
-    broker=os.getenv("REDIS_URL", "redis://workspace-redis:6379/0"),
-    backend=os.getenv("REDIS_URL", "redis://workspace-redis:6379/0"),
+    broker=os.getenv("REDIS_URL", "redis://forge-redis:6379/0"),
+    backend=os.getenv("REDIS_URL", "redis://forge-redis:6379/0"),
     include=["app.tasks"]
 )
 
@@ -331,7 +331,7 @@ def backup_database():
     
     subprocess.run([
         "pg_dump",
-        "-h", "workspace-postgres",
+        "-h", "forge-postgres",
         "-U", "user",
         "-d", "synapse",
         "-f", backup_file

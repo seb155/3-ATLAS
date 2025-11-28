@@ -248,14 +248,14 @@ docker-compose -f docker-compose.yml -f docker-compose.traefik.yml -f docker-com
 
 ### Restart Single Service
 ```powershell
-docker restart workspace-homepage
-docker restart workspace-traefik
+docker restart forge-homepage
+docker restart forge-traefik
 ```
 
 ### View Logs
 ```powershell
-docker logs -f workspace-homepage
-docker logs -f workspace-traefik
+docker logs -f forge-homepage
+docker logs -f forge-traefik
 ```
 
 ---
@@ -274,7 +274,7 @@ docker logs -f workspace-traefik
 **For Production:**
 - Wait 30-60 seconds for Let's Encrypt
 - Check DNS is pointed correctly
-- Check Traefik logs: `docker logs workspace-traefik`
+- Check Traefik logs: `docker logs forge-traefik`
 
 ### Can't Access Portal
 
@@ -293,15 +293,15 @@ Start http://localhost:8888
 
 **Check logs:**
 ```powershell
-docker logs workspace-traefik
-docker logs workspace-homepage
+docker logs forge-traefik
+docker logs forge-homepage
 ```
 
 ### Service Not Routing
 
 **1. Check labels:**
 ```bash
-docker inspect workspace-homepage | grep traefik
+docker inspect forge-homepage | grep traefik
 ```
 
 **2. Check Traefik can see it:**
@@ -311,25 +311,25 @@ docker inspect workspace-homepage | grep traefik
 
 **3. Restart Traefik:**
 ```powershell
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 ### Homepage Not Showing Services
 
 **1. Check Docker socket:**
 ```powershell
-docker exec workspace-homepage ls -la /var/run/docker.sock
+docker exec forge-homepage ls -la /var/run/docker.sock
 ```
 
 **2. Check services.yaml syntax:**
 ```powershell
 # Validate YAML
-docker exec workspace-homepage cat /app/config/services.yaml
+docker exec forge-homepage cat /app/config/services.yaml
 ```
 
 **3. Restart Homepage:**
 ```powershell
-docker restart workspace-homepage
+docker restart forge-homepage
 ```
 
 ---

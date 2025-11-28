@@ -5,7 +5,7 @@
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
-    container_name: workspace-homepage
+    container_name: forge-homepage
     environment:
       PUID: 1000
       PGID: 1000
@@ -22,7 +22,7 @@ services:
       - ./homepage/images:/app/public/images
       - ./homepage/icons:/app/public/icons
     networks:
-      - workspace-network
+      - forge-network
     labels:
       - "traefik.enable=true"
 
@@ -45,5 +45,5 @@ services:
       retries: 3
 
 networks:
-  workspace-network:
+  forge-network:
     external: true

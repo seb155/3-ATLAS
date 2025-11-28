@@ -5,11 +5,11 @@ services:
   # ============================================================================
   # DATABASES
   # ============================================================================
-  workspace-postgres:
+  forge-postgres:
     labels:
       - "traefik.enable=false"  # Internal only, no external access
 
-  workspace-redis:
+  forge-redis:
     labels:
       - "traefik.enable=false"  # Internal only
 

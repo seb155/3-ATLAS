@@ -41,7 +41,7 @@ Implemented production-ready CSV import/export functionality for SYNAPSE MVP wit
 2. **`tests/conftest.py`** (ENHANCED)
    - Added environment variable support for `TEST_DATABASE_URL`
    - Defaults to `localhost:5433` for host testing
-   - Supports `workspace-postgres:5432` for Docker testing
+   - Supports `forge-postgres:5432` for Docker testing
 
 ---
 
@@ -210,7 +210,7 @@ python -m pytest tests/test_import_export.py -v
 ### From Docker Container
 ```bash
 # Run with coverage
-docker exec -e TEST_DATABASE_URL="postgresql://postgres:postgres@workspace-postgres:5432/synapse_test" \
+docker exec -e TEST_DATABASE_URL="postgresql://postgres:postgres@forge-postgres:5432/synapse_test" \
   synapse-backend \
   pytest tests/test_import_export.py --cov=app.api.endpoints.import_export --cov-report=term-missing
 ```

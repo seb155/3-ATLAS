@@ -8,7 +8,7 @@
 #   docker compose -f docker-compose.prod.yml up -d --scale backend=4
 #
 # Requirements:
-#   - workspace-network must exist (run workspace/docker-compose.yml first)
+#   - forge-network must exist (run workspace/docker-compose.yml first)
 #   - SSL certificates in ./nginx/ssl/ (or use Let's Encrypt)
 
 services:
@@ -34,8 +34,8 @@ services:
     restart: unless-stopped
     environment:
       # Database
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@workspace-postgres:5432/synapse
-      ANALYTICS_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@workspace-postgres:5432/synapse_analytics
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@forge-postgres:5432/synapse
+      ANALYTICS_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@forge-postgres:5432/synapse_analytics
 
       # Security (CHANGE IN PRODUCTION!)
       SECRET_KEY: ${SECRET_KEY:-CHANGE_THIS_IN_PRODUCTION_SECRET_KEY}
@@ -74,7 +74,7 @@ services:
       start_period: 40s
     networks:
       - synapse-internal
-      - workspace-network
+      - forge-network
     depends_on:
       - ollama
 
@@ -98,7 +98,7 @@ services:
       retries: 3
     networks:
       - synapse-internal
-      - workspace-network
+      - forge-network
     depends_on:
       - frontend
       - backend
@@ -163,5 +163,5 @@ networks:
   synapse-internal:
     name: synapse-internal
     driver: bridge
-  workspace-network:
+  forge-network:
     external: true

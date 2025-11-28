@@ -184,7 +184,7 @@ http:
     homepage:
       loadBalancer:
         servers:
-          - url: "http://workspace-homepage:3000"
+          - url: "http://forge-homepage:3000"
 
     synapse-frontend:
       loadBalancer:
@@ -199,22 +199,22 @@ http:
     grafana:
       loadBalancer:
         servers:
-          - url: "http://workspace-grafana:3000"
+          - url: "http://forge-grafana:3000"
 
     loki:
       loadBalancer:
         servers:
-          - url: "http://workspace-loki:3100"
+          - url: "http://forge-loki:3100"
 
     pgadmin:
       loadBalancer:
         servers:
-          - url: "http://workspace-pgadmin:80"
+          - url: "http://forge-pgadmin:80"
 
     prisma:
       loadBalancer:
         servers:
-          - url: "http://workspace-prisma:5555"
+          - url: "http://forge-prisma:5555"
 
     nexus-frontend:
       loadBalancer:

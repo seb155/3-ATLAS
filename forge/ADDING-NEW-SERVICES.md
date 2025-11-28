@@ -67,7 +67,7 @@ http:
 ### 3️⃣ Redémarrer Traefik
 
 ```powershell
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 **C'est tout!** Votre nouveau service est accessible à:
@@ -111,7 +111,7 @@ http:
 
 **3. Redémarrer:**
 ```powershell
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 **4. Accéder:**
@@ -182,7 +182,7 @@ Valide jusqu'en: **2028-02-27**
 
 - [ ] Ajouter entrée dans hosts file (`add-service-to-hosts.ps1`)
 - [ ] Ajouter routes dans `config/traefik/dynamic.yml`
-- [ ] Redémarrer Traefik (`docker restart workspace-traefik`)
+- [ ] Redémarrer Traefik (`docker restart forge-traefik`)
 - [ ] Tester: https://mon-service.axoiq.com
 - [ ] Vérifier cadenas vert 🔒
 
@@ -196,14 +196,14 @@ Valide jusqu'en: **2028-02-27**
 
 **Solution:**
 ```powershell
-# Vérifier que le conteneur est sur workspace-network
-docker network inspect workspace-network | grep mon-service
+# Vérifier que le conteneur est sur forge-network
+docker network inspect forge-network | grep mon-service
 
 # Vérifier les routes Traefik
 curl http://localhost:8888/api/http/routers | findstr mon-service
 
 # Redémarrer Traefik
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 ---
@@ -233,7 +233,7 @@ docker ps | findstr mon-service
 cat config/traefik/dynamic.yml | findstr -A 5 mon-service
 
 # Redémarrer Traefik
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 ---

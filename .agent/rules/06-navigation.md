@@ -157,7 +157,7 @@ EPCB-Tools/
 3. Restart services + hard refresh browser
 
 **Backend DB Connection:**
-1. Start PostgreSQL FIRST: `docker compose up -d workspace-postgres`
+1. Start PostgreSQL FIRST: `docker compose up -d forge-postgres`
 2. Then restart backend: `docker restart synapse-backend`
 
 **Full troubleshooting:** See `GEMINI.md` → Common Issues & Solutions

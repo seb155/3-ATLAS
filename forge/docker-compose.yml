@@ -1,12 +1,12 @@
 # WORKSPACE - Development Infrastructure
 # Tools partagés pour tous les projets
-# Réseau: workspace-network (services accessibles par nom: workspace-postgres, workspace-redis)
+# Réseau: forge-network (services accessibles par nom: forge-postgres, forge-redis)
 
 services:
   # PostgreSQL - Shared Database Server
-  workspace-postgres:
+  forge-postgres:
     image: postgres:15-alpine
-    container_name: workspace-postgres
+    container_name: forge-postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./databases/postgres/init:/docker-entrypoint-initdb.d
@@ -16,7 +16,7 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - workspace-network
+      - forge-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -27,26 +27,26 @@ services:
   # Prisma Studio - Database Viewer (Prisma v7)
   prisma-studio:
     image: node:20-alpine
-    container_name: workspace-prisma
+    container_name: forge-prisma
     working_dir: /workspace/prisma
     volumes:
       - ./prisma:/workspace/prisma
       - prisma-cache:/workspace/prisma/node_modules
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse
+      DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/synapse
     command: sh -c "npm install && npx prisma db pull && npx prisma generate && npx prisma studio --port 5555 --browser none"
     ports:
       - "5555:5555"
     networks:
-      - workspace-network
+      - forge-network
     depends_on:
-      workspace-postgres:
+      forge-postgres:
         condition: service_healthy
 
   # pgAdmin - PostgreSQL Admin Tool
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: workspace-pgadmin
+    container_name: forge-pgadmin
     user: root
     entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh"
     environment:
@@ -64,21 +64,21 @@ services:
     ports:
       - "5050:80"
     networks:
-      - workspace-network
+      - forge-network
     depends_on:
-      workspace-postgres:
+      forge-postgres:
         condition: service_healthy
 
   # Redis - Cache & Sessions
-  workspace-redis:
+  forge-redis:
     image: redis:7-alpine
-    container_name: workspace-redis
+    container_name: forge-redis
     volumes:
       - redis-data:/data
     ports:
       - "6379:6379"
     networks:
-      - workspace-network
+      - forge-network
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -90,7 +90,7 @@ services:
   # Loki - Log Aggregation
   loki:
     image: grafana/loki:3.0.0
-    container_name: workspace-loki
+    container_name: forge-loki
     volumes:
       - ./config/loki/loki-config.yaml:/etc/loki/local-config.yaml
       - loki-data:/loki
@@ -98,7 +98,7 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - workspace-network
+      - forge-network
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
       interval: 10s
@@ -109,14 +109,14 @@ services:
   # Promtail - Log Collector
   promtail:
     image: grafana/promtail:3.0.0
-    container_name: workspace-promtail
+    container_name: forge-promtail
     volumes:
       - ./config/promtail/promtail-config.yaml:/etc/promtail/config.yaml
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - promtail-positions:/tmp
     command: -config.file=/etc/promtail/config.yaml
     networks:
-      - workspace-network
+      - forge-network
     depends_on:
       loki:
         condition: service_healthy
@@ -125,7 +125,7 @@ services:
   # Grafana - Log Visualization
   grafana:
     image: grafana/grafana:11.0.0
-    container_name: workspace-grafana
+    container_name: forge-grafana
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
@@ -139,7 +139,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - workspace-network
+      - forge-network
     depends_on:
       loki:
         condition: service_healthy
@@ -148,7 +148,7 @@ services:
   # MeiliSearch - Full-Text Search Engine (MIT License - 100% Free)
   meilisearch:
     image: getmeili/meilisearch:v1.11
-    container_name: workspace-meilisearch
+    container_name: forge-meilisearch
     environment:
       MEILI_ENV: development
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
@@ -158,7 +158,7 @@ services:
     ports:
       - "7700:7700"
     networks:
-      - workspace-network
+      - forge-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:7700/health"]
       interval: 10s
@@ -178,13 +178,13 @@ volumes:
 
 
 networks:
-  workspace-network:
-    name: workspace-network
+  forge-network:
+    name: forge-network
     driver: bridge
 
 configs:
   servers_config:
     content: |
-      {"Servers": {"1": {"Group": "Servers", "Name": "Workspace PostgreSQL", "Host": "workspace-postgres", "Port": 5432, "MaintenanceDB": "postgres", "Username": "postgres", "PassFile": "/pgpass", "SSLMode": "prefer"}}}
+      {"Servers": {"1": {"Group": "Servers", "Name": "FORGE PostgreSQL", "Host": "forge-postgres", "Port": 5432, "MaintenanceDB": "postgres", "Username": "postgres", "PassFile": "/pgpass", "SSLMode": "prefer"}}}
   pgpass_config:
-    content: workspace-postgres:5432:*:postgres:postgres
+    content: forge-postgres:5432:*:postgres:postgres

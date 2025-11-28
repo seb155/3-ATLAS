@@ -201,7 +201,7 @@ The **DevConsole** (bottom panel) shows real-time logs:
 ## Common Questions
 
 **Q: Where's my data stored?**  
-A: PostgreSQL database in workspace-postgres container (port 5433)
+A: PostgreSQL database in forge-postgres container (port 5433)
 
 **Q: Can I edit rules?**  
 A: Yes! Go to Rules Management → Click rule → Edit (future feature in UI)

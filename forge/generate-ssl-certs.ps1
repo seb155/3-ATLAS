@@ -58,7 +58,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "  - axoiq.com (root domain)" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow
-    Write-Host "  1. Restart Traefik: docker restart workspace-traefik" -ForegroundColor White
+    Write-Host "  1. Restart Traefik: docker restart forge-traefik" -ForegroundColor White
     Write-Host "  2. Access https://nexus.axoiq.com (no SSL warning!)" -ForegroundColor White
     Write-Host ""
 } else {

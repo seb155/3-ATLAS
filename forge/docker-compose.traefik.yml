@@ -5,7 +5,7 @@
 services:
   traefik:
     image: traefik:v3.6.2  # Latest stable - Docker 29 compatible
-    container_name: workspace-traefik
+    container_name: forge-traefik
     command:
       # API & Dashboard
       - "--api.dashboard=true"
@@ -14,7 +14,7 @@ services:
       # Providers
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=workspace-network"
+      - "--providers.docker.network=forge-network"
       # File provider for Windows/Docker 29 compatibility
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--providers.file.watch=true"
@@ -55,7 +55,7 @@ services:
       - ./config/traefik:/etc/traefik/dynamic:ro
 
     networks:
-      - workspace-network
+      - forge-network
 
     labels:
       # Traefik dashboard routing
@@ -78,5 +78,5 @@ volumes:
   traefik-logs:
 
 networks:
-  workspace-network:
+  forge-network:
     external: true

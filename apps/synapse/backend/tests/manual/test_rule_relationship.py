@@ -16,8 +16,8 @@ from app.models.rules import RuleActionType, RuleDefinition, RuleSource
 from app.services.rule_executor import RuleExecutor
 
 # Setup DB
-# When running inside docker-compose.dev.yml, the DB host is workspace-postgres
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@workspace-postgres:5432/synapse"
+# When running inside docker-compose.dev.yml, the DB host is forge-postgres
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@forge-postgres:5432/synapse"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 db = SessionLocal()

@@ -103,9 +103,9 @@ services:
 # NETWORKS
 # ==============================================================================
 networks:
-  workspace-network:
+  forge-network:
     external: true
-    name: workspace-network
+    name: forge-network
 
 # ==============================================================================
 # NOTES

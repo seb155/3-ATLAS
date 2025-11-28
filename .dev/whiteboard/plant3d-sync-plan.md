@@ -495,7 +495,7 @@ SYNAPSE_API_URL=http://synapse-backend:8000
 SYNAPSE_API_KEY=internal-service-key
 
 # Redis
-REDIS_URL=redis://workspace-redis:6379/1
+REDIS_URL=redis://forge-redis:6379/1
 
 # Sync Settings
 SYNC_INTERVAL_MINUTES=5
@@ -528,12 +528,12 @@ services:
       - PLANT3D_DB_USER=${PLANT3D_DB_USER}
       - PLANT3D_DB_PASSWORD=${PLANT3D_DB_PASSWORD}
       - SYNAPSE_API_URL=http://synapse-backend:8000
-      - REDIS_URL=redis://workspace-redis:6379/1
+      - REDIS_URL=redis://forge-redis:6379/1
     depends_on:
-      - workspace-redis
+      - forge-redis
       - synapse-backend
     networks:
-      - workspace-network
+      - forge-network
     restart: unless-stopped
 
   plant3d-sync-worker:
@@ -543,13 +543,13 @@ services:
     container_name: plant3d-sync-worker
     command: python -m app.workers.sync_worker
     environment:
-      - REDIS_URL=redis://workspace-redis:6379/1
+      - REDIS_URL=redis://forge-redis:6379/1
       - SYNAPSE_API_URL=http://synapse-backend:8000
     depends_on:
       - plant3d-sync
-      - workspace-redis
+      - forge-redis
     networks:
-      - workspace-network
+      - forge-network
     restart: unless-stopped
 ```
 

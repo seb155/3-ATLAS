@@ -28,7 +28,7 @@ services:
     volumes:
       - ./config/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
     networks:
-      - workspace-network
+      - forge-network
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -36,6 +36,6 @@ services:
       - "traefik.enable=false"
 
 networks:
-  workspace-network:
+  forge-network:
     external: true
-    name: workspace-network
+    name: forge-network

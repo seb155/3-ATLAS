@@ -78,7 +78,7 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    MeiliSearch Container                            │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  workspace-meilisearch:7700                                  │  │
+│  │  forge-meilisearch:7700                                  │  │
 │  │  ├── synapse_assets   (tag, description, system, area)       │  │
 │  │  ├── synapse_rules    (name, description, trigger_type)      │  │
 │  │  ├── synapse_cables   (tag, from_location, to_location)      │  │
@@ -94,7 +94,7 @@
 services:
   meilisearch:
     image: getmeili/meilisearch:v1.11
-    container_name: workspace-meilisearch
+    container_name: forge-meilisearch
     environment:
       MEILI_ENV: development
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
@@ -104,7 +104,7 @@ services:
     ports:
       - "7700:7700"
     networks:
-      - workspace-network
+      - forge-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--spider", "http://localhost:7700/health"]
 ```

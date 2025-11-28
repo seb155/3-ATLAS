@@ -42,7 +42,7 @@ netstat -ano | findstr "4000 5433 5555 8001"
 
 **Verify workspace running:**
 ```bash
-docker exec workspace-postgres pg_isready -U postgres
+docker exec forge-postgres pg_isready -U postgres
 ```
 
 **Expected:** "accepting connections"

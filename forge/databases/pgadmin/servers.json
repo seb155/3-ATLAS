@@ -1,9 +1,9 @@
 {
     "Servers": {
         "1": {
-            "Name": "Workspace PostgreSQL",
+            "Name": "FORGE PostgreSQL",
             "Group": "Servers",
-            "Host": "workspace-postgres",
+            "Host": "forge-postgres",
             "Port": 5432,
             "MaintenanceDB": "postgres",
             "Username": "postgres",

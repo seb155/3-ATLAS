@@ -34,5 +34,5 @@ services:
       - "traefik.http.routers.synapse.middlewares=synapse-headers"
 
 networks:
-  workspace-network:
+  forge-network:
     external: true

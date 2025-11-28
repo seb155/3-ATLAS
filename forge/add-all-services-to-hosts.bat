@@ -102,6 +102,6 @@ echo   - Portainer:      https://portainer.axoiq.com
 echo   - Traefik:        https://traefik.axoiq.com
 echo.
 echo Next step: Restart Traefik to load all routes
-echo   docker restart workspace-traefik
+echo   docker restart forge-traefik
 echo.
 pause

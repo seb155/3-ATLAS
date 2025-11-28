@@ -24,7 +24,7 @@ Configuration terminée le: **2025-11-27**
 
 ### 3. Traefik (Reverse Proxy)
 
-**Container:** `workspace-traefik`
+**Container:** `forge-traefik`
 - 🔐 HTTPS: Port `443`
 - 🌐 HTTP: Port `80`
 - 📊 Dashboard: http://localhost:8888
@@ -119,10 +119,10 @@ services:
   mon-service:
     image: mon-image:latest
     networks:
-      - workspace-network  # Important!
+      - forge-network  # Important!
 
 networks:
-  workspace-network:
+  forge-network:
     external: true
 ```
 
@@ -150,7 +150,7 @@ http:
 ### Étape 3: Redémarrer Traefik
 
 ```powershell
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 ### Étape 4: Accéder
@@ -170,8 +170,8 @@ docker restart workspace-traefik
 # Tous les conteneurs
 docker ps
 
-# Services sur workspace-network
-docker network inspect workspace-network
+# Services sur forge-network
+docker network inspect forge-network
 
 # Routes Traefik
 curl http://localhost:8888/api/http/routers | python -m json.tool
@@ -185,7 +185,7 @@ nslookup nexus.axoiq.com
 
 ```powershell
 # Traefik
-docker logs workspace-traefik --tail 50 -f
+docker logs forge-traefik --tail 50 -f
 
 # dnsmasq
 docker logs workspace-dnsmasq --tail 50 -f
@@ -199,7 +199,7 @@ docker logs nexus-frontend --tail 50 -f
 
 ```powershell
 # Traefik
-docker restart workspace-traefik
+docker restart forge-traefik
 
 # DNS
 docker restart workspace-dnsmasq
@@ -266,9 +266,9 @@ Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('192.168.x.
 
 ### Service retourne 404
 
-1. Vérifier que le conteneur est sur `workspace-network`
+1. Vérifier que le conteneur est sur `forge-network`
 2. Vérifier la route dans `config/traefik/dynamic.yml`
-3. Redémarrer Traefik: `docker restart workspace-traefik`
+3. Redémarrer Traefik: `docker restart forge-traefik`
 
 ### DNS ne résout pas
 
@@ -281,7 +281,7 @@ Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('192.168.x.
 
 1. Vérifier que mkcert CA est installée: `mkcert -install`
 2. Vider le cache du navigateur
-3. Redémarrer Traefik: `docker restart workspace-traefik`
+3. Redémarrer Traefik: `docker restart forge-traefik`
 
 ---
 

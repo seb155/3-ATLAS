@@ -68,20 +68,20 @@ docker-compose down
 docker-compose down -v
 
 # Access PostgreSQL
-docker exec -it workspace-postgres psql -U postgres -d synapse
+docker exec -it forge-postgres psql -U postgres -d synapse
 ```
 
 ---
 
 ## Network
 
-Workspace creates `workspace-network` that apps connect to:
+Workspace creates `forge-network` that apps connect to:
 
 ```yaml
 # In app's docker-compose.dev.yml
 networks:
   default:
-    name: workspace-network
+    name: forge-network
     external: true
 ```
 

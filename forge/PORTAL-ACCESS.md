@@ -154,17 +154,17 @@ workspace/homepage/config/
 - synapse-backend
 
 **Workspace Core (6):**
-- workspace-postgres
-- workspace-redis
-- workspace-loki
-- workspace-grafana
-- workspace-promtail
-- workspace-pgadmin
+- forge-postgres
+- forge-redis
+- forge-loki
+- forge-grafana
+- forge-promtail
+- forge-pgadmin
 
 **Portal & Infrastructure (3):**
-- workspace-homepage
-- workspace-traefik
-- workspace-prisma
+- forge-homepage
+- forge-traefik
+- forge-prisma
 
 **ReportPortal:** Removed (using local HTML + Vitest UI)
 
@@ -192,7 +192,7 @@ HTML report: `apps/synapse/frontend/playwright-report/index.html`
 ### Portal not loading?
 ```powershell
 # Check Homepage container
-docker logs workspace-homepage --tail 50
+docker logs forge-homepage --tail 50
 
 # Restart Homepage
 cd workspace

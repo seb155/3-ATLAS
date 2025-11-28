@@ -77,7 +77,7 @@ Ce script:
 ### Étape 3: Redémarrer Traefik
 
 ```powershell
-docker restart workspace-traefik
+docker restart forge-traefik
 ```
 
 Attendre 10 secondes que Traefik charge les nouveaux certificats.
@@ -113,8 +113,8 @@ ls D:\Projects\EPCB-Tools\workspace\config\traefik\*.key
 
 **3. Redémarrer Traefik:**
 ```powershell
-docker restart workspace-traefik
-docker logs workspace-traefik --tail 50
+docker restart forge-traefik
+docker logs forge-traefik --tail 50
 ```
 
 **4. Vider le cache du navigateur:**
@@ -149,7 +149,7 @@ docker ps | findstr traefik
 
 **1. Vérifier les logs:**
 ```powershell
-docker logs workspace-traefik --tail 100 | findstr -i "certificate\|tls\|error"
+docker logs forge-traefik --tail 100 | findstr -i "certificate\|tls\|error"
 ```
 
 **2. Vérifier les permissions:**

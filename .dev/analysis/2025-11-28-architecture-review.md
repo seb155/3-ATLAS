@@ -229,7 +229,7 @@ npm run type-check
 npm run test
 
 # Verify indexes
-docker exec -it workspace-postgres psql -U postgres -d synapse -c "\di"
+docker exec -it forge-postgres psql -U postgres -d synapse -c "\di"
 ```
 
 ---

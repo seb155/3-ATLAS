@@ -28,7 +28,7 @@ workspace/docker-compose.yml
 └── reportportal-jobs          (Background tasks)
 ```
 
-**Database:** Shares `workspace-postgres` (database: `reportportal`)
+**Database:** Shares `forge-postgres` (database: `reportportal`)
 
 ---
 
@@ -390,8 +390,8 @@ sysctl -w vm.max_map_count=262144
 
 ```bash
 # Reset ReportPortal database
-docker exec -it workspace-postgres psql -U postgres -c "DROP DATABASE reportportal;"
-docker exec -it workspace-postgres psql -U postgres -c "CREATE DATABASE reportportal;"
+docker exec -it forge-postgres psql -U postgres -c "DROP DATABASE reportportal;"
+docker exec -it forge-postgres psql -U postgres -c "CREATE DATABASE reportportal;"
 
 # Restart migrations
 docker-compose -f workspace/docker-compose.yml restart reportportal-migrations

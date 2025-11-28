@@ -9,7 +9,7 @@ services:
     container_name: owner-portal
     restart: unless-stopped
     networks:
-      - workspace-network
+      - forge-network
     labels:
       traefik.enable: "true"
       traefik.http.routers.owner-portal.rule: Host(`portal.localhost`)
@@ -18,5 +18,5 @@ services:
       traefik.http.services.owner-portal.loadbalancer.server.port: "80"
 
 networks:
-  workspace-network:
+  forge-network:
     external: true

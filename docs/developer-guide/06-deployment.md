@@ -45,10 +45,10 @@ docker ps
 ```
 
 Should show 6 containers:
-- `workspace-postgres`
-- `workspace-prisma`
-- `workspace-pgadmin`
-- `workspace-redis`
+- `forge-postgres`
+- `forge-prisma`
+- `forge-pgadmin`
+- `forge-redis`
 - `synapse-backend-1`
 - `synapse-frontend-1`
 

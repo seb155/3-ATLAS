@@ -48,7 +48,7 @@
         description: PostgreSQL Admin UI
         widget:
           type: docker
-          container: workspace-pgadmin
+          container: forge-pgadmin
           server: docker-socket
 
     - Prisma Studio:
@@ -57,7 +57,7 @@
         description: Visual Database Viewer
         widget:
           type: docker
-          container: workspace-prisma
+          container: forge-prisma
           server: docker-socket
 
 # ============================================================================
@@ -70,7 +70,7 @@
         description: Metrics & Log Dashboards
         widget:
           type: docker
-          container: workspace-grafana
+          container: forge-grafana
           server: docker-socket
 
     - Loki API:
@@ -79,7 +79,7 @@
         description: Log Aggregation Service
         widget:
           type: docker
-          container: workspace-loki
+          container: forge-loki
           server: docker-socket
 
 # ============================================================================
@@ -92,7 +92,7 @@
         description: Reverse Proxy & SSL Manager
         widget:
           type: docker
-          container: workspace-traefik
+          container: forge-traefik
           server: docker-socket
 
     - Portainer:

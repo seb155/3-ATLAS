@@ -15,10 +15,10 @@ services:
       - ./backend:/app
       - backend-cache:/app/__pycache__
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse
-      ANALYTICS_DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse_analytics
-      TEST_DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/synapse_test
-      POSTGRES_SERVER: workspace-postgres
+      DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/synapse
+      ANALYTICS_DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/synapse_analytics
+      TEST_DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/synapse_test
+      POSTGRES_SERVER: forge-postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: synapse
@@ -26,7 +26,7 @@ services:
       DEBUG: "true"
       LOG_LEVEL: DEBUG
       LOKI_URL: http://loki:3100
-      MEILISEARCH_URL: http://workspace-meilisearch:7700
+      MEILISEARCH_URL: http://forge-meilisearch:7700
       MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
     labels:
       logging: "promtail"
@@ -34,7 +34,7 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - default
-      - workspace-network
+      - forge-network
 
   frontend:
     build:
@@ -58,5 +58,5 @@ volumes:
 
 
 networks:
-  workspace-network:
+  forge-network:
     external: true

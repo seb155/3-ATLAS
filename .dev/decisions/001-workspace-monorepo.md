@@ -175,7 +175,7 @@ EPCB-Tools/
 2. **`apps/synapse/docker-compose.dev.yml`**
    - Backend (FastAPI with hot-reload)
    - Frontend (Vite dev server)
-   - Connects to `workspace-postgres`
+   - Connects to `forge-postgres`
 
 3. **Quick start scripts**
    - `dev.ps1` - Start workspace + SYNAPSE

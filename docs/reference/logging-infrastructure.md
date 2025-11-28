@@ -288,7 +288,7 @@ curl http://localhost:3100/ready
 
 1. Check Promtail is running:
    ```bash
-   docker logs workspace-promtail --tail 20
+   docker logs forge-promtail --tail 20
    ```
 
 2. Verify backend has `logging=promtail` label in docker-compose

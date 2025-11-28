@@ -11,9 +11,9 @@
 #                                  -f ../apps/nexus/docker-compose.traefik-labels.yml up -d
 #
 # Prerequisites:
-#   - workspace-network must exist (created by workspace/docker-compose.yml)
-#   - workspace-postgres must be running
-#   - workspace-redis must be running
+#   - forge-network must exist (created by workspace/docker-compose.yml)
+#   - forge-postgres must be running
+#   - forge-redis must be running
 # ==============================================================================
 
 services:
@@ -33,11 +33,11 @@ services:
       - backend-venv:/app/.venv  # Persist virtual environment
     environment:
       # ========================================================================
-      # DATABASE CONFIGURATION (Workspace PostgreSQL)
+      # DATABASE CONFIGURATION (FORGE PostgreSQL)
       # ========================================================================
-      DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/nexus
-      AUTH_DATABASE_URL: postgresql://postgres:postgres@workspace-postgres:5432/postgres?options=-csearch_path%3Dworkspace_auth
-      POSTGRES_SERVER: workspace-postgres
+      DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/nexus
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/postgres?options=-csearch_path%3Dworkspace_auth
+      POSTGRES_SERVER: forge-postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: nexus
@@ -45,7 +45,7 @@ services:
       # ========================================================================
       # REDIS CONFIGURATION (Workspace Redis with key prefix)
       # ========================================================================
-      REDIS_URL: redis://workspace-redis:6379
+      REDIS_URL: redis://forge-redis:6379
       REDIS_KEY_PREFIX: "nexus:"
 
       # ========================================================================
@@ -84,9 +84,9 @@ services:
 
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     networks:
-      - workspace-network
+      - forge-network
     restart: unless-stopped
-    # Note: workspace-postgres and workspace-redis are external services
+    # Note: forge-postgres and forge-redis are external services
     # They must be running before starting Nexus
 
     healthcheck:
@@ -138,7 +138,7 @@ services:
       logging_jobname: "nexus-frontend"
 
     networks:
-      - workspace-network
+      - forge-network
     depends_on:
       - backend
     restart: unless-stopped
@@ -163,17 +163,17 @@ volumes:
 # NETWORKS
 # ==============================================================================
 networks:
-  workspace-network:
+  forge-network:
     external: true
-    name: workspace-network
+    name: forge-network
 
 # ==============================================================================
 # NOTES
 # ==============================================================================
 # 1. This compose file expects workspace infrastructure to be running:
-#    - workspace-postgres (PostgreSQL 15)
-#    - workspace-redis (Redis 7)
-#    - workspace-network (Docker bridge network)
+#    - forge-postgres (PostgreSQL 15)
+#    - forge-redis (Redis 7)
+#    - forge-network (Docker bridge network)
 #
 # 2. Start workspace first:
 #    cd D:\Projects\EPCB-Tools\workspace
@@ -192,6 +192,6 @@ networks:
 #    - Query: {logging_jobname="nexus-backend"} or {logging_jobname="nexus-frontend"}
 #
 # 6. Database:
-#    - Connect: docker exec -it workspace-postgres psql -U postgres -d nexus
+#    - Connect: docker exec -it forge-postgres psql -U postgres -d nexus
 #    - Auth DB: \c postgres; SET search_path TO workspace_auth; SELECT * FROM users;
 # ==============================================================================

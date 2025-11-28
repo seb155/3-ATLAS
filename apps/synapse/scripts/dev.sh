@@ -7,7 +7,7 @@ echo ""
 cd "$(dirname "$0")/.."
 
 # Check if workspace is running
-if ! docker network ls | grep -q workspace-network; then
+if ! docker network ls | grep -q forge-network; then
     echo "❌ Workspace not started!"
     echo "📝 Run: cd ../../workspace && ./scripts/start.sh"
     exit 1

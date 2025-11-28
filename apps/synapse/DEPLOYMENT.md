@@ -51,7 +51,7 @@ cd EPCB-Tools
 
 ```bash
 cd workspace
-docker compose up -d workspace-postgres workspace-redis
+docker compose up -d forge-postgres forge-redis
 ```
 
 ### 3. Configurer l'environnement
@@ -237,7 +237,7 @@ docker logs synapse-nginx -f
 docker stats
 
 # Connexions DB
-docker exec workspace-postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
+docker exec forge-postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
 ```
 
 ### Health Checks
@@ -261,10 +261,10 @@ curl http://localhost/api/v1/ai/health
 
 ```bash
 # Backup
-docker exec workspace-postgres pg_dump -U postgres synapse > backup_$(date +%Y%m%d).sql
+docker exec forge-postgres pg_dump -U postgres synapse > backup_$(date +%Y%m%d).sql
 
 # Restore
-cat backup_20241128.sql | docker exec -i workspace-postgres psql -U postgres synapse
+cat backup_20241128.sql | docker exec -i forge-postgres psql -U postgres synapse
 ```
 
 ### Volumes Docker
@@ -306,7 +306,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production up -d
 docker logs synapse-backend 2>&1 | tail -50
 
 # Cause commune: PostgreSQL pas prêt
-docker exec workspace-postgres pg_isready -U postgres
+docker exec forge-postgres pg_isready -U postgres
 ```
 
 ### Ollama lent

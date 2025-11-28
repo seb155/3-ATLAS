@@ -57,6 +57,6 @@ echo   - Grafana:  https://grafana.axoiq.com
 echo   - pgAdmin:  https://pgadmin.axoiq.com
 echo.
 echo Next step: Restart Traefik
-echo   docker restart workspace-traefik
+echo   docker restart forge-traefik
 echo.
 pause

@@ -63,18 +63,18 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host ""
 Write-Host "[3/5] Initializing Nexus Database..." -ForegroundColor Yellow
 # Check if database is initialized
-$DB_CHECK = docker exec workspace-postgres psql -U postgres -d postgres -t -c "SELECT 1 FROM pg_database WHERE datname = 'nexus'" 2>$null
+$DB_CHECK = docker exec forge-postgres psql -U postgres -d postgres -t -c "SELECT 1 FROM pg_database WHERE datname = 'nexus'" 2>$null
 
 if ($DB_CHECK -match "1") {
     Write-Host "  Database 'nexus' already exists" -ForegroundColor Gray
 } else {
     Write-Host "  Creating nexus database and workspace_auth schema..." -ForegroundColor Gray
-    docker exec -i workspace-postgres psql -U postgres < databases\postgres\init\04-nexus-init.sql
+    docker exec -i forge-postgres psql -U postgres < databases\postgres\init\04-nexus-init.sql
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  Database initialized successfully" -ForegroundColor Green
     } else {
         Write-Host "  ERROR: Database initialization failed" -ForegroundColor Red
-        Write-Host "  Run manually: docker exec -i workspace-postgres psql -U postgres < databases\postgres\init\04-nexus-init.sql" -ForegroundColor Yellow
+        Write-Host "  Run manually: docker exec -i forge-postgres psql -U postgres < databases\postgres\init\04-nexus-init.sql" -ForegroundColor Yellow
     }
 }
 
@@ -121,9 +121,9 @@ Write-Host "http://localhost:5050" -ForegroundColor White
 Write-Host ""
 Write-Host "Database:" -ForegroundColor Yellow
 Write-Host "  PostgreSQL:      " -NoNewline -ForegroundColor Gray
-Write-Host "localhost:5433 (workspace-postgres)" -ForegroundColor White
+Write-Host "localhost:5433 (forge-postgres)" -ForegroundColor White
 Write-Host "  nexus DB:        " -NoNewline -ForegroundColor Gray
-Write-Host "docker exec -it workspace-postgres psql -U postgres -d nexus" -ForegroundColor White
+Write-Host "docker exec -it forge-postgres psql -U postgres -d nexus" -ForegroundColor White
 Write-Host "  Auth schema:     " -NoNewline -ForegroundColor Gray
 Write-Host "\c postgres; SET search_path TO workspace_auth;" -ForegroundColor White
 Write-Host ""

@@ -14,7 +14,7 @@ from app.core.database import Base, get_db
 from app.main import app
 
 # PostgreSQL test database URL
-# Use localhost:5433 when running from host, workspace-postgres:5432 when in Docker
+# Use localhost:5433 when running from host, forge-postgres:5432 when in Docker
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5433/synapse_test"
