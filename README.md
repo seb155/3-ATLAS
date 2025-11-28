@@ -108,7 +108,8 @@ cd AXIOM
 | SYNAPSE | http://localhost:4000 |
 | NEXUS | http://localhost:5173 |
 | pgAdmin | http://localhost:5050 |
-| Grafana | http://localhost:3001 |
+| Grafana | http://localhost:3000 |
+| Prisma Studio | http://localhost:5555 |
 
 **Default credentials:** `admin@axoiq.com` / `admin123!`
 
@@ -162,13 +163,40 @@ AXIOM/
 
 ---
 
+## FORGE Infrastructure
+
+Shared services available to all applications:
+
+| Service | Container | Port | Description |
+|---------|-----------|------|-------------|
+| PostgreSQL | `forge-postgres` | 5433 | Main database |
+| Redis | `forge-redis` | 6379 | Cache & sessions |
+| pgAdmin | `forge-pgadmin` | 5050 | Database admin UI |
+| Prisma Studio | `forge-prisma` | 5555 | Schema viewer |
+| Grafana | `forge-grafana` | 3000 | Log visualization |
+| Loki | `forge-loki` | 3100 | Log aggregation |
+| MeiliSearch | `forge-meilisearch` | 7700 | Full-text search |
+
+```powershell
+# Start FORGE only
+cd forge
+docker-compose up -d
+
+# Start specific services
+docker-compose up -d forge-postgres forge-redis
+```
+
+---
+
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
 | [CLAUDE.md](./CLAUDE.md) | AI assistant guide |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history |
 | [docs/](./docs/) | Full documentation |
-| [.agent/workflows/](./apps/synapse/.agent/workflows/) | Development workflows |
+| [.agent/workflows/](./.agent/workflows/) | Development workflows |
+| [.dev/](./.dev/) | Development context & journals |
 
 ---
 

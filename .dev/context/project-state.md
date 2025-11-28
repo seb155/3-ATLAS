@@ -1,8 +1,21 @@
-# EPCB-Tools Project State
+# AXIOM Platform State
 
-**Primary Project:** SYNAPSE - MBSE Platform for EPCM Automation
-**Secondary Project:** Dev Hub - Development Portal (Planning Phase)
-**Last Updated:** 2025-11-28 (Whiteboard Session + Lifecycle Whiteboard complete)
+**Platform:** AXIOM - AXoiq Enterprise Suite
+**Repository:** https://github.com/seb155/AXIOM
+**Last Updated:** 2025-11-28 (Migration to AXIOM complete)
+
+---
+
+## Platform Applications
+
+| App | Purpose | Status |
+|-----|---------|--------|
+| **SYNAPSE** | MBSE Platform for EPCM Automation | MVP Dec 20, 2025 |
+| **NEXUS** | Knowledge Graph + Notes/Wiki | Phase 1.5 |
+| **PRISM** | Enterprise Portal / Dashboard | Development |
+| **ATLAS** | AI Collaboration Environment | Planning |
+
+**Infrastructure:** **FORGE** (PostgreSQL, Redis, Grafana, Loki, MeiliSearch)
 
 ---
 

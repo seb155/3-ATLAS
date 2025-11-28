@@ -217,3 +217,38 @@ Read `.agent/workflows/01-new-session.md`
 
 **Version:** v1.0.0 | **MVP Target:** Dec 20, 2025
 **Platform:** AXIOM by AXoiq
+
+## FORGE Services
+
+| Service | Container | Port | URL |
+|---------|-----------|------|-----|
+| PostgreSQL | `forge-postgres` | 5433 | - |
+| Redis | `forge-redis` | 6379 | - |
+| pgAdmin | `forge-pgadmin` | 5050 | http://localhost:5050 |
+| Prisma Studio | `forge-prisma` | 5555 | http://localhost:5555 |
+| Grafana | `forge-grafana` | 3000 | http://localhost:3000 |
+| Loki | `forge-loki` | 3100 | http://localhost:3100 |
+| MeiliSearch | `forge-meilisearch` | 7700 | http://localhost:7700 |
+
+---
+
+## Migration History (2025-11-28)
+
+This repository was created by consolidating multiple projects:
+
+| Original | New Location | Notes |
+|----------|--------------|-------|
+| EPCB-Tools | AXIOM/ | Monorepo root |
+| EPCB-Tools/apps/synapse | apps/synapse/ | Unchanged |
+| nexus/ (separate repo) | apps/nexus/ | Integrated |
+| EPCB-Tools/apps/portal | apps/prism/ | Renamed |
+| EPCB-Tools/workspace | forge/ | Renamed |
+| (new) | apps/atlas/ | Created |
+
+Infrastructure renamed: `workspace-*` → `forge-*`
+
+See `docs/MIGRATION-AXIOM.md` for full details.
+
+---
+
+**Repository:** https://github.com/seb155/AXIOM
