@@ -2,274 +2,204 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **AXIOM Platform** - AXoiq Enterprise Suite
-> **Master Index:** `ATLAS.md` | **Context Index:** `.dev/index.md`
-
----
-
 ## Platform Overview
 
-**AXIOM** is the unified AXoiq development platform containing:
+**AXIOM** is the unified AXoiq development platform - a monorepo containing:
 
-| App | Purpose | Status |
-|-----|---------|--------|
-| **SYNAPSE** | MBSE Platform for EPCM Engineering | MVP Dec 20, 2025 |
-| **NEXUS** | Personal Knowledge Graph + Notes/Wiki | Phase 1.5 |
-| **PRISM** | Enterprise Portal / Dashboard | Development |
-| **ATLAS** | AI Collaboration Environment | Planning |
+| App | Purpose | Port | Status |
+|-----|---------|------|--------|
+| **SYNAPSE** | MBSE Platform (FastAPI + React 19) | 4000 | MVP Dec 2025 |
+| **NEXUS** | Knowledge Graph + Notes/Wiki | 5173 | Phase 1.5 |
+| **PRISM** | Enterprise Dashboard | 5174 | Development |
+| **ATLAS** | AI Collaboration Environment | 5175 | Planning |
 
-**Infrastructure:** **FORGE** (shared workspace with PostgreSQL, Redis, Traefik, etc.)
-
----
-
-## Project Structure
-
-```
-AXIOM/
-├── apps/
-│   ├── synapse/          # MBSE Platform (FastAPI + React 19)
-│   ├── nexus/            # Knowledge Graph Portal
-│   ├── prism/            # Enterprise Dashboard
-│   └── atlas/            # AI Collaboration Env
-│
-├── forge/                # Shared Infrastructure
-│   ├── docker-compose.yml
-│   ├── config/
-│   ├── databases/
-│   └── scripts/
-│
-├── docs/                 # Documentation
-├── .agent/               # AI Workflows
-├── .dev/                 # Development Context
-│
-├── dev.ps1               # Start development
-├── stop.ps1              # Stop all services
-└── CLAUDE.md             # This file
-```
-
----
-
-## Technology Stack
-
-### Backend (SYNAPSE)
-- **Framework**: FastAPI 0.121+ (Python 3.10+)
-- **Database**: PostgreSQL 15 via SQLAlchemy 2.0+
-- **Migrations**: Alembic
-- **Auth**: JWT (python-jose) + OAuth2
-- **Testing**: pytest (>70% coverage target)
-- **Linting**: Ruff + Black
-
-### Frontend (All Apps)
-- **Framework**: React 19 + TypeScript (strict mode)
-- **Build**: Vite 7.2+
-- **State**: Zustand
-- **UI**: Shadcn/ui + Radix UI + Tailwind CSS
-- **Router**: React Router v6
-- **HTTP**: Axios (with interceptors)
-
-### Infrastructure (FORGE)
-- **Containerization**: Docker Compose
-- **Database**: PostgreSQL 15 (forge-postgres)
-- **Cache**: Redis 7 (forge-redis)
-- **Logging**: Loki + Grafana + Promtail
-- **Proxy**: Traefik
+**FORGE** = Shared infrastructure (PostgreSQL 5433, Redis 6379, Grafana 3000, Loki 3100)
 
 ---
 
 ## Quick Start
 
-### Prerequisites
 ```powershell
-# 1. Start FORGE infrastructure FIRST
-cd forge
-docker compose up -d forge-postgres forge-redis
-
-# Wait for PostgreSQL to be healthy
-docker ps --filter "name=postgres"  # Should show "healthy"
-```
-
-### Start Applications
-```powershell
-# Option 1: Start SYNAPSE (primary app)
+# Start everything (FORGE + SYNAPSE)
 .\dev.ps1
 
-# Option 2: Start specific app
-cd apps/synapse
-docker compose -f docker-compose.dev.yml up --build
-```
+# Or start manually:
+cd forge && docker compose up -d forge-postgres forge-redis
+cd apps/synapse && docker compose -f docker-compose.dev.yml up --build
 
-**Default Credentials:**
-- Email: `admin@axoiq.com`
-- Password: `admin123!`
-
----
-
-## Applications
-
-### SYNAPSE - MBSE Platform
-**Path:** `apps/synapse/`
-**Purpose:** Model-Based Systems Engineering for EPCM Automation
-**Status:** MVP (Dec 20, 2025)
-
-```powershell
-cd apps/synapse
-docker compose -f docker-compose.dev.yml up --build
 # Access: http://localhost:4000
+# Login: admin@axoiq.com / admin123!
 ```
-
-### NEXUS - Knowledge Graph
-**Path:** `apps/nexus/`
-**Purpose:** Personal/Team Knowledge Graph + Notes + Wiki + Tasks
-**Status:** Phase 1.5 (Visual Polish)
-
-```powershell
-cd apps/nexus
-.\dev.ps1
-# Access: http://localhost:5173
-```
-
-### PRISM - Enterprise Portal
-**Path:** `apps/prism/`
-**Purpose:** Enterprise Dashboard / Project Portal
-**Status:** Development
-
-### ATLAS - AI Collaboration
-**Path:** `apps/atlas/`
-**Purpose:** AI-assisted development environment
-**Status:** Planning
 
 ---
 
 ## Development Commands
 
-### Backend (FastAPI)
+### Backend (SYNAPSE - `apps/synapse/backend/`)
+
 ```bash
-cd apps/synapse/backend
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run development server
+# Run server (inside container or locally)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Database migrations
 alembic upgrade head
 alembic revision --autogenerate -m "description"
 
-# Run tests
-pytest --cov=app
+# Tests
+pytest                          # All tests
+pytest -k "test_name"           # Single test by name
+pytest tests/test_rules.py      # Single file
+pytest --cov=app                # With coverage
+pytest --cov=app --cov-report=html  # Coverage HTML report
+
+# Linting
+ruff check . --fix
 ```
 
-### Frontend (React + Vite)
+### Frontend (SYNAPSE - `apps/synapse/frontend/`)
+
 ```bash
-cd apps/synapse/frontend
-
-# Install dependencies
-npm install
-
-# Development server
-npm run dev
-
-# Testing
-npm run test
-npm run test:coverage
+npm run dev                     # Dev server (port 4000)
+npm run build                   # Production build
+npm run test                    # Run tests
+npm run test:watch              # Watch mode
+npm run test:coverage           # Coverage report
+npm run lint:fix                # Fix linting issues
+npm run type-check              # TypeScript check
 ```
 
-### Docker Commands
+### Docker
+
 ```bash
-# View logs
-docker logs synapse-backend --tail 50 -f
-
-# Restart services
-docker restart synapse-backend
-
-# Access database
-docker exec -it forge-postgres psql -U postgres -d synapse
+docker logs synapse-backend -f --tail 100    # View logs
+docker restart synapse-backend               # Restart service
+docker exec -it forge-postgres psql -U postgres -d synapse  # DB shell
 ```
+
+---
+
+## Architecture
+
+### SYNAPSE Backend (`apps/synapse/backend/app/`)
+
+```
+app/
+├── main.py              # FastAPI app + exception handlers
+├── api/endpoints/       # Route handlers (auth, assets, rules, ingestion, etc.)
+├── services/            # Business logic
+│   ├── rule_engine.py         # Rule execution engine
+│   ├── cable_sizing.py        # Cable calculations
+│   ├── ingestion_service.py   # CSV/Excel import
+│   └── validation_service.py  # Data validation
+├── models/              # SQLAlchemy ORM models
+├── schemas/             # Pydantic request/response schemas
+├── core/
+│   ├── database.py      # DB connection + session
+│   ├── config.py        # Settings (env vars)
+│   ├── auth.py          # JWT authentication
+│   └── exceptions.py    # Custom exception classes
+└── scripts/             # Seed data + utilities
+```
+
+**Key API endpoints:**
+- `/api/v1/auth/*` - Authentication (JWT)
+- `/api/v1/projects/*` - Project management
+- `/api/v1/assets/*` - Asset CRUD
+- `/api/v1/rules/*` - Rule definitions
+- `/api/v1/ingest/*` - CSV/Excel import
+
+### Frontend Architecture
+
+React 19 + TypeScript + Vite + Zustand (state) + React Router v6
+
+---
+
+## Naming Conventions
+
+**Rule names:** Use spaces/colons, NEVER underscores
+- ✅ `FIRM: Centrifugal Pumps require Electric Motor`
+- ✅ `PROJECT-GoldMine: Use ABB Motors`
+- ❌ `firm_motor_rule`
+
+**Code:**
+- Python: `snake_case` files, `PascalCase` classes, `snake_case` functions
+- TypeScript: `PascalCase.tsx` components, `camelCase.ts` utils
+- Database: `plural_snake_case` tables, `snake_case` columns
+
+---
+
+## FORGE Infrastructure
+
+| Service | Container | Port |
+|---------|-----------|------|
+| PostgreSQL | `forge-postgres` | 5433 |
+| Redis | `forge-redis` | 6379 |
+| pgAdmin | `forge-pgadmin` | 5050 |
+| Prisma Studio | `forge-prisma` | 5555 |
+| Grafana | `forge-grafana` | 3000 |
+| MeiliSearch | `forge-meilisearch` | 7700 |
+| Docs (Docsify) | `forge-wiki` | 3080 |
 
 ---
 
 ## Session Start
 
-**Use `/01-new-session` workflow at EVERY session start**
+At EVERY session start, load context:
 
-### Quick Start
 ```powershell
+# Automated
 .\.dev\scripts\smart-resume-enhanced.ps1
+
+# Or manually read:
+# 1. .dev/context/project-state.md    # Current MVP status
+# 2. .dev/testing/test-status.md      # Test validation status
+# 3. git status --short               # Uncommitted changes
 ```
 
-### Manual Start
-Read `.agent/workflows/01-new-session.md`
+**Related workflows:** `.agent/workflows/01-new-session.md`
 
 ---
 
-## Navigation
+## Key Files
 
 | Need | File |
 |------|------|
-| **Session start** | `.agent/workflows/01-new-session.md` |
-| **AI system docs** | `00_AGENT_START.md` |
-| **Current state** | `.dev/context/project-state.md` |
-| **Test tracking** | `.dev/testing/test-status.md` |
+| Project state | `.dev/context/project-state.md` |
+| Test tracking | `.dev/testing/test-status.md` |
+| AI workflows | `.agent/workflows/` |
 | Credentials | `.dev/context/credentials.md` |
 
 ---
 
-**Version:** v1.0.0 | **MVP Target:** Dec 20, 2025
-**Platform:** AXIOM by AXoiq
+## AI Agents System
 
-## FORGE Services
+### Orchestrators (Opus)
 
-| Service | Container | Port | URL |
-|---------|-----------|------|-----|
-| PostgreSQL | `forge-postgres` | 5433 | - |
-| Redis | `forge-redis` | 6379 | - |
-| pgAdmin | `forge-pgadmin` | 5050 | http://localhost:5050 |
-| Prisma Studio | `forge-prisma` | 5555 | http://localhost:5555 |
-| Grafana | `forge-grafana` | 3000 | http://localhost:3000 |
-| Loki | `forge-loki` | 3100 | http://localhost:3100 |
-| MeiliSearch | `forge-meilisearch` | 7700 | http://localhost:7700 |
-| Wiki | `forge-wiki` | 3080 | http://localhost:3080 |
+| Agent | Command | Purpose |
+|-------|---------|---------|
+| **ATLAS** | - | Main orchestrator, routes tasks to specialists |
+| **BRAINSTORM** | `/brainstorm` | Creative sessions for specs |
+| **SYSTEM-ARCHITECT** | `/system` | AI system governance (bypass) |
+| **GENESIS** | `/genesis` | AI evolution & agent creation (bypass) |
 
----
+### GENESIS - Meta-Agent
 
-## Migration History (2025-11-28)
+GENESIS est le meta-agent d'evolution du systeme. Il fonctionne en **bypass** (parallele a tous les autres agents).
 
-This repository was created by consolidating multiple projects:
+```text
+/genesis analyze    # Analyse sessions, identifie patterns
+/genesis recommend  # Affiche recommandations en attente
+/genesis create     # Cree drafts d'agents/skills/commands
+/genesis benchmark  # Compare performances des agents
+/genesis watch      # Veille technologique (web)
+/genesis self       # Auto-amelioration
+```
 
-| Original | New Location | Notes |
-|----------|--------------|-------|
-| EPCB-Tools | AXIOM/ | Monorepo root |
-| EPCB-Tools/apps/synapse | apps/synapse/ | Unchanged |
-| nexus/ (separate repo) | apps/nexus/ | Integrated |
-| EPCB-Tools/apps/portal | apps/prism/ | Renamed |
-| EPCB-Tools/workspace | forge/ | Renamed |
-| (new) | apps/atlas/ | Created |
-
-Infrastructure renamed: `workspace-*` → `forge-*`
-
-See `docs/MIGRATION-AXIOM.md` for full details.
+**Fichiers GENESIS:**
+- `.claude/context/genesis-observations.md` - Recommandations
+- `.claude/context/agent-metrics.md` - Metriques des agents
+- `.claude/agents/drafts/` - Drafts en attente de validation
 
 ---
 
 **Repository:** https://github.com/seb155/AXIOM
-
----
-
-## Documentation
-
-Documentation is served via **Docsify** at http://localhost:3080
-
-**Local files:** `docs/` directory (edit Markdown files directly)
-
-| Documentation | Path |
-|---------------|------|
-| Platform Overview | `docs/README.md` |
-| Migration Guide | `docs/MIGRATION-AXIOM.md` |
-| SYNAPSE docs | `docs/apps/synapse.md` |
-| NEXUS docs | `docs/apps/nexus.md` |
-| PRISM docs | `docs/apps/prism.md` |
-| ATLAS docs | `docs/apps/atlas.md` |
-| Getting Started | `docs/getting-started/` |
-| Developer Guide | `docs/developer-guide/` |
-| Reference | `docs/reference/` |

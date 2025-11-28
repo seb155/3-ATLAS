@@ -24,6 +24,11 @@
   * [Workflow Engine](developer-guide/workflow-engine.md)
   * [Rule Engine](developer-guide/rule-engine-event-sourcing.md)
 
+* **🤖 AI Agents**
+  * [Guide Rapide](developer-guide/ai-agents-overview.md)
+  * [Documentation Technique](developer-guide/ai-agents-system.md)
+  * [Checklist Implementation](developer-guide/ai-agents-checklist.md)
+
 * **📖 Reference**
   * [Design System](reference/design-system.md)
   * [UI Vision](reference/ui-vision.md)

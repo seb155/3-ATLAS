@@ -119,15 +119,26 @@ Status: In Development
 
 Leverage AI to accelerate development and decision-making.
 
-**Planned Features:**
-- 🧠 **Context-Aware AI** - Understands your codebase and domain
-- 🔄 **Multi-Agent Workflows** - Specialized agents for different tasks
-- 🔗 **Knowledge Integration** - Connected to NEXUS for full context
-- 💬 **Natural Interaction** - Chat interface for complex queries
+**Key Features:**
+
+- 🧠 **15 Specialized AI Agents** - Each expert in their domain
+- 🔄 **Hierarchical Workflows** - ATLAS orchestrates, agents execute
+- 🔗 **Context-Aware** - Remembers your preferences and project state
+- 💬 **Natural Interaction** - Talk naturally or use slash commands
+
+**Quick Example:**
 
 ```
-Status: Planning Phase
+You: "Add a refresh button to the project list"
+ATLAS: "Simple frontend task. Dispatching to FRONTEND-BUILDER..."
+→ Code created, tested, ready to commit
 ```
+
+```
+Status: Active (AI Agents System Complete)
+```
+
+See [AI Agents Guide](./docs/developer-guide/ai-agents-overview.md) for details.
 
 ---
 
@@ -275,14 +286,45 @@ docker-compose up -d
 
 ---
 
+## 🤖 AI Agents System
+
+AXIOM includes a **complete AI development assistant** with 15 specialized agents:
+
+<div align="center">
+
+| Layer | Agents | AI Model | Role |
+|:---:|:---|:---:|:---|
+| 🎯 | **ATLAS**, BRAINSTORM, SYSTEM-ARCHITECT | Opus | Orchestration & Strategy |
+| 📋 | **PLANNER**, DEBUGGER, UX-DESIGNER | Sonnet | Analysis & Planning |
+| 🔨 | **BACKEND**, FRONTEND, ARCHITECT, INTEGRATION | Sonnet/Opus | Code Implementation |
+| ✅ | **QA-TESTER**, ISSUE-REPORTER | Haiku | Validation |
+| 📊 | **DEV-TRACKER**, GIT-MANAGER, DOC-WRITER | Haiku | Tracking & Docs |
+
+</div>
+
+### Quick Commands
+
+```bash
+/new-session          # Start a new dev session
+/implement [feature]  # Implement a feature
+/debug [error]        # Debug an error
+/test                 # Run tests
+/commit               # Create a clean commit
+/brainstorm [idea]    # Creative session
+```
+
+📖 **Full Guide:** [AI Agents Overview](./docs/developer-guide/ai-agents-overview.md) | [Technical Details](./docs/developer-guide/ai-agents-system.md)
+
+---
+
 ## 📚 Documentation
 
 | Document | Description |
 |:---|:---|
 | 📖 [**CLAUDE.md**](./CLAUDE.md) | AI assistant development guide |
+| 🤖 [**AI Agents Guide**](./docs/developer-guide/ai-agents-overview.md) | How to use the AI agents system |
 | 📋 [**CHANGELOG.md**](./CHANGELOG.md) | Version history and releases |
 | 🔄 [**Migration Guide**](./docs/MIGRATION-AXIOM.md) | Platform migration documentation |
-| 🛠️ [**AI Workflows**](./.agent/workflows/) | Development workflow templates |
 | 📊 [**Project State**](./.dev/context/project-state.md) | Current development status |
 
 ### Application Documentation
