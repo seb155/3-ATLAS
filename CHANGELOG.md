@@ -5,6 +5,30 @@ All notable changes to the AXIOM Platform will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-11-28
+
+### Added
+- **Docsify Documentation Server** (`forge-docs` on port 3080)
+  - Dark theme with AXIOM branding
+  - Full-text search
+  - Application badges (SYNAPSE, NEXUS, PRISM, ATLAS, FORGE)
+  - Sidebar navigation with all documentation
+- **Application Documentation**
+  - `docs/apps/synapse.md` - MBSE Platform documentation
+  - `docs/apps/nexus.md` - Knowledge Graph documentation
+  - `docs/apps/prism.md` - Enterprise Portal documentation
+  - `docs/apps/atlas.md` - AI Collaboration documentation
+- **Docsify Configuration**
+  - `docs/index.html` - Docsify setup with plugins
+  - `docs/_sidebar.md` - Navigation structure
+  - `docs/.nojekyll` - GitHub Pages compatibility
+
+### Changed
+- Updated `docs/README.md` as AXIOM platform home page
+- Updated `forge/docker-compose.yml` with `forge-docs` service
+
+---
+
 ## [1.0.0] - 2025-11-28
 
 ### Added

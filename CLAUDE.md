@@ -229,6 +229,7 @@ Read `.agent/workflows/01-new-session.md`
 | Grafana | `forge-grafana` | 3000 | http://localhost:3000 |
 | Loki | `forge-loki` | 3100 | http://localhost:3100 |
 | MeiliSearch | `forge-meilisearch` | 7700 | http://localhost:7700 |
+| Documentation | `forge-docs` | 3080 | http://localhost:3080 |
 
 ---
 
@@ -252,3 +253,23 @@ See `docs/MIGRATION-AXIOM.md` for full details.
 ---
 
 **Repository:** https://github.com/seb155/AXIOM
+
+---
+
+## Documentation
+
+Documentation is served via **Docsify** at http://localhost:3080
+
+**Local files:** `docs/` directory (edit Markdown files directly)
+
+| Documentation | Path |
+|---------------|------|
+| Platform Overview | `docs/README.md` |
+| Migration Guide | `docs/MIGRATION-AXIOM.md` |
+| SYNAPSE docs | `docs/apps/synapse.md` |
+| NEXUS docs | `docs/apps/nexus.md` |
+| PRISM docs | `docs/apps/prism.md` |
+| ATLAS docs | `docs/apps/atlas.md` |
+| Getting Started | `docs/getting-started/` |
+| Developer Guide | `docs/developer-guide/` |
+| Reference | `docs/reference/` |

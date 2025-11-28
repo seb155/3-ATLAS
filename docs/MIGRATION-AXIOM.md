@@ -160,6 +160,52 @@ D:\Projects\
 | `AXIOM/stop.ps1` | Stop script |
 | `AXIOM/package.json` | Workspace config |
 | `apps/atlas/README.md` | ATLAS documentation |
+| `docs/index.html` | Docsify configuration |
+| `docs/_sidebar.md` | Documentation navigation |
+| `docs/apps/*.md` | Application documentation |
+| `docs/.nojekyll` | GitHub Pages compatibility |
+
+---
+
+## Documentation System
+
+### Docsify Setup
+
+The AXIOM platform uses **Docsify** for documentation, running as a Docker service in FORGE.
+
+**Features:**
+- Dark theme with AXIOM branding
+- Full-text search
+- Automatic sidebar navigation
+- Syntax highlighting for code blocks
+- Application badges (SYNAPSE, NEXUS, PRISM, ATLAS, FORGE)
+
+**Access:** http://localhost:3080
+
+**Files:**
+```
+docs/
+├── index.html          # Docsify configuration
+├── _sidebar.md         # Navigation menu
+├── README.md           # Home page
+├── .nojekyll           # GitHub Pages compatibility
+├── MIGRATION-AXIOM.md  # This file
+├── apps/               # Application docs
+│   ├── synapse.md
+│   ├── nexus.md
+│   ├── prism.md
+│   └── atlas.md
+├── getting-started/    # Getting started guides
+├── developer-guide/    # Developer documentation
+├── reference/          # Reference documentation
+├── workflows/          # Workflow guides
+└── contributing/       # Contribution guidelines
+```
+
+**Local Development:**
+- Edit Markdown files in `docs/`
+- Changes appear immediately (hot reload)
+- Doc server runs in `forge-docs` container
 
 ---
 
@@ -191,6 +237,7 @@ D:\Projects\
 | Loki | `forge-loki` | 3100 | Log aggregation |
 | Promtail | `forge-promtail` | - | Log collection |
 | MeiliSearch | `forge-meilisearch` | 7700 | Full-text search |
+| Documentation | `forge-docs` | 3080 | Docsify doc server |
 
 ---
 
