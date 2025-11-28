@@ -1,6 +1,6 @@
-# WORKSPACE - Development Infrastructure
-# Tools partagés pour tous les projets
-# Réseau: forge-network (services accessibles par nom: forge-postgres, forge-redis)
+# FORGE - AXIOM Shared Infrastructure
+# Shared services for all AXIOM applications (SYNAPSE, NEXUS, PRISM, ATLAS)
+# Network: forge-network (services accessible by name: forge-postgres, forge-redis)
 
 services:
   # PostgreSQL - Shared Database Server
@@ -28,10 +28,10 @@ services:
   prisma-studio:
     image: node:20-alpine
     container_name: forge-prisma
-    working_dir: /workspace/prisma
+    working_dir: /forge/prisma
     volumes:
-      - ./prisma:/workspace/prisma
-      - prisma-cache:/workspace/prisma/node_modules
+      - ./prisma:/forge/prisma
+      - prisma-cache:/forge/prisma/node_modules
     environment:
       DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/synapse
     command: sh -c "npm install && npx prisma db pull && npx prisma generate && npx prisma studio --port 5555 --browser none"
@@ -50,7 +50,7 @@ services:
     user: root
     entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_EMAIL: admin@axoiq.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
@@ -151,7 +151,7 @@ services:
     container_name: forge-meilisearch
     environment:
       MEILI_ENV: development
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-synapse_dev_key_change_in_prod}
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-axiom_dev_key_change_in_prod}
       MEILI_NO_ANALYTICS: "true"
     volumes:
       - meilisearch-data:/meili_data
