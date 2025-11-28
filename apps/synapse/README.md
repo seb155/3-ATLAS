@@ -4,7 +4,7 @@
 
 ### Model-Based Systems Engineering Platform for EPCM Automation
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/seb155/EPCB-Tools/releases)
+[![Version](https://img.shields.io/badge/version-0.2.4-blue.svg)](https://github.com/seb155/AXIOM/releases)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://python.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.0+-3178C6.svg?logo=typescript&logoColor=white)](https://typescriptlang.org)
@@ -86,17 +86,18 @@ FIRM (10)    → Company defaults
 
 ### 📊 Professional Deliverables
 
-**11 Standard Packages:**
-- Automation Panels
-- IO Lists & Narratives
-- Cable Schedules
-- Material Takeoffs
-- Equipment Lists
+**Excel Template Export System (NEW v0.2.4):**
+- ✅ IN-P040: Instrument Index
+- ✅ CA-P040: Cable Schedule
+- 📋 EL-P040: Electrical SLD (Planned)
+- 📋 MC-P040: Motor Control (Planned)
 
 **One-Click Export:**
-- Excel with formatting
-- CSV for integration
-- PDF reports
+- Excel with professional formatting
+- Auto-sized columns & borders
+- Project headers & footers
+- Multi-sheet support ready
+- [Quick Start Guide](./TEMPLATES-QUICKSTART.md)
 
 **Compliance Built-In:**
 - CEC-2021 (Canada)
@@ -244,6 +245,8 @@ docker-compose up -d db  # PostgreSQL on port 5433
 | [Database Guide](./docs/00_OVERVIEW/07_DATABASE_GUIDE.md) | Schema reference |
 | [Setup & Deploy](./docs/00_OVERVIEW/09_SETUP_DEPLOYMENT.md) | Installation guide |
 | [Rules Guide](./docs/AI_NOTES/RULES_AND_WORKFLOWS_GUIDE.md) | Rule engine patterns |
+| **[Templates & Export](./TEMPLATES-QUICKSTART.md)** | **Package export guide (NEW)** |
+| **[Template System Docs](./backend/docs/templates-export-system.md)** | **Full technical docs (NEW)** |
 
 ### For AI Agents
 
