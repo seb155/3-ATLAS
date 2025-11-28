@@ -202,4 +202,38 @@ GENESIS est le meta-agent d'evolution du systeme. Il fonctionne en **bypass** (p
 
 ---
 
+## Status Line Pro
+
+Le status line affiche en temps reel les informations de session Claude Code.
+
+### Affichage
+
+```
+[OPUS] [master +3] [$0.42] [AXIOM] [FORGE 3/7] [Sn] [5m32s]
+```
+
+| Badge | Description | Couleurs |
+|-------|-------------|----------|
+| `[OPUS]` | Modele actif | Bleu=Opus, Magenta=Sonnet, Vert=Haiku |
+| `[master +3]` | Git branch + fichiers modifies | Vert=clean, Jaune=dirty |
+| `[$0.42]` | Cout de session USD | Vert<$1, Jaune$1-5, Rouge>$5 |
+| `[AXIOM]` | App active (par path) | Cyan=SYNAPSE, Vert=NEXUS, Bleu=ATLAS, Magenta=PRISM, Rouge=FORGE |
+| `[FORGE 3/7]` | Containers FORGE up/total | Vert=all up, Jaune=partiel, Rouge=down |
+| `[Sn]` | Apps Docker (S=Synapse, N=Nexus) | Majuscule verte=up, minuscule grise=down |
+| `[5m32s]` | Duree de session | Gris |
+
+### Configuration
+
+Fichiers:
+- `.claude/scripts/statusline.ps1` - Script PowerShell
+- `.claude/settings.json` - Configuration Claude Code
+
+### Utilisation
+
+**Activation automatique** - Le status line s'affiche des le demarrage de Claude Code.
+
+**Restart requis** - Pour appliquer les changements, fermer et rouvrir Claude Code.
+
+---
+
 **Repository:** https://github.com/seb155/AXIOM
