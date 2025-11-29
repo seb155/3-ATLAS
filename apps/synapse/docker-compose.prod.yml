@@ -8,8 +8,8 @@
 #   docker compose -f docker-compose.prod.yml up -d --scale backend=4
 #
 # Requirements:
-#   - forge-network must exist (run workspace/docker-compose.yml first)
-#   - SSL certificates in ./nginx/ssl/ (or use Let's Encrypt)
+#   - forge-network must exist (run AXIOM/forge first)
+#   - forge-traefik must be running for SSL
 
 services:
   # ============================================================================
@@ -23,6 +23,30 @@ services:
     restart: unless-stopped
     networks:
       - synapse-internal
+      - forge-network
+    labels:
+      # Traefik routing
+      - "traefik.enable=true"
+      - "traefik.http.routers.synapse.rule=Host(`synapse.axoiq.com`)"
+      - "traefik.http.routers.synapse.entrypoints=websecure"
+      - "traefik.http.routers.synapse.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synapse.loadbalancer.server.port=80"
+      # Security headers (HSTS)
+      - "traefik.http.middlewares.synapse-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.synapse-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.synapse-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.synapse-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.synapse-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.synapse-headers.headers.browserXssFilter=true"
+      - "traefik.http.routers.synapse.middlewares=synapse-headers"
+      # Logging
+      - "logging=promtail"
+      - "logging_jobname=synapse-frontend-prod"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ============================================================================
   # BACKEND - FastAPI with Gunicorn (scalable replicas)
@@ -66,42 +90,33 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    networks:
+      - synapse-internal
+      - forge-network
+    labels:
+      # Traefik routing
+      - "traefik.enable=true"
+      - "traefik.http.routers.synapse-api.rule=Host(`api.axoiq.com`)"
+      - "traefik.http.routers.synapse-api.entrypoints=websecure"
+      - "traefik.http.routers.synapse-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synapse-api.loadbalancer.server.port=8000"
+      # CORS middleware
+      - "traefik.http.middlewares.synapse-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.synapse-cors.headers.accesscontrolalloworiginlist=https://synapse.axoiq.com"
+      - "traefik.http.middlewares.synapse-cors.headers.accesscontrolallowcredentials=true"
+      - "traefik.http.middlewares.synapse-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.routers.synapse-api.middlewares=synapse-cors"
+      # Logging
+      - "logging=promtail"
+      - "logging_jobname=synapse-backend-prod"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - synapse-internal
-      - forge-network
     depends_on:
       - ollama
-
-  # ============================================================================
-  # NGINX - Reverse Proxy & Load Balancer
-  # ============================================================================
-  nginx:
-    image: nginx:alpine
-    container_name: synapse-nginx
-    restart: unless-stopped
-    ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
-    volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - synapse-internal
-      - forge-network
-    depends_on:
-      - frontend
-      - backend
 
   # ============================================================================
   # OLLAMA - Local AI Inference (FREE)
@@ -132,6 +147,8 @@ services:
       start_period: 60s
     networks:
       - synapse-internal
+    labels:
+      - "traefik.enable=false"
     # Pull model on startup (run once after container starts)
     # docker exec synapse-ollama ollama pull llama3.2
 
@@ -152,6 +169,8 @@ services:
       retries: 5
     networks:
       - synapse-internal
+    labels:
+      - "traefik.enable=false"
 
 volumes:
   ollama-models:

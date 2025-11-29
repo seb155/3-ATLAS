@@ -1,7 +1,7 @@
 # AXIOM Infrastructure Documentation
 
-**Version:** 1.0
-**Last Updated:** 2025-11-28 18:44
+**Version:** 1.1
+**Last Updated:** 2025-11-29 16:00
 **Environment:** Development
 **Platform:** Docker + Docker Compose
 
@@ -253,6 +253,68 @@ server: {
 
 **Compose File**: `apps/nexus/standalone/docker-compose.dev.yml`
 
+### Personal Projects (PRISM Range 6000-6999)
+
+Personal projects are integrated with FORGE infrastructure for shared services and unified Traefik routing.
+
+#### Note_synch - TriliumNext Bidirectional Sync
+
+| Service | Container | Ports | Traefik Route |
+|---------|-----------|-------|---------------|
+| **Dashboard** | `trilium-sync` | 6200→8080 | trilium.axoiq.com |
+| **Neo4j Browser** | `notes-neo4j` | 6201→7474 | neo4j.axoiq.com |
+| **Neo4j Bolt** | `notes-neo4j` | 6202→7687 | - |
+| **Graph API** | `notes-graph-api` | 6203→8081 | graph.axoiq.com |
+
+**Location**: `D:\Projects\Note_synch\docker-compose.yml`
+
+#### Homelab_MSH - Proxmox Monitoring
+
+| Service | Container | Ports | Traefik Route |
+|---------|-----------|-------|---------------|
+| **Dashboard** | `homelab-dashboard` | 6300→3000 | homelab.axoiq.com |
+| **Pulse** | `pulse` | 6301→7655 | pulse.axoiq.com |
+| **PostgreSQL** | `homelab-db` | (internal) | - |
+
+**Location**: `D:\Projects\8-Perso\Homelab_MSH\dashboard\`
+
+#### FinDash - Personal Finance Dashboard
+
+| Service | Container | Ports | Traefik Route |
+|---------|-----------|-------|---------------|
+| **App** | `findash-app` | 6400→5173 | findash.axoiq.com |
+
+**Location**: `D:\Projects\8-Perso\FinDash\docker-compose.yml`
+
+#### Pilote-Patrimoine - Property Management
+
+| Service | Container | Ports | Traefik Route |
+|---------|-----------|-------|---------------|
+| **App** | `pilote-patrimoine` | 6100→80 | nest.axoiq.com |
+
+**Location**: `D:\Projects\8-Perso\Pilote-Patrimoine\docker-compose.yml`
+
+#### Integration Requirements
+
+All personal projects must:
+1. Connect to `forge-network` (external)
+2. Include Traefik labels for HTTPS routing
+3. Use ports in range 6000-6999
+4. Add healthcheck for monitoring
+
+**Example Traefik Labels**:
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.myapp.rule=Host(`myapp.axoiq.com`)"
+  - "traefik.http.routers.myapp.entrypoints=websecure"
+  - "traefik.http.routers.myapp.tls.certresolver=letsencrypt"
+  - "traefik.http.services.myapp.loadbalancer.server.port=80"
+networks:
+  forge-network:
+    external: true
+```
+
 ---
 
 ## Port Allocations
@@ -266,7 +328,7 @@ Each application has a **dedicated 1000-port range**:
 | **3000-3999** | FORGE | Active | 9 ports allocated |
 | **4000-4999** | SYNAPSE | Active | 2 ports allocated |
 | **5000-5999** | NEXUS | Phase 1.5 | 2 ports allocated |
-| **6000-6999** | PRISM | Available | - |
+| **6000-6999** | PRISM/Personal | Active | 8 ports allocated |
 | **7000-7999** | ATLAS | Available | - |
 
 ### Currently Allocated Ports
@@ -296,6 +358,16 @@ Each application has a **dedicated 1000-port range**:
 - **5173**: Frontend (Vite)
 - **8000**: Backend (FastAPI) - *Conflicts with synapse-backend in production*
 
+#### PRISM/Personal Projects (6000-6999)
+- **6100**: Pilote-Patrimoine (nest.axoiq.com)
+- **6200**: Note_synch Dashboard (trilium.axoiq.com)
+- **6201**: Note_synch Neo4j Browser (neo4j.axoiq.com)
+- **6202**: Note_synch Neo4j Bolt
+- **6203**: Note_synch Graph API (graph.axoiq.com)
+- **6300**: Homelab Dashboard (homelab.axoiq.com)
+- **6301**: Homelab Pulse (pulse.axoiq.com)
+- **6400**: FinDash (findash.axoiq.com)
+
 ### Port Conflict Detection
 
 **Rule**: Each port can only be allocated to ONE service.
@@ -306,7 +378,7 @@ Each application has a **dedicated 1000-port range**:
 
 - **SYNAPSE**: 4001-4999 (998 available)
 - **NEXUS**: 5001-5172, 5174-5999 (998 available)
-- **PRISM**: 6000-6999 (1000 available)
+- **PRISM/Personal**: 6001-6099, 6102-6199, 6204-6299, 6302-6399, 6401-6999 (992 available)
 - **ATLAS**: 7000-7999 (1000 available)
 
 ---

@@ -1,0 +1,74 @@
+# ==============================================================================
+# TRAEFIK LABELS FOR CORTEX APPLICATION
+# ==============================================================================
+# Enables reverse proxy routing via Traefik with automatic SSL
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml \
+#                  -f docker-compose.traefik-labels.yml up -d
+#
+# Access:
+#   API: https://cortex.axoiq.com (or https://cortex.localhost)
+#
+# Prerequisites:
+#   - Traefik must be running (forge/docker-compose.traefik.yml)
+#   - DOMAIN environment variable set in forge/.env
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # CORTEX ENGINE API - Traefik Configuration
+  # ============================================================================
+  cortex-engine:
+    labels:
+      # Enable Traefik for this container
+      - "traefik.enable=true"
+
+      # ------------------------------------------------------------------------
+      # HTTP ROUTER CONFIGURATION
+      # ------------------------------------------------------------------------
+      - "traefik.http.routers.cortex.rule=Host(`cortex.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.cortex.entrypoints=websecure"
+      - "traefik.http.routers.cortex.tls.certresolver=letsencrypt"
+
+      # Service configuration (backend listens on port 8000)
+      - "traefik.http.services.cortex.loadbalancer.server.port=8000"
+
+      # ------------------------------------------------------------------------
+      # CORS MIDDLEWARE
+      # ------------------------------------------------------------------------
+      - "traefik.http.middlewares.cortex-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.cortex-cors.headers.accesscontrolalloworiginlist=https://atlas.${DOMAIN:-localhost},http://localhost:7100"
+      - "traefik.http.middlewares.cortex-cors.headers.accesscontrolallowcredentials=true"
+      - "traefik.http.middlewares.cortex-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cortex-cors.headers.accesscontrolmaxage=100"
+
+      # ------------------------------------------------------------------------
+      # SECURITY HEADERS
+      # ------------------------------------------------------------------------
+      - "traefik.http.middlewares.cortex-security.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.cortex-security.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.cortex-security.headers.frameDeny=true"
+      - "traefik.http.middlewares.cortex-security.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.cortex-security.headers.browserXssFilter=true"
+
+      # ------------------------------------------------------------------------
+      # APPLY MIDDLEWARES
+      # ------------------------------------------------------------------------
+      - "traefik.http.routers.cortex.middlewares=cortex-cors,cortex-security"
+
+  # ============================================================================
+  # CORTEX SANDBOX - Internal Only (No Traefik)
+  # ============================================================================
+  cortex-sandbox:
+    labels:
+      # Internal only - no external access needed
+      - "traefik.enable=false"
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+networks:
+  forge-network:
+    external: true
+    name: forge-network

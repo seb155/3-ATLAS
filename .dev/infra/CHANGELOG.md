@@ -16,12 +16,48 @@ All notable changes to AXIOM infrastructure will be documented in this file.
 ## [Unreleased]
 
 ### Planned
-- PRISM application infrastructure (port range 6000-6999)
 - ATLAS AI environment (port range 7000-7999)
 - Neo4j graph database for NEXUS
 - Automated backup system for all volumes
 - Prometheus metrics collection
 - Alerting system (Alertmanager)
+
+---
+
+## [1.1.0] - 2025-11-29
+
+### Added - Personal Projects Integration
+
+- ✅ Integrated 4 personal projects with FORGE infrastructure
+- ✅ Port allocations in PRISM range (6000-6999):
+  - 6100: Pilote-Patrimoine (nest.axoiq.com)
+  - 6200-6203: Note_synch (trilium, neo4j, graph-api)
+  - 6300-6301: Homelab_MSH (dashboard, pulse)
+  - 6400: FinDash (findash.axoiq.com)
+- ✅ Traefik routes for all personal projects
+- ✅ Added FinDash to Traefik dynamic.yml (file provider)
+
+### Added - Docker Operations Skills & Scripts
+
+- ✅ Created `.claude/skills/zz-docker-ops.md` - Start/Stop/Restart/Status operations
+- ✅ Created `.claude/skills/zz-network-test.md` - Quick network connectivity test
+- ✅ Created `.dev/scripts/docker-ops.ps1` - PowerShell CLI for Docker operations
+
+### Changed - SYNAPSE Production
+
+- ✅ Migrated from Nginx to Traefik labels
+- ✅ Removed nginx service from docker-compose.prod.yml
+- ✅ Added CORS and security headers middlewares
+
+### Changed - Docker Compose Cleanup
+
+- ✅ Removed obsolete `version: '3.8'` declarations
+- ✅ Resolved port conflicts (3000, 5432, 5173)
+- ✅ All personal projects now use forge-network
+
+### Removed
+
+- ✅ Pilote-Patrimoine: Removed standalone Traefik (docker-compose.prod.yml, traefik-dynamic.yml)
 
 ---
 

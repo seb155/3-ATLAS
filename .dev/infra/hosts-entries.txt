@@ -1,0 +1,27 @@
+# ============================================
+# AXIOM + Personal Projects - Hosts Entries
+# Add to: C:\Windows\System32\drivers\etc\hosts
+# ============================================
+# Run as Administrator:
+# notepad C:\Windows\System32\drivers\etc\hosts
+
+# AXIOM Core Services
+127.0.0.1 synapse.axoiq.com
+127.0.0.1 api.axoiq.com
+127.0.0.1 nexus.axoiq.com
+127.0.0.1 api-nexus.axoiq.com
+127.0.0.1 cortex.axoiq.com
+127.0.0.1 traefik.axoiq.com
+127.0.0.1 grafana.axoiq.com
+127.0.0.1 pgadmin.axoiq.com
+127.0.0.1 prisma.axoiq.com
+127.0.0.1 loki.axoiq.com
+
+# Personal Projects
+127.0.0.1 nest.axoiq.com
+127.0.0.1 trilium.axoiq.com
+127.0.0.1 neo4j.axoiq.com
+127.0.0.1 graph.axoiq.com
+127.0.0.1 homelab.axoiq.com
+127.0.0.1 pulse.axoiq.com
+127.0.0.1 findash.axoiq.com

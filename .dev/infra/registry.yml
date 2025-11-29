@@ -208,11 +208,93 @@ port_registry:
       description: "CORTEX Sandbox Manager - Docker container orchestration"
       networks: ["forge-network"]
 
+    # ========================================================================
+    # PERSONAL PROJECTS (Range PRISM 6000-6999)
+    # ========================================================================
+    6100:
+      service: "pilote-patrimoine"
+      app: "perso"
+      type: "web"
+      internal_port: 80
+      protocol: "http"
+      description: "Pilote-Patrimoine (Nest) - Heritage pilot app"
+      networks: ["forge-network"]
+      traefik_domain: "nest.axoiq.com"
+
+    6200:
+      service: "trilium-sync"
+      app: "perso"
+      type: "api"
+      internal_port: 8080
+      protocol: "http"
+      description: "Note_synch - TriliumNext sync service"
+      networks: ["default", "forge-network"]
+      traefik_domain: "trilium.axoiq.com"
+
+    6201:
+      service: "neo4j-browser"
+      app: "perso"
+      type: "web"
+      internal_port: 7474
+      protocol: "http"
+      description: "Note_synch - Neo4j browser UI"
+      networks: ["default", "forge-network"]
+      traefik_domain: "neo4j.axoiq.com"
+
+    6202:
+      service: "neo4j-bolt"
+      app: "perso"
+      type: "database"
+      internal_port: 7687
+      protocol: "bolt"
+      description: "Note_synch - Neo4j bolt protocol"
+      networks: ["default", "forge-network"]
+
+    6203:
+      service: "graph-api"
+      app: "perso"
+      type: "api"
+      internal_port: 8081
+      protocol: "http"
+      description: "Note_synch - Knowledge graph API"
+      networks: ["default", "forge-network"]
+      traefik_domain: "graph.axoiq.com"
+
+    6300:
+      service: "homelab-dashboard"
+      app: "perso"
+      type: "web"
+      internal_port: 3000
+      protocol: "http"
+      description: "Homelab MSH - Infrastructure dashboard"
+      networks: ["default", "forge-network"]
+      traefik_domain: "homelab.axoiq.com"
+
+    6301:
+      service: "pulse"
+      app: "perso"
+      type: "web"
+      internal_port: 7655
+      protocol: "http"
+      description: "Homelab Pulse - Proxmox monitoring"
+      networks: ["forge-network"]
+      traefik_domain: "pulse.axoiq.com"
+
+    6400:
+      service: "findash"
+      app: "perso"
+      type: "web"
+      internal_port: 5173
+      protocol: "http"
+      description: "FinDash - Personal finance dashboard"
+      networks: ["forge-network"]
+      traefik_domain: "findash.axoiq.com"
+
   # Available ports for future allocation
   available:
     synapse: "4002-4999"
     nexus: "5174-5999"
-    prism: "6000-6999 (all available)"
+    prism: "6402-6999 (personal projects: 6100-6401 allocated)"
     atlas: "7102-7999"
     cortex: "7102-7199 (reserved for CORTEX expansion)"
 
@@ -687,8 +769,8 @@ maintenance:
 # ===========================
 metadata:
   created: "2025-11-28 18:44"
-  updated: "2025-11-28 18:44"
-  version: "1.0"
+  updated: "2025-11-29 12:00"
+  version: "1.1"
   maintainer: "AXIOM Platform Team"
   documentation: ".dev/infra/infrastructure.md"
   changelog: ".dev/infra/CHANGELOG.md"

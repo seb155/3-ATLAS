@@ -113,6 +113,18 @@ http:
       tls: {}  # Use local mkcert certificate
 
     # ========================================================================
+    # PERSONAL PROJECTS ROUTES (axoiq.com) - HTTPS
+    # ========================================================================
+
+    # FinDash - Personal Finance Dashboard
+    findash-prod:
+      rule: "Host(`findash.axoiq.com`)"
+      service: findash
+      entryPoints:
+        - websecure
+      tls: {}
+
+    # ========================================================================
     # DEVELOPMENT ROUTES (localhost) - HTTP only
     # ========================================================================
 
@@ -245,4 +257,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://portainer:9000"
+
+    # Personal Projects
+    findash:
+      loadBalancer:
+        servers:
+          - url: "http://findash-app:5173"
 
