@@ -26,6 +26,7 @@ from typing import Any
 
 from sqlalchemy import and_, desc
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.models.cables import Cable
 from app.models.metamodel import MetamodelEdge
@@ -813,6 +814,9 @@ class RuleExecutionService:
             asset.properties[key] = value
             new_values[key] = value
 
+        # Mark JSON field as modified for SQLAlchemy to track the change
+        flag_modified(asset, "properties")
+
         # Create new version
         self._versioning.create_version(
             asset=asset,
@@ -990,6 +994,9 @@ class RuleExecutionService:
         current_count = io_allocation.get(io_type, 0)
         io_allocation[io_type] = current_count + channel_count
         asset.properties["io_allocation"] = io_allocation
+
+        # Mark JSON field as modified for SQLAlchemy to track the change
+        flag_modified(asset, "properties")
 
         # Create version
         self._versioning.create_version(

@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.models.metamodel import MetamodelEdge
 from app.models.models import Asset
@@ -375,6 +376,8 @@ class RuleExecutor:
             asset.properties[key] = value
             updated_keys.append(key)
 
+        # Mark JSON field as modified for SQLAlchemy to track the change
+        flag_modified(asset, "properties")
         self.db.commit()
 
         return self._log_execution(

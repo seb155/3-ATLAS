@@ -337,8 +337,8 @@ def test_rule_engine_applies_rules(db_session: Session, test_project, firm_rule,
     assert summary["actions_taken"] >= 1
 
     # Verify motor was created
-    motor = db_session.query(MetamodelNode).filter(
-        MetamodelNode.name == "310-PP-001-M"
+    motor = db_session.query(Asset).filter(
+        Asset.tag == "310-PP-001-M"
     ).first()
     assert motor is not None
 
