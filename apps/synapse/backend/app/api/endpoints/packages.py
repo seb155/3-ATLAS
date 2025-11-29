@@ -80,6 +80,8 @@ def create_package(
     package = Package(
         name=package_data.name,
         description=package_data.description,
+        package_type=package_data.package_type,
+        package_metadata=package_data.package_metadata,
         project_id=project_id,
         status=package_data.status or PackageStatus.OPEN,
     )

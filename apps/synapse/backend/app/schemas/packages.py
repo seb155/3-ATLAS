@@ -16,6 +16,8 @@ class PackageBase(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=200)
     description: str | None = None
+    package_type: str | None = None
+    package_metadata: dict | None = None
 
 
 class PackageCreate(PackageBase):
@@ -29,6 +31,8 @@ class PackageUpdate(BaseModel):
 
     name: str | None = None
     description: str | None = None
+    package_type: str | None = None
+    package_metadata: dict | None = None
     status: PackageStatus | None = None
 
 
@@ -52,6 +56,8 @@ class PackageResponse(PackageBase):
             id=package.id,
             name=package.name,
             description=package.description,
+            package_type=package.package_type,
+            package_metadata=package.package_metadata,
             project_id=package.project_id,
             status=package.status,
             created_at=package.created_at,

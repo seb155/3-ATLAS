@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, String
+from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -25,6 +25,12 @@ class Package(Base):
     name = Column(String, nullable=False)
     description = Column(String)
     project_id = Column(String, ForeignKey("projects.id"), nullable=False, index=True)
+
+    # Package type for export templates (IN-P040, CA-P040, etc.)
+    package_type = Column(String, nullable=True)
+
+    # Metadata for template rendering (discipline, revision, area, etc.)
+    package_metadata = Column(JSON, nullable=True)
 
     status = Column(Enum(PackageStatus), default=PackageStatus.OPEN)
 
