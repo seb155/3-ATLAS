@@ -19,6 +19,7 @@ hiredis==2.3.2  # Performance boost for Redis
 # Authentication & Security (workspace SSO)
 python-jose[cryptography]==3.3.0  # JWT tokens
 passlib[bcrypt]==1.7.4  # Password hashing
+bcrypt==4.0.1  # Pin version for passlib compatibility
 python-multipart==0.0.6  # Form data support
 
 # Validation
@@ -29,6 +30,10 @@ email-validator==2.1.0  # Email validation for Pydantic
 # Utilities
 python-dotenv==1.0.0
 html2text==2024.2.26
+
+# Trilium Integration
+trilium-py==0.9.1  # TriliumNext ETAPI client
+aiohttp==3.9.3  # Async HTTP for Trilium sync
 
 # Production Server (optional)
 gunicorn==21.2.0  # Production WSGI server

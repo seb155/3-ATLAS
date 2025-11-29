@@ -5,9 +5,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 **Nexus** - Knowledge Graph Portal combining Notes, Wiki, Tasks, AI Chat & 3D Graph Visualization
-**Current Phase:** 1.5 Complete (Visual Polish) → Next: Phase 2 (Notes/Wiki System)
-**Version:** v0.1.0-alpha
+**Current Phase:** 2.0 - Notes/Wiki System + TriliumNext Integration
+**Version:** v0.2.0
 **Target:** Functional MVP by Q2 2026
+
+## TriliumNext Integration (NEW)
+
+NEXUS is now integrated with TriliumNext for bidirectional note synchronization.
+
+### Configuration
+
+```env
+# In backend/.env
+TRILIUM_ETAPI_URL=https://notes.s-gagnon.com
+TRILIUM_ETAPI_TOKEN=<your_etapi_token>
+TRILIUM_SYNC_INTERVAL=60
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/trilium/status` | GET | Check Trilium connection |
+| `/api/v1/trilium/notes` | GET | Search Trilium notes |
+| `/api/v1/trilium/notes/{id}` | GET | Get Trilium note details |
+| `/api/v1/trilium/sync/import` | POST | Import from Trilium |
+| `/api/v1/trilium/sync/push/{id}` | POST | Push note to Trilium |
+| `/api/v1/trilium/sync/full` | POST | Full bidirectional sync |
+| `/api/v1/trilium/sync/status/{id}` | GET | Get sync status for note |
+
+### Architecture
+
+```
+NEXUS ◄──────────► TriliumNext
+  │      ETAPI        │
+  │                   │
+  ▼                   ▼
+PostgreSQL        SQLite
+(notes +          (source of
+trilium_sync)      truth)
+```
+
+### Key Files
+
+- `backend/app/services/trilium_sync.py` - Sync service
+- `backend/app/routers/trilium.py` - API endpoints
+- `backend/app/models/trilium_sync.py` - Sync mapping model
 
 ## Workspace Integration (EPCB-Tools)
 
@@ -51,9 +94,9 @@ cd D:\Projects\nexus
 
 Users are stored in `workspace_auth.users` schema and shared across Nexus, Synapse, and other workspace apps.
 
-**Default admin account:**
-- Email: `admin@localhost`
-- Password: `admin` (CHANGE IN PRODUCTION!)
+**Default admin account (unified with AXIOM):**
+- Email: `admin@aurumax.com`
+- Password: `admin123!`
 
 **JWT tokens** created by any workspace app (Nexus, Synapse) are valid across all apps.
 
@@ -92,9 +135,49 @@ npm run lint
 
 **Note:** Port 5173 is used (not 3000) to avoid Grafana conflict.
 
-### Backend (Phase 2+)
+### Backend Development
 
-Backend is FastAPI-based but not yet implemented. See `.dev/roadmap/README.md` for Phase 2 planning.
+```bash
+# Navigate to backend
+cd backend
+
+# Run server (via Docker - recommended)
+docker compose -f docker-compose.dev.yml up backend
+
+# Or locally with venv
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# Run migrations
+docker exec nexus-backend alembic upgrade head
+
+# Access API docs
+# http://localhost:8000/docs
+```
+
+### Backend Structure
+
+```
+backend/app/
+├── main.py                    # FastAPI app
+├── config.py                  # Settings (env vars)
+├── database.py                # DB connections
+├── models/
+│   ├── user.py               # User model (workspace_auth)
+│   ├── note.py               # Note + WikiLink models
+│   └── trilium_sync.py       # Trilium sync mapping
+├── routers/
+│   ├── auth.py               # Authentication endpoints
+│   ├── notes.py              # Notes CRUD
+│   └── trilium.py            # Trilium sync endpoints
+├── services/
+│   ├── notes.py              # Notes business logic
+│   └── trilium_sync.py       # Trilium ETAPI client
+└── utils/
+    └── dependencies.py       # Auth dependency
+```
 
 ## Architecture
 
@@ -261,21 +344,31 @@ All development tracking lives in `.dev/`:
 
 ## Tech Stack Reference
 
-**Current (Phase 1.5):**
+**Frontend:**
 - React 19.2.0 + TypeScript 5.9
 - Vite 7.2.4
 - Tailwind CSS 4.1.17
 - React Router DOM 7.9.6
 - Zustand 5.0.8 (state management)
-- TanStack Query 5.90.11 (data fetching - Phase 2+)
+- TanStack Query 5.90.11 (data fetching)
 - Lucide React 0.555.0 (icons)
+- TipTap (rich text editor)
 
-**Planned (Phase 2+):**
-- Backend: FastAPI (Python 3.11+), PostgreSQL 15, Redis
-- Editor: TipTap (rich text), @dnd-kit (drag-drop)
-- Visualization: react-force-graph-3d, Three.js, NetworkX
-- Collaboration: Yjs (CRDT)
-- AI: Claude API
+**Backend:**
+- FastAPI 0.109.0 (Python 3.11+)
+- SQLAlchemy 2.0.25 + Alembic 1.13.1
+- PostgreSQL 15 (via Docker)
+- Redis 7 (caching)
+- aiohttp 3.9.3 (async HTTP for Trilium)
+
+**Integrations:**
+- TriliumNext (ETAPI sync)
+- Workspace SSO (JWT shared auth)
+
+**Planned:**
+- pgvector (AI embeddings)
+- react-force-graph-3d (3D visualization)
+- Yjs (CRDT collaboration)
 
 ## Known Patterns
 
@@ -336,5 +429,5 @@ Before ending a session:
 
 ---
 
-**Last Updated:** 2025-11-27
+**Last Updated:** 2025-11-29
 **For AI System Documentation:** See `.agent/workflows/00-start.md`

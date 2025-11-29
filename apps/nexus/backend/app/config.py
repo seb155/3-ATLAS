@@ -72,6 +72,14 @@ class Settings(BaseSettings):
     loki_url: Optional[str] = None
 
     # ========================================================================
+    # TRILIUM INTEGRATION
+    # ========================================================================
+
+    trilium_etapi_url: Optional[str] = None  # e.g., https://notes.s-gagnon.com
+    trilium_etapi_token: Optional[str] = None
+    trilium_sync_interval: int = 60  # seconds between sync checks
+
+    # ========================================================================
     # PROPERTIES
     # ========================================================================
 

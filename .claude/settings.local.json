@@ -49,7 +49,8 @@
       "WebFetch",
       "Bash(timeout:*)",
       "SlashCommand(/0-ship)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNzJmMjAxNC0yZWRkLTRiZjgtYWQzMy0zZTNlN2ExMmY2MzIiLCJlbWFpbCI6ImFkbWluQGF1cnVtYXguY29tIiwiYXBwIjoibmV4dXMiLCJleHAiOjE3NjQ0MzM0MjQsImlhdCI6MTc2NDQyOTgyNCwiaXNzIjoibmV4dXMifQ.pzSXKazwL60TPUG7GilF1ifnju3blSzIsLv9Et37dUs\")"
     ],
     "deny": [],
     "ask": []

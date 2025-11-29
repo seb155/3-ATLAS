@@ -1,6 +1,0 @@
-{
-  "statusLine": {
-    "type": "command",
-    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/scripts/statusline.ps1"
-  }
-}
