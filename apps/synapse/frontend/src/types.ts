@@ -60,6 +60,7 @@ export interface Asset {
     system?: string;
     ioType?: string;
     locationId?: string;
+    packageId?: string;
     manufacturerPartId?: string;
     dataStatus?: AssetDataStatus;
 

@@ -62,6 +62,20 @@ def db_session(engine):
 @pytest.fixture(scope="function")
 def client(db_session):
     """Create a test client with database session override."""
+    from app.models import User
+
+    # Create dev-user in database (used by MockAuth, needed for FK constraints)
+    dev_user = db_session.query(User).filter(User.id == "dev-user").first()
+    if not dev_user:
+        dev_user = User(
+            id="dev-user",
+            email="dev@axoiq.com",
+            hashed_password="test",
+            is_active=True
+        )
+        db_session.add(dev_user)
+        db_session.commit()
+
     def override_get_db():
         try:
             yield db_session

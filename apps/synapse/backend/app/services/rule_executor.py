@@ -84,20 +84,36 @@ class RuleExecutor:
                 )
 
         except Exception as e:
+            # Capture IDs before rollback (objects may be detached after rollback)
+            import traceback
+            rule_id = str(rule.id) if hasattr(rule, 'id') else "unknown"
+            asset_id = str(asset.id) if hasattr(asset, 'id') else "unknown"
+            asset_tag = self._get_asset_tag(asset) if asset else "unknown"
+            error_msg = str(e)
+            stack = traceback.format_exc()
+            exec_time = int((time.time() - start_time) * 1000)
+
             # Log ERROR
             self.db.rollback()
-            import traceback
 
-            return self._log_execution(
-                rule=rule,
-                asset=asset,
+            # Create execution log with captured values
+            execution = RuleExecution(
+                rule_id=rule_id,
+                project_id=self.project_id,
+                asset_id=asset_id,
                 action_type="ERROR",
-                action_taken=f"Error executing rule: {str(e)}",
+                action_taken=f"Error executing rule: {error_msg}",
                 condition_matched=True,
-                error_message=str(e),
-                stack_trace=traceback.format_exc(),
-                execution_time_ms=int((time.time() - start_time) * 1000),
+                error_message=error_msg,
+                stack_trace=stack,
+                execution_time_ms=exec_time,
             )
+            self.db.add(execution)
+            try:
+                self.db.commit()
+            except Exception:
+                self.db.rollback()
+            return execution
 
     def _evaluate_condition(self, condition: dict[str, Any], asset: Asset) -> bool:
         """

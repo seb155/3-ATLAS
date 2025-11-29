@@ -16,19 +16,39 @@ def mock_get_current_active_user():
 def test_audit_project(db_session):
     """Create test project for audit tests"""
     from app.models.auth import Client
-    # Create client first
-    client = Client(
-        id="test-client-audit",
-        name="Test Audit Client"
-    )
-    db_session.add(client)
 
-    project = Project(
-        id="audit-project",
-        name="Test Audit Project",
-        client_id="test-client-audit",
-    )
-    db_session.add(project)
+    # Create mock user in database (needed for foreign key in audit_logs)
+    mock_user = db_session.query(User).filter(User.id == MOCK_USER_ID).first()
+    if not mock_user:
+        mock_user = User(
+            id=MOCK_USER_ID,
+            email=MOCK_USER_EMAIL,
+            hashed_password="test",
+            is_active=True
+        )
+        db_session.add(mock_user)
+        db_session.flush()
+
+    # Check if client exists, create if not
+    client = db_session.query(Client).filter(Client.id == "test-client-audit").first()
+    if not client:
+        client = Client(
+            id="test-client-audit",
+            name="Test Audit Client"
+        )
+        db_session.add(client)
+        db_session.flush()
+
+    # Check if project exists, create if not
+    project = db_session.query(Project).filter(Project.id == "audit-project").first()
+    if not project:
+        project = Project(
+            id="audit-project",
+            name="Test Audit Project",
+            client_id="test-client-audit",
+        )
+        db_session.add(project)
+
     db_session.commit()
     return project
 
@@ -58,7 +78,8 @@ def test_audit_logging(client, db_session, test_audit_project):
             "electrical": {"voltage": "480V"}
         }
     )
-    assert response.status_code == 200
+    # API returns 201 Created for successful asset creation
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}: {response.json()}"
     asset_id = response.json()["id"]
 
     # Verify Log

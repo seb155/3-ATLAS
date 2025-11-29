@@ -662,8 +662,8 @@ class TestPropertyFilters:
         db_session.refresh(pump1)
         db_session.refresh(pump2)
 
-        assert pump1.properties.get("in_area") == "true"
-        assert pump2.properties.get("in_area") is None
+        assert (pump1.properties or {}).get("in_area") == "true"
+        assert (pump2.properties or {}).get("in_area") is None
 
 
 # ============================================================================

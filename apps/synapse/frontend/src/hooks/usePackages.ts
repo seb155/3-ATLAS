@@ -9,12 +9,14 @@
  */
 
 import { useState, useCallback } from 'react'
-import { apiClient } from '../services/api'
+import apiClient from '../services/apiClient'
 
 export interface Package {
     id: string
     name: string
     description?: string
+    package_type?: string
+    package_metadata?: Record<string, any>
     project_id: string
     status: 'OPEN' | 'ISSUED' | 'CLOSED'
     created_at: string

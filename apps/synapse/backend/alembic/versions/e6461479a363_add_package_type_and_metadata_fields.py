@@ -150,7 +150,8 @@ def upgrade() -> None:
     op.alter_column('metamodel_edges', 'discipline',
                existing_type=sa.VARCHAR(),
                type_=sa.Enum('PROCESS', 'ELECTRICAL', 'AUTOMATION', 'MECHANICAL', 'PROJECT', 'PROCUREMENT', 'GENERAL', name='disciplinetype'),
-               existing_nullable=True)
+               existing_nullable=True,
+               postgresql_using='discipline::disciplinetype')
     op.drop_index(op.f('ix_metamodel_edges_relation'), table_name='metamodel_edges')
     op.drop_index(op.f('ix_metamodel_edges_source'), table_name='metamodel_edges')
     op.drop_index(op.f('ix_metamodel_edges_target'), table_name='metamodel_edges')
@@ -161,7 +162,8 @@ def upgrade() -> None:
     op.alter_column('metamodel_nodes', 'semantic_type',
                existing_type=sa.VARCHAR(),
                type_=sa.Enum('CONTAINER', 'ASSET', 'LINK', name='semantictype'),
-               existing_nullable=True)
+               existing_nullable=True,
+               postgresql_using='semantic_type::semantictype')
     op.drop_index(op.f('ix_metamodel_nodes_discipline'), table_name='metamodel_nodes')
     op.drop_index(op.f('ix_metamodel_nodes_project_id'), table_name='metamodel_nodes')
     op.drop_index(op.f('ix_metamodel_nodes_type'), table_name='metamodel_nodes')

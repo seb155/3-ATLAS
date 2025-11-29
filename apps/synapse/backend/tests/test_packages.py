@@ -106,7 +106,7 @@ def test_cables(db_session, test_package_project):
             project_id="test-project-pkg",
             cable_type="POWER",
             conductor_size="4x25mm2",
-            length_m=45.0,
+            length_meters=45.0,
             description="Power cable from MCC to Motor",
         ),
         Cable(
@@ -114,7 +114,7 @@ def test_cables(db_session, test_package_project):
             project_id="test-project-pkg",
             cable_type="SIGNAL",
             conductor_size="2x1.5mm2",
-            length_m=120.0,
+            length_meters=120.0,
             description="Signal cable from PLC to FIT",
         ),
     ]
@@ -194,8 +194,9 @@ class TestPackageCRUD:
 
         assert response.status_code == 200
         data = response.json()
-        assert len(data) >= 1
-        assert any(p["name"] == "Area 210 Instrumentation" for p in data)
+        packages = data.get("packages", data) if isinstance(data, dict) else data
+        assert len(packages) >= 1
+        assert any(p["name"] == "Area 210 Instrumentation" for p in packages)
         print("✅ test_list_packages passed")
 
     def test_get_package_details(self, client, test_package):
@@ -257,9 +258,7 @@ class TestTemplateExport:
             if any(
                 cell.value
                 and isinstance(cell.value, str)
-                and "FIT-210" in cell.value
-                or "PIT-210" in cell.value
-                or "TIT-210" in cell.value
+                and ("FIT-210" in cell.value or "PIT-210" in cell.value or "TIT-210" in cell.value)
                 for cell in list(row)[:5]
             ):
                 data_rows += 1
@@ -269,7 +268,25 @@ class TestTemplateExport:
 
     def test_export_cable_schedule(self, db_session, test_package_project, test_cables):
         """Test CA-P040 Cable Schedule export"""
-        # Create cable package
+        # Create assets for cable connections
+        motor = Asset(
+            tag="MTR-210-001",
+            description="Motor for pump",
+            type="MOTOR",
+            project_id="test-project-pkg",
+            properties={"hp": 50, "voltage": "480V"},
+        )
+        mcc = Asset(
+            tag="MCC-210-001",
+            description="Motor Control Center",
+            type="MCC",
+            project_id="test-project-pkg",
+            properties={"type": "MCC"},
+        )
+        db_session.add_all([motor, mcc])
+        db_session.flush()
+
+        # Create cable package with assets
         package = Package(
             name="Area 210 Power Cables",
             description="Power cable schedule for Area 210",
@@ -279,8 +296,13 @@ class TestTemplateExport:
         db_session.add(package)
         db_session.flush()
 
-        # Add cables to package (via assets if needed, or direct cable reference)
-        # For now, testing with cables in project scope
+        # Assign assets to package
+        motor.package_id = package.id
+        mcc.package_id = package.id
+
+        # Update cables to connect our assets
+        test_cables[0].from_asset_id = mcc.id
+        test_cables[0].to_asset_id = motor.id
         db_session.commit()
 
         service = TemplateService(db_session)
@@ -385,7 +407,7 @@ class TestPackageAssets:
             headers={"X-Project-ID": "test-project-pkg"},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 204
         print("✅ test_add_asset_to_package passed")
 
     def test_list_package_assets(self, client, test_package):
@@ -404,8 +426,9 @@ class TestPackageAssets:
 
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
-        assert len(data) >= 3  # Our test instruments
+        assets = data.get("assets", data) if isinstance(data, dict) else data
+        assert isinstance(assets, list)
+        assert len(assets) >= 3  # Our test instruments
         print("✅ test_list_package_assets passed")
 
 

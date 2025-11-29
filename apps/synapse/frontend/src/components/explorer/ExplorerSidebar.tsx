@@ -13,6 +13,7 @@ interface ExplorerSidebarProps {
     setViewMode: (mode: 'LBS' | 'FBS' | 'WBS') => void;
     selectedId: string;
     onSelect: (id: string, node: TreeNodeData) => void;
+    wbsTree?: TreeNodeData[];
 }
 
 // --- ICONS ---
@@ -137,7 +138,7 @@ const ViewToggle = ({ label, mode, current, set }: ViewToggleProps) => (
 );
 
 export const ExplorerSidebar: React.FC<ExplorerSidebarProps> = ({
-    instruments, locations, viewMode, setViewMode, selectedId, onSelect
+    instruments, locations, viewMode, setViewMode, selectedId, onSelect, wbsTree: wbsTreeProp
 }) => {
     // Defensive: ensure arrays
     const safeInstruments = Array.isArray(instruments) ? instruments : [];
@@ -146,7 +147,7 @@ export const ExplorerSidebar: React.FC<ExplorerSidebarProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
 
     const fbsTree = useMemo(() => Engine.getFBSTree(safeInstruments), [safeInstruments]);
-    const wbsTree = useMemo(() => Engine.getWBSTree(safeInstruments), [safeInstruments]);
+    const wbsTree = wbsTreeProp || useMemo(() => Engine.getWBSTree(safeInstruments), [safeInstruments]);
 
     // --- TREE LOGIC ---
     const enrichWithSignals = (nodeId: string) => {
@@ -198,7 +199,7 @@ export const ExplorerSidebar: React.FC<ExplorerSidebarProps> = ({
 
         if (!parentId) return wbsTree;
         const pkg = wbsTree.find(p => p.id === parentId);
-        if (pkg) return instruments.filter(i => i.purchasing?.workPackageId === pkg.name);
+        if (pkg) return instruments.filter(i => i.packageId === pkg.id);
         return [];
     };
 

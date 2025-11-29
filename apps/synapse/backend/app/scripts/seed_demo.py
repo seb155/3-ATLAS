@@ -1,14 +1,18 @@
 """
 Enhanced Database Seeding Script
 =================================
-Seeds complete demo data:
-1. Admin user
-2. Two clients
+Seeds complete demo data for SYNAPSE platform:
+
+1. Admin user (admin@aurumax.com / admin123!)
+2. Two clients (Goldmine Corp, Sandbox Inc)
 3. Two projects (GoldMine Demo + Test Project)
 4. 5 baseline rules (FIRM + COUNTRY)
-5. 10-15 sample assets for GoldMine project
+5. 12 sample assets for GoldMine project
+6. 2 WBS packages with asset assignments (PKG-IN-001, PKG-EL-001)
 
 Run: python -m app.scripts.seed_demo
+
+AI Agents: Use this when database is empty and you need test data.
 """
 
 from sqlalchemy.orm import Session
@@ -209,14 +213,16 @@ def seed_baseline_rules(db: Session) -> None:
     print(f"  ✓ Created {created} baseline rules")
 
 
-def seed_demo_assets(db: Session, project: Project) -> None:
+def seed_demo_assets(db: Session, project: Project) -> list:
     """Seed demo assets for GoldMine project"""
-    print("\n[5/5] Seeding demo assets...")
+    print("\n[5/6] Seeding demo assets...")
 
     existing = db.query(Asset).filter(Asset.project_id == project.id).count()
     if existing >= 10:
         print(f"  ✓ Assets already exist ({existing} assets)")
-        return
+        # Return all assets for package assignment
+        all_assets = db.query(Asset).filter(Asset.project_id == project.id).all()
+        return all_assets
 
     assets = [
         # Process Equipment
@@ -378,6 +384,100 @@ def seed_demo_assets(db: Session, project: Project) -> None:
     db.commit()
     print(f"  ✓ Created {created} demo assets")
 
+    # Return all assets for package assignment
+    all_assets = db.query(Asset).filter(Asset.project_id == project.id).all()
+    return all_assets
+
+
+def seed_packages(db: Session, project_id: str, assets: list) -> list:
+    """Create demo packages and assign assets"""
+    from app.models.packages import Package, PackageStatus
+
+    print("\n[6/6] Seeding packages...")
+
+    # Package 1: Instrumentation (IN-P040)
+    pkg_inst = db.query(Package).filter(
+        Package.name == "PKG-IN-001 - Area 310 Instrumentation",
+        Package.project_id == project_id
+    ).first()
+
+    if not pkg_inst:
+        pkg_inst = Package(
+            name="PKG-IN-001 - Area 310 Instrumentation",
+            description="Instrumentation package for Process Area 310",
+            package_type="IN-P040",
+            package_metadata={
+                "discipline": "Instrumentation",
+                "area": "310",
+                "revision": "A",
+                "engineer": "J. Smith"
+            },
+            project_id=project_id,
+            status=PackageStatus.OPEN
+        )
+        db.add(pkg_inst)
+        db.commit()
+        db.refresh(pkg_inst)
+        print(f"  ✓ Created package: {pkg_inst.name}")
+    else:
+        print(f"  ✓ Package '{pkg_inst.name}' already exists")
+
+    # Package 2: Electrical (CA-P040)
+    pkg_elec = db.query(Package).filter(
+        Package.name == "PKG-EL-001 - Area 310 Electrical",
+        Package.project_id == project_id
+    ).first()
+
+    if not pkg_elec:
+        pkg_elec = Package(
+            name="PKG-EL-001 - Area 310 Electrical",
+            description="Electrical power distribution for Area 310",
+            package_type="CA-P040",
+            package_metadata={
+                "discipline": "Electrical",
+                "area": "310",
+                "revision": "B",
+                "engineer": "M. Johnson"
+            },
+            project_id=project_id,
+            status=PackageStatus.OPEN
+        )
+        db.add(pkg_elec)
+        db.commit()
+        db.refresh(pkg_elec)
+        print(f"  ✓ Created package: {pkg_elec.name}")
+    else:
+        print(f"  ✓ Package '{pkg_elec.name}' already exists")
+
+    # Assign assets to packages based on type
+    # Instrumentation: transmitters, control instruments
+    inst_types = ['LEVEL_TRANSMITTER', 'INSTRUMENT', 'CONTROL_SYSTEM']
+    inst_assets = [a for a in assets if a.type in inst_types]
+
+    # Electrical: motors, pumps, conveyors, agitators, mills
+    elec_types = ['MOTOR', 'PUMP', 'AGITATOR', 'BALL_MILL']
+    elec_tags = ['CV-', 'M-', 'P-']  # Conveyors, Motors, Pumps by tag
+    elec_assets = [a for a in assets if (a.type in elec_types or any(tag in a.tag.upper() for tag in elec_tags)) and a not in inst_assets]
+
+    assigned_inst = 0
+    for asset in inst_assets:
+        if not asset.package_id:
+            asset.package_id = pkg_inst.id
+            assigned_inst += 1
+
+    assigned_elec = 0
+    for asset in elec_assets:
+        if not asset.package_id:
+            asset.package_id = pkg_elec.id
+            assigned_elec += 1
+
+    db.commit()
+
+    print(f"  ✓ Assigned {assigned_inst} assets to {pkg_inst.name}")
+    print(f"  ✓ Assigned {assigned_elec} assets to {pkg_elec.name}")
+
+    return [pkg_inst, pkg_elec]
+
 
 def main():
     db = SessionLocal()
@@ -391,7 +491,8 @@ def main():
         goldmine, sandbox = seed_clients(db)
         demo_project, test_project = seed_projects(db, goldmine, sandbox)
         seed_baseline_rules(db)
-        seed_demo_assets(db, demo_project)
+        assets = seed_demo_assets(db, demo_project)
+        packages = seed_packages(db, demo_project.id, assets)
 
         print("\n" + "=" * 60)
         print("✓ Seeding complete!")
@@ -402,8 +503,10 @@ def main():
         print("  - Projects: 2")
         print(f"  - Rules: {db.query(RuleDefinition).count()}")
         print(f"  - Assets: {db.query(Asset).count()}")
+        print(f"  - Packages: {len(packages)}")
         print("\n🚀 Access the app: http://localhost:4000")
         print("   Login: admin@aurumax.com / admin123!")
+        print("\n💡 WBS Package View: Engineering Explorer → WBS tab")
 
     except Exception as e:
         print(f"\n❌ Error during seeding: {e}")

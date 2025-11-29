@@ -29,20 +29,28 @@ from app.services.rule_loader import RuleLoader
 def test_project(db_session: Session):
     """Create test project"""
     from app.models.auth import Client
-    # Create client first
-    client = Client(
-        id="test-client",
-        name="Test Client"
-    )
-    db_session.add(client)
 
-    project = Project(
-        id="test-project-123",
-        name="Test Project",
-        client_id="test-client",
-        country="CA",  # For COUNTRY-level rule testing
-    )
-    db_session.add(project)
+    # Check if client exists, create if not
+    client = db_session.query(Client).filter(Client.id == "test-client").first()
+    if not client:
+        client = Client(
+            id="test-client",
+            name="Test Client"
+        )
+        db_session.add(client)
+        db_session.flush()
+
+    # Check if project exists, create if not
+    project = db_session.query(Project).filter(Project.id == "test-project-123").first()
+    if not project:
+        project = Project(
+            id="test-project-123",
+            name="Test Project",
+            client_id="test-client",
+            country="CA",  # For COUNTRY-level rule testing
+        )
+        db_session.add(project)
+
     db_session.commit()
     return project
 
@@ -421,8 +429,10 @@ def test_api_list_rules(client: TestClient, db_session: Session, firm_rule):
 
 def test_api_create_rule(client: TestClient, db_session: Session):
     """Test POST /api/v1/rules"""
+    import uuid
+    unique_name = f"API Test Rule {uuid.uuid4().hex[:8]}"
     rule_data = {
-        "name": "API Test Rule",
+        "name": unique_name,
         "source": "FIRM",
         "discipline": "ELECTRICAL",
         "action_type": "CREATE_CHILD",
@@ -439,9 +449,11 @@ def test_api_create_rule(client: TestClient, db_session: Session):
 
     response = client.post("/api/v1/rules", json=rule_data)
 
-    assert response.status_code == 201
+    if response.status_code != 201:
+        print(f"DEBUG: Create rule failed with {response.status_code}: {response.json()}")
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}: {response.json()}"
     data = response.json()
-    assert data["name"] == "API Test Rule"
+    assert data["name"] == unique_name
     assert data["priority"] == 10  # Auto-assigned for FIRM
 
 

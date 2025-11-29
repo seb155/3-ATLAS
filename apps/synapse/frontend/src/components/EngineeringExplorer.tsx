@@ -1,19 +1,24 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Asset, PhysicalLocation, LocationType, AssetType } from '../../types';
-import { CabinetPlanner as Engine, TreeNode } from '../services/engineeringEngine';
+import { CabinetPlanner as Engine } from '../services/engineeringEngine';
+
+// Tree node type for WBS/FBS views
+type TreeNode = { id: string; name: string; type: string; [key: string]: any };
 import { RackPanel } from './RackPanel';
 import { LocationOverview } from './LocationOverview';
 import { AssetDetails } from './AssetDetails';
 import { ExplorerSidebar } from './explorer/ExplorerSidebar';
 import { AssetGrid } from './explorer/AssetGrid';
 import { AssetDatasheet } from './explorer/AssetDatasheet';
+import { ExportDropdown } from './explorer/ExportDropdown';
 import {
     LayoutDashboard, Database, Server, Settings, ArrowLeft, Activity, Zap, ShoppingBag, Factory, Cpu, Box
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useProjectStore } from '../store/useProjectStore';
+import { usePackages, Package } from '../hooks/usePackages';
 import axios from 'axios';
 import { API_URL } from '@/config';
 import { CATALOG } from '../../constants';
@@ -42,6 +47,10 @@ export const EngineeringExplorer: React.FC = () => {
     const { currentProject } = useProjectStore();
     const { token } = useAuthStore();
 
+    // Packages Hook
+    const { listPackages } = usePackages(currentProject?.id || '');
+    const [packages, setPackages] = useState<Package[]>([]);
+
     // React Router
     const navigate = useNavigate();
 
@@ -55,9 +64,31 @@ export const EngineeringExplorer: React.FC = () => {
 
     const [history, setHistory] = useState<HistoryState[]>([]);
 
+    // Load packages on mount
+    useEffect(() => {
+        if (currentProject?.id) {
+            listPackages().then(result => {
+                if (result) {
+                    setPackages(result.packages);
+                }
+            });
+        }
+    }, [currentProject?.id, listPackages]);
+
     // Trees (Memoized)
     const fbsTree = useMemo(() => Engine.getFBSTree(instruments), [instruments]);
-    const wbsTree = useMemo(() => Engine.getWBSTree(instruments), [instruments]);
+    const wbsTree = useMemo(() => {
+        if (!packages || packages.length === 0) return [];
+
+        return packages.map(pkg => ({
+            id: pkg.id,
+            name: pkg.name,
+            type: 'PACKAGE' as const,
+            package_type: pkg.package_type,
+            count: pkg.asset_count,
+            children: []
+        }));
+    }, [packages]);
 
     // --- NAVIGATION LOGIC ---
     const addToHistory = useCallback(() => {
@@ -113,7 +144,7 @@ export const EngineeringExplorer: React.FC = () => {
     const params = useParams<{ assetId?: string }>();
     useEffect(() => {
         if (params.assetId && params.assetId !== selectedId) {
-            const asset = instruments.find(i => i.id === params.assetId);
+            const asset = instruments.find((i: Asset) => i.id === params.assetId);
             if (asset) {
                 handleSelect(asset.id, asset);
             }
@@ -126,7 +157,7 @@ export const EngineeringExplorer: React.FC = () => {
         let targetNode: Asset | PhysicalLocation | TreeNode | null = null;
 
         if (targetMode === 'LBS') {
-            targetNode = locations.find(l => l.id === targetId);
+            targetNode = locations.find((l: PhysicalLocation) => l.id === targetId);
         } else if (targetMode === 'FBS') {
             for (const area of fbsTree) {
                 if (area.id === targetId) targetNode = area;
@@ -134,7 +165,7 @@ export const EngineeringExplorer: React.FC = () => {
                 if (sys) targetNode = sys;
             }
         } else if (targetMode === 'WBS') {
-            targetNode = wbsTree.find(pkg => pkg.id === targetId);
+            targetNode = wbsTree.find((pkg: TreeNode) => pkg.id === targetId);
         }
 
         if (targetNode) {
@@ -150,7 +181,7 @@ export const EngineeringExplorer: React.FC = () => {
     const handleUpdateAsset = useCallback(async (updatedAsset: Asset) => {
         try {
             // Optimistic Update
-            const updatedInstruments = instruments.map(i => i.id === updatedAsset.id ? updatedAsset : i);
+            const updatedInstruments = instruments.map((i: Asset) => i.id === updatedAsset.id ? updatedAsset : i);
             setInstruments(updatedInstruments);
             if (selectedNode && selectedNode.id === updatedAsset.id) {
                 setSelectedNode(updatedAsset);
@@ -177,25 +208,28 @@ export const EngineeringExplorer: React.FC = () => {
 
         // Handle Unassigned Assets Folder
         if (selectedNode.id === 'unassigned-root') {
-            return instruments.filter(i => !i.locationId);
+            return instruments.filter((i: Asset) => !i.locationId);
         }
 
         if (viewMode === 'LBS') {
             const descendantIds = Engine.getDescendantLocationIds(selectedNode.id, locations);
             const targetIds = [selectedNode.id, ...descendantIds];
-            return instruments.filter(i => i.locationId && targetIds.includes(i.locationId));
+            return instruments.filter((i: Asset) => i.locationId && targetIds.includes(i.locationId));
         } else if (viewMode === 'FBS') {
-            if (selectedNode.type === 'AREA') return instruments.filter(i => i.area === selectedNode.name.replace('Area ', ''));
-            if (selectedNode.type === 'SYSTEM') return instruments.filter(i => i.system === selectedNode.originalSystem && i.area === selectedNode.originalArea);
+            if (selectedNode.type === 'AREA') return instruments.filter((i: Asset) => i.area === selectedNode.name.replace('Area ', ''));
+            if (selectedNode.type === 'SYSTEM') return instruments.filter((i: Asset) => i.system === selectedNode.originalSystem && i.area === selectedNode.originalArea);
         } else if (viewMode === 'WBS') {
-            if (selectedNode.type === 'PACKAGE') return instruments.filter(i => i.purchasing?.workPackageId === selectedNode.name);
+            if (selectedNode.type === 'PACKAGE') {
+                // Filter assets by package_id
+                return instruments.filter((i: Asset) => i.packageId === selectedNode.id);
+            }
         }
         return [];
     }, [selectedNode, viewMode, instruments, locations]);
 
     const effectiveFocusedAsset = useMemo(() => {
         if (selectedNode?.tag) return selectedNode;
-        if (focusedAssetId) return instruments.find(i => i.id === focusedAssetId);
+        if (focusedAssetId) return instruments.find((i: Asset) => i.id === focusedAssetId);
         return null;
     }, [selectedNode, focusedAssetId, instruments]);
 
@@ -209,6 +243,7 @@ export const EngineeringExplorer: React.FC = () => {
                 setViewMode={setViewMode}
                 selectedId={selectedId}
                 onSelect={handleSelect}
+                wbsTree={wbsTree}
             />
 
             {/* Main Content */}
@@ -237,6 +272,14 @@ export const EngineeringExplorer: React.FC = () => {
                                     {selectedNode.description && <span className="text-sm font-normal text-slate-500 ml-2">- {selectedNode.description}</span>}
                                 </span>
                             </h2>
+
+                            {/* WBS Package Export Button */}
+                            {viewMode === 'WBS' && selectedNode.type === 'PACKAGE' && (
+                                <ExportDropdown
+                                    packageId={selectedNode.id}
+                                    packageType={selectedNode.package_type}
+                                />
+                            )}
                         </div>
 
                         {/* Tabs */}
@@ -269,7 +312,7 @@ export const EngineeringExplorer: React.FC = () => {
                             {!selectedNode.tag && (
                                 <>
                                     {activeTab === 'OVERVIEW' && viewMode === 'LBS' && (
-                                        <LocationOverview locationId={selectedNode.id} instruments={instruments} locations={locations} onNavigate={(id) => handleSelect(id, locations.find(l => l.id === id))} />
+                                        <LocationOverview locationId={selectedNode.id} instruments={instruments} locations={locations} onNavigate={(id) => handleSelect(id, locations.find((l: PhysicalLocation) => l.id === id))} />
                                     )}
 
                                     {activeTab === 'GRID' && (

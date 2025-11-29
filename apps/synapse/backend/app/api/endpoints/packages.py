@@ -229,8 +229,8 @@ def get_package_assets(
             {
                 "id": a.id,
                 "tag": a.tag,
-                "asset_type": a.asset_type,
-                "description": a.properties.get("description", ""),
+                "asset_type": a.type,
+                "description": (a.properties or {}).get("description", ""),
             }
             for a in assets
         ],
@@ -391,7 +391,7 @@ def preview_export_data(
         "assets": [
             {
                 "tag": a.tag,
-                "type": a.asset_type,
+                "type": a.type,
                 "properties": a.properties,
             }
             for a in assets[:10]  # Limit to 10 for preview

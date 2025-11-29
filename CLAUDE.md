@@ -94,6 +94,34 @@ docker restart synapse-backend               # Restart service
 docker exec -it forge-postgres psql -U postgres -d synapse  # DB shell
 ```
 
+### Demo Data Generation
+
+**When database is empty and you need test data:**
+
+```bash
+# From backend directory
+cd apps/synapse/backend
+python -m app.scripts.seed_demo
+```
+
+**What it creates:**
+- Admin user: `admin@aurumax.com` / `admin123!`
+- 2 Clients: Goldmine Corp, Sandbox Inc
+- 2 Projects: GoldMine Demo, Test Project
+- 5 Baseline rules (FIRM + COUNTRY)
+- 12 Demo assets (pumps, motors, transmitters, cables, etc.)
+- 2 WBS Packages with assigned assets:
+  - **PKG-IN-001** (Instrumentation, IN-P040 type) - 4 assets
+  - **PKG-EL-001** (Electrical, CA-P040 type) - 3 assets
+
+**Use cases:**
+- Testing WBS Package View in Engineering Explorer
+- Testing template export (IN-P040, CA-P040)
+- Testing rule engine execution
+- Any feature requiring sample data
+
+**AI Agent Usage:** When you encounter an empty database during testing or development, run this script to populate complete demo data with packages for WBS testing.
+
 ---
 
 ## Architecture

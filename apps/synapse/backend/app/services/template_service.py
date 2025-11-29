@@ -327,23 +327,17 @@ class TemplateService:
                     )
 
                     ws.cell(row, 1, idx)
-                    ws.cell(row, 2, cable.cable_number)
+                    ws.cell(row, 2, cable.tag)
                     ws.cell(row, 3, from_asset.tag if from_asset else "")
                     ws.cell(row, 4, to_asset.tag if to_asset else "")
                     ws.cell(row, 5, cable.cable_type or "")
-                    ws.cell(
-                        row,
-                        6,
-                        f"{cable.cores}C x {cable.size_mm2}mm²"
-                        if cable.cores and cable.size_mm2
-                        else "",
-                    )
-                    ws.cell(row, 7, cable.length_m or "")
-                    ws.cell(row, 8, cable.routing or "")
-                    ws.cell(row, 9, cable.tray or "")
-                    ws.cell(row, 10, cable.from_termination or "")
-                    ws.cell(row, 11, cable.to_termination or "")
-                    ws.cell(row, 12, cable.remarks or "")
+                    ws.cell(row, 6, cable.conductor_size or "")
+                    ws.cell(row, 7, cable.length_meters or "")
+                    ws.cell(row, 8, cable.route_description or "")
+                    ws.cell(row, 9, cable.installation_method or "")
+                    ws.cell(row, 10, cable.from_terminal or "")
+                    ws.cell(row, 11, cable.to_terminal or "")
+                    ws.cell(row, 12, cable.description or "")
                     row += 1
 
             # Auto-size columns

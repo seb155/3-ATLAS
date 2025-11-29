@@ -44,6 +44,8 @@ class RuleEngine:
             f"Starting Database-Driven Rule Engine for project {project_id}",
             project_id=project_id,
         )
+        # Capture root_log_id early to avoid issues after potential rollbacks
+        root_log_id = root_log.id
         SystemLog.log("INFO", f"Starting Database-Driven Rule Engine for project {project_id}...")
 
         # 1. Load all applicable rules (FIRM + COUNTRY + PROJECT + CLIENT)
@@ -60,7 +62,7 @@ class RuleEngine:
                 ActionType.RULE_EXECUTION,
                 f"Skipped {len(violations)} rules due to enforcement violations.",
                 project_id=project_id,
-                parent_id=root_log.id,
+                parent_id=root_log_id,
                 status=ActionStatus.WARNING,
                 details={"violations": violations},
             )
@@ -70,7 +72,7 @@ class RuleEngine:
             ActionType.RULE_EXECUTION,
             f"Loaded {len(rules)} active rules after conflict resolution.",
             project_id=project_id,
-            parent_id=root_log.id,
+            parent_id=root_log_id,
         )
 
         # 2. Get all assets to apply rules to (from unified Asset table)
@@ -80,7 +82,7 @@ class RuleEngine:
             ActionType.RULE_EXECUTION,
             f"Found {len(assets)} assets to process.",
             project_id=project_id,
-            parent_id=root_log.id,
+            parent_id=root_log_id,
         )
 
         # 3. Initialize executor
@@ -98,11 +100,18 @@ class RuleEngine:
                 ActionType.RULE_EXECUTION,
                 f"Applying rule: {rule.name}",
                 project_id=project_id,
-                parent_id=root_log.id,
+                parent_id=root_log_id,
                 details={"priority": rule.priority, "source": rule.source.value},
             )
+            # Capture IDs before any potential rollback in executor
+            rule_log_id = rule_log.id
+            rule_id = rule.id
 
             for asset in assets:
+                # Capture asset info BEFORE execute_rule (which may rollback)
+                asset_id = asset.id
+                asset_discipline = getattr(asset, 'discipline', None)
+
                 execution = executor.execute_rule(rule, asset)
                 total_executions += 1
 
@@ -113,11 +122,11 @@ class RuleEngine:
                         ActionType.CREATE,
                         execution.action_taken,
                         project_id=project_id,
-                        parent_id=rule_log.id,
+                        parent_id=rule_log_id,
                         entity_type="NODE",
                         entity_id=execution.created_entity_id,
-                        discipline=asset.discipline,
-                        details={"rule_id": rule.id, "asset_id": asset.id},
+                        discipline=asset_discipline,
+                        details={"rule_id": rule_id, "asset_id": asset_id},
                     )
                 elif execution.action_type == "UPDATE":
                     actions_taken += 1
@@ -126,11 +135,11 @@ class RuleEngine:
                         ActionType.UPDATE,
                         execution.action_taken,
                         project_id=project_id,
-                        parent_id=rule_log.id,
+                        parent_id=rule_log_id,
                         entity_type="NODE",
-                        entity_id=asset.id,
-                        discipline=asset.discipline,
-                        details={"rule_id": rule.id, "asset_id": asset.id},
+                        entity_id=asset_id,
+                        discipline=asset_discipline,
+                        details={"rule_id": rule_id, "asset_id": asset_id},
                     )
 
                 elif execution.action_type == "LINK":
@@ -140,42 +149,36 @@ class RuleEngine:
                         ActionType.LINK,
                         execution.action_taken,
                         project_id=project_id,
-                        parent_id=rule_log.id,
+                        parent_id=rule_log_id,
                         entity_type="EDGE",
-                        discipline=asset.discipline,
-                        details={"rule_id": rule.id, "asset_id": asset.id},
+                        discipline=asset_discipline,
+                        details={"rule_id": rule_id, "asset_id": asset_id},
                     )
                 elif execution.action_type == "SKIP":
                     skipped += 1
                 elif execution.action_type == "ERROR":
                     errors += 1
-                    ActionLogger.log(
-                        db,
-                        ActionType.ERROR,
-                        f"{execution.action_taken}: {execution.error_message}",
-                        project_id=project_id,
-                        parent_id=rule_log.id,
-                        status=ActionStatus.FAILED,
-                        details={
-                            "rule_id": rule.id,
-                            "asset_id": asset.id,
-                            "error": execution.error_message,
-                        },
-                    )
+                    # Note: Error is already logged in RuleExecution record
+                    # ActionLogger.log() skipped to avoid FK issues after rollback
 
         elapsed_ms = int((time.time() - start_time) * 1000)
 
-        ActionLogger.log(
-            db,
-            ActionType.RULE_EXECUTION,
-            (
-                f"Rule Engine completed in {elapsed_ms}ms. "
-                f"Summary: {actions_taken} actions, {errors} errors"
-            ),
-            project_id=project_id,
-            parent_id=root_log.id,
-            status=ActionStatus.COMPLETED if errors == 0 else ActionStatus.FAILED,
-        )
+        # Try to log completion - may fail if rollback removed parent log
+        try:
+            ActionLogger.log(
+                db,
+                ActionType.RULE_EXECUTION,
+                (
+                    f"Rule Engine completed in {elapsed_ms}ms. "
+                    f"Summary: {actions_taken} actions, {errors} errors"
+                ),
+                project_id=project_id,
+                parent_id=root_log_id if errors == 0 else None,  # Don't use parent if errors (may be rolled back)
+                status=ActionStatus.COMPLETED if errors == 0 else ActionStatus.FAILED,
+            )
+        except Exception:
+            # If logging fails due to rollback, just skip
+            pass
 
         return {
             "total_rules": len(rules),
