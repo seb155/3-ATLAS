@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Notes } from './pages/Notes';
+import { Drawing } from './pages/Drawing';
 import { Tasks } from './pages/Tasks';
 import { Roadmap } from './pages/Roadmap';
 import { Graph } from './pages/Graph';
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/drawing" element={<Drawing />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/graph" element={<Graph />} />

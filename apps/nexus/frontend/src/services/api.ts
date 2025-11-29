@@ -3,6 +3,17 @@
  * @module api
  */
 
+import type {
+  Drawing,
+  DrawingCreate,
+  DrawingUpdate,
+  DrawingTreeResponse,
+  DrawingSearchResponse,
+  DrawingWithBacklinks,
+  NoteDrawingEmbed,
+  NoteDrawingEmbedCreate,
+} from '@/types/excalidraw.types';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface RequestOptions extends RequestInit {
@@ -181,6 +192,103 @@ export const authApi = {
 
   me: async (token: string): Promise<User> => {
     return request('/api/v1/auth/me', { token });
+  },
+};
+
+// ============================================================================
+// Drawings API
+// ============================================================================
+
+export const drawingsApi = {
+  list: async (token: string, parentId?: string): Promise<Drawing[]> => {
+    const params = parentId ? `?parent_id=${parentId}` : '';
+    return request(`/api/v1/drawings${params}`, { token });
+  },
+
+  getRoot: async (token: string): Promise<Drawing[]> => {
+    return request('/api/v1/drawings/root', { token });
+  },
+
+  getTree: async (token: string): Promise<DrawingTreeResponse> => {
+    return request('/api/v1/drawings/tree', { token });
+  },
+
+  get: async (token: string, id: string): Promise<Drawing> => {
+    return request(`/api/v1/drawings/${id}`, { token });
+  },
+
+  getWithBacklinks: async (token: string, id: string): Promise<DrawingWithBacklinks> => {
+    return request(`/api/v1/drawings/${id}/backlinks`, { token });
+  },
+
+  findByTitle: async (token: string, title: string): Promise<Drawing | null> => {
+    return request(`/api/v1/drawings/find?title=${encodeURIComponent(title)}`, { token });
+  },
+
+  create: async (token: string, data: DrawingCreate): Promise<Drawing> => {
+    return request('/api/v1/drawings', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (token: string, id: string, data: DrawingUpdate): Promise<Drawing> => {
+    return request(`/api/v1/drawings/${id}`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  move: async (token: string, id: string, newParentId: string | null): Promise<Drawing> => {
+    return request(`/api/v1/drawings/${id}/move`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify({ new_parent_id: newParentId }),
+    });
+  },
+
+  updateThumbnail: async (token: string, id: string, thumbnail: string): Promise<void> => {
+    return request(`/api/v1/drawings/${id}/thumbnail`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify({ thumbnail }),
+    });
+  },
+
+  delete: async (token: string, id: string, hard = false): Promise<void> => {
+    const params = hard ? '?hard=true' : '';
+    return request(`/api/v1/drawings/${id}${params}`, {
+      method: 'DELETE',
+      token,
+    });
+  },
+
+  search: async (token: string, query: string, limit = 20): Promise<DrawingSearchResponse> => {
+    return request(`/api/v1/drawings/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
+      token,
+    });
+  },
+
+  // Embed operations
+  createEmbed: async (token: string, data: NoteDrawingEmbedCreate): Promise<NoteDrawingEmbed> => {
+    return request('/api/v1/drawings/embeds', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  getEmbedsForNote: async (token: string, noteId: string): Promise<NoteDrawingEmbed[]> => {
+    return request(`/api/v1/drawings/embeds/note/${noteId}`, { token });
+  },
+
+  deleteEmbed: async (token: string, embedId: string): Promise<void> => {
+    return request(`/api/v1/drawings/embeds/${embedId}`, {
+      method: 'DELETE',
+      token,
+    });
   },
 };
 

@@ -4,6 +4,7 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
+import { ExcalidrawBlock } from './extensions/ExcalidrawBlock';
 import { EditorToolbar } from './EditorToolbar';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +45,7 @@ export function Editor({
         multicolor: true,
       }),
       Typography,
+      ExcalidrawBlock,
     ],
     content,
     editable,

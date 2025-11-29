@@ -1,10 +1,11 @@
-import { Home, FileText, CheckSquare, Map, Network, Settings } from 'lucide-react';
+import { Home, FileText, PenTool, CheckSquare, Map, Network, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Notes', href: '/notes', icon: FileText },
+  { name: 'Drawing', href: '/drawing', icon: PenTool },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Roadmap', href: '/roadmap', icon: Map },
   { name: 'Graph', href: '/graph', icon: Network },
