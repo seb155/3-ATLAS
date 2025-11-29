@@ -1,0 +1,79 @@
+# CORTEX Development Environment
+# Requires FORGE infrastructure (forge-postgres, forge-redis)
+
+services:
+  cortex-engine:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cortex-engine
+    ports:
+      - "7100:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql://postgres:postgres@forge-postgres:5432/cortex
+      - REDIS_URL=redis://forge-redis:6379/2
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # ai-sandbox integration (optional)
+      - LITELLM_URL=${LITELLM_URL:-http://litellm:4000}
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - CHROMADB_URL=${CHROMADB_URL:-http://chromadb:8000}
+      - LANGFUSE_URL=${LANGFUSE_URL:-http://langfuse-server:3000}
+      # Context settings
+      - MAX_CONTEXT_TOKENS=100000
+      - HOT_CACHE_SIZE=50000
+    volumes:
+      - ./backend:/app
+      - cortex-data:/app/data
+    networks:
+      - forge-network
+      - axiom-ai-network
+    depends_on:
+      - cortex-sandbox
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  cortex-sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    container_name: cortex-sandbox
+    ports:
+      - "7101:8000"
+    environment:
+      - ENVIRONMENT=development
+      - POOL_SIZE=3
+      - CONTAINER_TIMEOUT=60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - sandbox-workspaces:/workspaces
+    networks:
+      - forge-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  cortex-data:
+    name: cortex-data
+  sandbox-workspaces:
+    name: sandbox-workspaces
+
+networks:
+  forge-network:
+    external: true
+    name: forge-network
+  axiom-ai-network:
+    external: true
+    name: axiom-ai-network
