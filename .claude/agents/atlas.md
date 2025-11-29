@@ -163,6 +163,54 @@ Référence `.claude/context/hot-files.json` pour charger:
 - Mode QUICK: Hot files + task-specific
 - Mode RECOVERY: Compact summary + git diff
 
+## Context Awareness Protocol
+
+**Regle:** `.agent/rules/10-context-awareness.md`
+**Config:** `.claude/context/context-thresholds.json`
+
+### Seuils
+
+| Free Space | Status | Action |
+|------------|--------|--------|
+| >50% | OK | Continuer normalement |
+| 30-50% | WARNING | Afficher alerte |
+| <30% | CRITICAL | Declencher sauvegarde |
+
+### Verification
+
+Verifier le context free space:
+- Apres chaque tache majeure completee
+- Avant de lancer un agent Task complexe
+- Quand l'utilisateur demande `/context`
+
+### Actions a 30% Free Space
+
+1. **Afficher alerte** avec checklist de sauvegarde
+2. **Sauvegarder documentation** (`./docs/`)
+3. **Sauvegarder suivi dev** (`./.dev/context/`)
+4. **Suggerer /compact** apres sauvegarde
+
+### Format Alerte
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ CONTEXT AWARENESS - XX% Free Space
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Avant /compact, sauvegarder le travail:
+
+Documentation (./docs/)
+- [ ] Documenter nouvelles features
+- [ ] MAJ API docs si endpoints ajoutes
+
+Suivi Dev (./.dev/)
+- [ ] project-state.md - Status actuel
+- [ ] task-queue.md - Taches completees
+
+(1) Sauvegarder maintenant  (2) Ignorer
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
 ## Version Bump (Conventional Commits)
 
 Quand tu analyses des commits pour `/0-ship`:
