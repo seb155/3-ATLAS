@@ -141,4 +141,34 @@
 
 ---
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-11-29
+
+---
+
+## Test Infrastructure Summary (2025-11-29)
+
+### Backend (pytest)
+- **Total Tests:** 111 passed
+- **Coverage:** 66% (target: 70%+)
+- **New Test Files Added:**
+  - `tests/test_logs_endpoint.py` - HTTP logs endpoint tests
+  - `tests/test_auth_endpoint.py` - Authentication endpoint tests
+
+### Frontend (vitest)
+- **Total Tests:** 73 passed
+- **Coverage:** 31%
+
+### Coverage Gaps to Address
+| File | Current | Target |
+|------|---------|--------|
+| `search.py` | 21% | 70% |
+| `metamodel.py` | 23% | 70% |
+| `ingestion_service.py` | 23% | 70% |
+| `workflow.py` | 28% | 70% |
+| `logs.py` | 33% | 70% |
+| `ai_provider.py` | 35% | 70% |
+
+### Next Steps
+1. Run full test suite to validate new tests
+2. Add more tests to reach 70% coverage
+3. Setup CI/CD with GitHub Actions
