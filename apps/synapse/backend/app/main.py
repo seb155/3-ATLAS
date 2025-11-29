@@ -176,9 +176,13 @@ async def database_error_handler(request, exc: DatabaseError):
 
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(request, exc: IntegrityError):
+    # Extract constraint details for better debugging
+    detail = "Database constraint violation"
+    if hasattr(exc, 'orig') and exc.orig:
+        detail = str(exc.orig)
     return JSONResponse(
         status_code=409,
-        content={"detail": "Database constraint violation", "type": "integrity_error"},
+        content={"detail": detail, "type": "integrity_error"},
     )
 
 

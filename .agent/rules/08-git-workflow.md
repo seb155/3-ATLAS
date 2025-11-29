@@ -1,8 +1,3 @@
----
-trigger: always
-description: Git branching strategy - OBLIGATOIRE pour tout développement
----
-
 # Git Workflow Protocol
 
 **Purpose:** Empêcher les conflits de merge et protéger la branche principale.

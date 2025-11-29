@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: User context and preferences (automation engineer, bilingual, SYNAPSE project).
----
-
 # User Context
 
 **Profile:** Senior Automation Engineer (10y+). Québec. EPCM (Mining/Water).

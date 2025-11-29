@@ -1,18 +1,12 @@
+---
+description: Generate FastAPI endpoint following project patterns
+---
+
 # Prompt Template: New API Endpoint
 
 **Purpose:** Generate FastAPI endpoint following project patterns
 **Version:** 1.0
 **Pattern Reference:** `apps/synapse/backend/app/routers/cables.py`
-**Shared Resources:** `.claude/skills/api-endpoint/` (Templates shared with Claude Code)
-
----
-
-## Template Files
-
-**Location:** `.claude/skills/api-endpoint/templates/`
-- `router.py.template` - FastAPI router with multi-tenancy
-- `schema.py.template` - Pydantic request/response models
-- `test.py.template` - Pytest tests with fixtures
 
 ---
 

@@ -1,3 +1,7 @@
+---
+description: Validate AI-generated code through auto tests and manual verification
+---
+
 # Workflow: Test Validation
 
 **Purpose:** Structured process for validating AI-generated code through auto tests + manual verification

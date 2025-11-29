@@ -1,0 +1,3 @@
+2025-11-28 : rajoute linfo pour les agent ai ou une regle que lorsqu<il cree des mockup data il doivent les cree via un script seed pour populler la db correctement pas juste inventer des choses ..... 
+
+2025-11-28: cree un skill pour trier reformater et rhrases prioriser les backlog que lhumain cree . et presenter la liste en ordre un genre de suivit et siggeerer quel item mettre dans le road map ou sprint ou de quoi comme ca 

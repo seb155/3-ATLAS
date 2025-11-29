@@ -1,18 +1,12 @@
+---
+description: Generate React component following project patterns
+---
+
 # Prompt Template: New React Component
 
 **Purpose:** Generate React component following project patterns
 **Version:** 1.0
 **Pattern Reference:** Existing components in `apps/synapse/frontend/src/components/`
-**Shared Resources:** `.claude/skills/react-component/` (Templates shared with Claude Code)
-
----
-
-## Template Files
-
-**Location:** `.claude/skills/react-component/templates/`
-- `component.tsx.template` - React component with TypeScript
-- `store.ts.template` - Zustand store (if state needed)
-- `test.tsx.template` - Vitest + Testing Library tests
 
 ---
 

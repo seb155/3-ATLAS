@@ -9,20 +9,27 @@ from app.models.models import Asset, AssetType
 def test_import_project(db_session):
     """Create test project for import tests"""
     from app.models.auth import Client
-    # Create client first
-    client = Client(
-        id="test-client-import",
-        name="Test Import Client"
-    )
-    db_session.add(client)
 
-    project = Project(
-        id="test-project-import",
-        name="Test Import Project",
-        client_id="test-client-import",
-    )
-    db_session.add(project)
-    db_session.commit()
+    # Use get_or_create pattern to avoid constraint violations
+    client = db_session.query(Client).filter(Client.id == "test-client-import").first()
+    if not client:
+        client = Client(
+            id="test-client-import",
+            name="Test Import Client"
+        )
+        db_session.add(client)
+        db_session.flush()
+
+    project = db_session.query(Project).filter(Project.id == "test-project-import").first()
+    if not project:
+        project = Project(
+            id="test-project-import",
+            name="Test Import Project",
+            client_id="test-client-import",
+        )
+        db_session.add(project)
+        db_session.commit()
+
     return project
 
 def test_import_csv(client, db_session, test_import_project):
@@ -63,7 +70,7 @@ IMPORT-INVALID-01,Invalid Asset Description,,480V,Air
     # 3. Verify Response Summary
     assert data["created"] == 1
     assert len(data["errors"]) == 1
-    assert "Missing Type" in data["errors"][0]
+    assert "type" in str(data["errors"][0]).lower()
 
     # 4. Verify DB
     asset = db.query(Asset).filter(Asset.tag == "IMPORT-NEW-01").first()

@@ -1,3 +1,7 @@
+---
+description: Full session start - Load context, propose actions, wait for direction
+---
+
 # Workflow: New Session Start
 
 **Purpose:** Boot sequence for AI agents at session start (Full version)

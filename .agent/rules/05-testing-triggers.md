@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: *.py, *.ts, *.tsx
-description: When to run tests and when to rebuild Docker containers
----
-
 # Testing & Build Triggers
 
 **Purpose:** Define when to run tests and when to rebuild Docker after code changes.

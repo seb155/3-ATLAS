@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: Token optimization when creating/refactoring rules or documentation.
----
-
 # Token Optimization Protocol
 
 **Purpose:** Maintain low cognitive load for AI context by using pointer pattern.

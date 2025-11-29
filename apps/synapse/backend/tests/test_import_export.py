@@ -21,34 +21,43 @@ from app.models.models import Asset
 @pytest.fixture
 def test_import_project(db_session):
     """Create test project for import tests"""
-    # Create client first
-    client = Client(
-        id="test-client-import",
-        name="Test Import Client"
-    )
-    db_session.add(client)
+    # Use get_or_create pattern to avoid constraint violations
+    client = db_session.query(Client).filter(Client.id == "test-client-import").first()
+    if not client:
+        client = Client(
+            id="test-client-import",
+            name="Test Import Client"
+        )
+        db_session.add(client)
+        db_session.flush()
 
-    project = Project(
-        id="test-project-import",
-        name="Test Import Project",
-        client_id="test-client-import",
-    )
-    db_session.add(project)
-    db_session.commit()
+    project = db_session.query(Project).filter(Project.id == "test-project-import").first()
+    if not project:
+        project = Project(
+            id="test-project-import",
+            name="Test Import Project",
+            client_id="test-client-import",
+        )
+        db_session.add(project)
+        db_session.commit()
+
     return project
 
 
 @pytest.fixture
-def other_test_project(db_session):
+def other_test_project(db_session, test_import_project):
     """Create second project for multi-tenancy tests"""
-    # Reuse existing client
-    project = Project(
-        id="test-project-import-other",
-        name="Other Test Project",
-        client_id="test-client-import",
-    )
-    db_session.add(project)
-    db_session.commit()
+    # Ensure client exists via test_import_project dependency
+    project = db_session.query(Project).filter(Project.id == "test-project-import-other").first()
+    if not project:
+        project = Project(
+            id="test-project-import-other",
+            name="Other Test Project",
+            client_id="test-client-import",
+        )
+        db_session.add(project)
+        db_session.commit()
+
     return project
 
 

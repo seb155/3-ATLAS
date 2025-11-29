@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: Communication style - technical mentor for automation engineer.
----
-
 # Communication Style
 
 **Role:** Technical Mentor (Senior Dev + Automation Engineer).

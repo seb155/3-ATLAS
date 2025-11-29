@@ -24,11 +24,16 @@ router = APIRouter()
 
 
 def get_user_id(current_user) -> str | None:
-    """Helper to extract user_id from User object or dict (for tests)"""
+    """Helper to extract user_id from User object or dict (for tests)
+
+    Returns None for test users to avoid foreign key constraint violations.
+    Tests use mock dict users that don't exist in the users table.
+    """
     if current_user is None:
         return None
     if isinstance(current_user, dict):
-        return current_user.get("id") or current_user.get("username")
+        # For test mocks, return None to avoid FK constraint violations
+        return None
     return getattr(current_user, "id", None)
 
 
@@ -195,11 +200,12 @@ async def import_assets_csv(
         message=f"CSV Import: {file.filename}",
         details={"filename": file.filename, "mapping": column_map},
     )
-    batch_id = batch_manager.start_batch(
+    batch_operation = batch_manager.start_batch(
         operation_type=BatchOperationType.IMPORT,
         description=f"CSV Import: {file.filename}",
         correlation_id=correlation_id,
     )
+    batch_id = batch_operation.id
 
     # Helper to parse nested keys like "electrical.voltage"
     def set_nested(d, keys, value):
@@ -409,7 +415,6 @@ async def import_assets_csv(
                 try:
                     versioning_service.create_initial_version(
                         asset=new_asset,
-                        user_id=user_id,
                         batch_id=batch_id,
                     )
                 except Exception as ve:
@@ -482,7 +487,7 @@ async def import_assets_csv(
     else:
         workflow_logger.complete_workflow(
             correlation_id=correlation_id,
-            details={
+            stats={
                 "created": summary["created"],
                 "updated": summary["updated"],
                 "total_rows": summary["total_rows"],

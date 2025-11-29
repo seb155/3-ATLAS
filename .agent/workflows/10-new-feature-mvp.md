@@ -1,3 +1,7 @@
+---
+description: Structured workflow for implementing new features during MVP development
+---
+
 # Workflow: Nouvelle Feature MVP
 
 **Purpose:** Structured workflow for implementing new features during MVP development

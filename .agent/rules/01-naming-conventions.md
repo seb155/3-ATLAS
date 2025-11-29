@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: Naming conventions for rules, assets, and code.
----
-
 # Naming Conventions
 
 **Rule:** Rule names MUST use spaces/colons, NEVER underscores.

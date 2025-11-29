@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: Backend integrity - Database sync, API patterns, Multi-tenancy, Type hints
----
-
 # Backend Integrity Protocol
 
 **Purpose:** Ensure database models, migrations, API schemas, and multi-tenant patterns stay synchronized.

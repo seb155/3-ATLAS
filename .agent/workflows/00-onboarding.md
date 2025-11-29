@@ -16,9 +16,11 @@ Verify installed:
 
 ## 2. Clone & Setup
 
+See `.dev/context/project-info.md` for repo URL.
+
 ```bash
-git clone https://github.com/seb155/EPCB-Tools.git
-cd EPCB-Tools
+git clone https://github.com/seb155/AXIOM.git
+cd AXIOM
 ```
 
 ## 3. Quick Start
@@ -27,7 +29,7 @@ cd EPCB-Tools
 .\dev.ps1
 
 **What this does:**
-1. Starts workspace (PostgreSQL, Prisma, pgAdmin, Redis)
+1. Starts FORGE (PostgreSQL, Redis, shared infrastructure)
 2. Starts SYNAPSE (backend + frontend with hot-reload)
 
 **Wait:** 30-60 seconds for containers to start
@@ -35,14 +37,16 @@ cd EPCB-Tools
 ## 4. Verify
 
 // turbo
-docker ps | grep -E "workspace|synapse"
+docker ps | grep -E "forge|synapse"
 
-**Expected:** 6 containers running
+**Expected:** Multiple containers running (FORGE + SYNAPSE)
 
 ## 5. Access Application
 
+See `.dev/context/credentials.md` for full credentials.
+
 - **Frontend:** http://localhost:4000
-- **Login:** admin@aurumax.com / admin123!
+- **Login:** See credentials file
 - **API Docs:** http://localhost:8001/docs
 - **Prisma Studio:** http://localhost:5555
 

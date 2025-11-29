@@ -1,8 +1,3 @@
----
-trigger: model_decision
-description: Navigation quick links to documentation, context, and credentials
----
-
 # Navigation Quick Links
 
 **Purpose:** Quick navigation to documentation, project state, and credentials.
