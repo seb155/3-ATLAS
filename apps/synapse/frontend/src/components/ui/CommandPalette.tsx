@@ -43,7 +43,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { apiClient } from '../../services/apiClient';
+import apiClient from '../../services/apiClient';
 
 // Icon mapping for dynamic results
 const iconMap: Record<string, React.ElementType> = {

@@ -1,5 +1,5 @@
 
-import { Asset, AssetType, PhysicalLocation, ManufacturerPart, IOType, LocationType } from './types';
+import { ManufacturerPart, IOType } from './types';
 
 // Vendor Catalog (Keep for now as it's not yet in backend)
 export const CATALOG: ManufacturerPart[] = [

@@ -80,6 +80,7 @@
 **Fichiers modifiés:**
 - `CLAUDE.md` - Added Atlas as entry point
 - `.dev/journal/session-template.md` - Timestamp format YYYY-MM-DD HH:MM
+- `.agent/rules/07-timestamp-format.md` - NEW: Central timestamp format guide (2025-11-28)
 
 **Fonctionnalités implémentées:**
 - ✅ **ATLAS Agent** - Main orchestrator avec 3 session modes
@@ -89,7 +90,8 @@
 - ✅ **Auto-documentation** - Via `/docs` après `/0-ship` ou inactivité 5+ min
 - ✅ **Git Workflow** - Tests + commit + version bump + push automatisé
 - ✅ **Progress Tracking** - `/0-progress` et `/0-dashboard` compacts
-- ✅ **Timestamps HH:MM** - Format complet partout (YYYY-MM-DD HH:MM)
+- ✅ **Timestamps Format Universel** - `YYYY-MM-DD HH:MM` partout + time ranges complets `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]` (Guide: [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md))
+- ✅ **GENESIS Format Updated** - Passe de `YYYY-MM-DD` à `YYYY-MM-DD HH:MM` (2025-11-28)
 - ✅ **Session History** - Tracking JSON avec stats
 - ✅ **Task Queue** - File de tâches prioritisée
 - ✅ **Hot Files** - Smart context loading

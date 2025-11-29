@@ -9,31 +9,26 @@ Tests the new rule execution pipeline with:
 - Event sourcing pattern
 """
 
-import pytest
-from datetime import datetime
-from sqlalchemy.orm import Session
 from uuid import uuid4
 
-from app.models.auth import Project, Client, User
+import pytest
+from sqlalchemy.orm import Session
+
+from app.models.auth import Client, Project, User
 from app.models.models import Asset
 from app.models.rules import RuleActionType, RuleDefinition, RuleSource
 from app.models.workflow import (
-    WorkflowEvent,
     AssetVersion,
-    PropertyChange,
     BatchOperation,
-    LogLevel,
+    BatchOperationType,
+    ChangeSource,
     LogSource,
     WorkflowActionType,
-    WorkflowStatus,
-    ChangeSource,
-    BatchOperationType,
+    WorkflowEvent,
 )
-from app.models.packages import Package
 from app.services.rule_execution_service import RuleExecutionService
-from app.services.workflow_logger import WorkflowLogger, BatchOperationManager
 from app.services.versioning_service import VersioningService
-
+from app.services.workflow_logger import WorkflowLogger
 
 # ============================================================================
 # Fixtures

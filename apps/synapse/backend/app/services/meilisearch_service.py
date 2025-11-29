@@ -10,10 +10,10 @@ Provides fast, typo-tolerant search across all entities:
 License: MeiliSearch is MIT licensed (100% free, self-hostable)
 """
 
-import os
 import logging
-from typing import TypedDict, Literal
+import os
 from datetime import datetime
+from typing import Literal, TypedDict
 
 import meilisearch
 from meilisearch.errors import MeilisearchApiError

@@ -20,7 +20,6 @@ from sqlalchemy.orm import Session
 
 from app.models.models import Asset
 from app.models.workflow import (
-    AssetChange,
     AssetVersion,
     BatchOperation,
     ChangeSource,
@@ -28,8 +27,6 @@ from app.models.workflow import (
     LogSource,
     PropertyChange,
     WorkflowActionType,
-    WorkflowEvent,
-    WorkflowStatus,
 )
 from app.services.workflow_logger import WorkflowLogger, generate_correlation_id
 

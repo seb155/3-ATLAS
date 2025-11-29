@@ -14,7 +14,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # ENUMS (Mirror models/workflow.py enums for API contracts)
 # =============================================================================

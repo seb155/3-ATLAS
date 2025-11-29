@@ -13,7 +13,7 @@ from app.core.exceptions import DatabaseError, FileValidationError, RuleExecutio
 from app.core.exceptions import ValidationError as SynapseValidationError
 from app.models.action_log import ActionType
 from app.models.models import Asset
-from app.models.workflow import BatchOperationType, LogLevel, LogSource, WorkflowActionType
+from app.models.workflow import BatchOperationType, LogSource, WorkflowActionType
 from app.schemas.import_export import CSVRowError, ImportSummaryResponse
 from app.services.action_logger import ActionLogger
 from app.services.metamodel import MetamodelService
@@ -21,6 +21,15 @@ from app.services.versioning_service import VersioningService
 from app.services.workflow_logger import BatchOperationManager, WorkflowLogger
 
 router = APIRouter()
+
+
+def get_user_id(current_user) -> str | None:
+    """Helper to extract user_id from User object or dict (for tests)"""
+    if current_user is None:
+        return None
+    if isinstance(current_user, dict):
+        return current_user.get("id") or current_user.get("username")
+    return getattr(current_user, "id", None)
 
 
 @router.get("/export", response_class=StreamingResponse)
@@ -166,17 +175,18 @@ async def import_assets_csv(
     )
 
     # NEW: Initialize WorkflowLogger and BatchOperationManager for MVP traceability
+    user_id = get_user_id(current_user)
     workflow_logger = WorkflowLogger(
         db=db,
         project_id=project_id,
-        user_id=current_user.id if current_user else None,
+        user_id=user_id,
     )
     batch_manager = BatchOperationManager(
         db=db,
         project_id=project_id,
-        user_id=current_user.id if current_user else None,
+        user_id=user_id,
     )
-    versioning_service = VersioningService(db)
+    versioning_service = VersioningService(db, project_id)
 
     # Start workflow and batch operation
     correlation_id = workflow_logger.start_workflow(
@@ -204,11 +214,11 @@ async def import_assets_csv(
             csv_header = column_map[system_field]
             if csv_header in row:
                 return row[csv_header]
-        
+
         # 2. Try direct match
         if system_field in row:
             return row[system_field]
-            
+
         return None
 
     for row_idx, row in enumerate(csv_reader):
@@ -242,7 +252,7 @@ async def import_assets_csv(
             type_val = get_mapped_value(row, "type")
             if type_val:
                 asset_data["type"] = type_val
-                
+
             io_type_val = get_mapped_value(row, "io_type")
             if io_type_val:
                 asset_data["io_type"] = io_type_val
@@ -250,7 +260,7 @@ async def import_assets_csv(
             # Nested Fields & Unmapped fields
             # We iterate through the row to find nested fields that might be mapped OR unmapped
             # But for mapped nested fields (e.g. "electrical.voltage"), the mapping key is "electrical.voltage"
-            
+
             # Strategy:
             # 1. Check for specific known nested fields via mapping
             known_nested = [
@@ -258,7 +268,7 @@ async def import_assets_csv(
                 "process.fluid", "process.minRange", "process.maxRange", "process.units",
                 "purchasing.workPackageId", "purchasing.status"
             ]
-            
+
             for field in known_nested:
                 val = get_mapped_value(row, field)
                 if val:
@@ -279,7 +289,7 @@ async def import_assets_csv(
                             if map_val == key:
                                 is_mapped_column = True
                                 break
-                        
+
                         if not is_mapped_column:
                             set_nested(asset_data, parts, value)
 
@@ -343,7 +353,7 @@ async def import_assets_csv(
                 try:
                     versioning_service.create_version(
                         asset=existing_asset,
-                        user_id=current_user.id if current_user else None,
+                        user_id=user_id,
                         change_reason=f"CSV Import: {file.filename}",
                         batch_id=batch_id,
                     )
@@ -399,7 +409,7 @@ async def import_assets_csv(
                 try:
                     versioning_service.create_initial_version(
                         asset=new_asset,
-                        user_id=current_user.id if current_user else None,
+                        user_id=user_id,
                         batch_id=batch_id,
                     )
                 except Exception as ve:

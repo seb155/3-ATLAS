@@ -47,7 +47,9 @@
       "Bash(alembic:*)",
       "WebSearch",
       "WebFetch",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "SlashCommand(/0-ship)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

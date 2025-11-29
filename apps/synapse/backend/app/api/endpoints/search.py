@@ -14,23 +14,24 @@ MeiliSearch: MIT License - 100% Free, Self-Hostable
 """
 
 import logging
-from fastapi import APIRouter, Depends, Query, BackgroundTasks, HTTPException
+from typing import Literal
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import Literal
 from thefuzz import fuzz
 
 from app.core.database import get_db
-from app.models import Asset, RuleDefinition, Cable, Project, Client
+from app.models import Asset, Cable, RuleDefinition
 from app.models.models import LBSNode
 from app.services.meilisearch_service import (
-    get_meilisearch_service,
+    ALL_INDEXES,
     INDEX_ASSETS,
-    INDEX_RULES,
     INDEX_CABLES,
     INDEX_LOCATIONS,
-    ALL_INDEXES,
+    INDEX_RULES,
+    get_meilisearch_service,
 )
 
 logger = logging.getLogger(__name__)

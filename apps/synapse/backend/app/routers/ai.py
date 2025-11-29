@@ -9,15 +9,15 @@ Endpoints:
 - POST /api/v1/ai/switch - Switch AI provider (admin only)
 """
 
+import os
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-import os
 
 from app.services.ai_provider import (
     get_ai_provider,
     get_available_providers,
     reset_provider,
-    AIClassificationResult,
 )
 
 router = APIRouter()

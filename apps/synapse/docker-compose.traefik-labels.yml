@@ -8,7 +8,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.synapse-api.rule=Host(`api.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.synapse-api.entrypoints=websecure"
-      - "traefik.http.routers.synapse-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.synapse-api.tls=true"
       - "traefik.http.services.synapse-api.loadbalancer.server.port=8000"
 
       # CORS middleware
@@ -24,7 +24,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.synapse.rule=Host(`synapse.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.synapse.entrypoints=websecure"
-      - "traefik.http.routers.synapse.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.synapse.tls=true"
       - "traefik.http.services.synapse.loadbalancer.server.port=4000"
 
       # Security headers

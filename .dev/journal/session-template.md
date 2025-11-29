@@ -7,7 +7,7 @@
 
 ---
 
-## Session 1: [HH:MM]-[HH:MM]
+## Session 1: [YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]
 
 ### Context
 - **Previous session status:** [Summary from last session]
@@ -38,7 +38,7 @@
 
 ---
 
-## Session 2: [HH:MM]-[HH:MM]
+## Session 2: [YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]
 
 ### Context
 - **Continued from:** Session 1 - [brief status]
@@ -62,7 +62,7 @@
 
 ---
 
-## Session 3: [HH:MM]-[HH:MM]
+## Session 3: [YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]
 
 ### Context
 - **Continued from:** Session 2 - [brief status]
@@ -148,7 +148,7 @@ git log --oneline --since="today" --author="[Your Name]"
 
 ---
 
-**End Time:** HH:MM
+**End Time:** YYYY-MM-DD HH:MM
 **Duration:** [Calculate: End - Start]
 **Status:** [ON TRACK / BEHIND / AHEAD]
 **Next Focus:** [Brief description for next session]
@@ -157,10 +157,21 @@ git log --oneline --since="today" --author="[Your Name]"
 
 ## Timestamp Format (IMPORTANT)
 
+**Complete guide:** [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md)
+
 **Always use:** `YYYY-MM-DD HH:MM`
 - Example: `2025-11-28 14:30`
 - Never just date without time
 - Never just time without date
+
+**Time Ranges:**
+- Use full format: `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]`
+- Example: `[2025-11-28 09:00] - [2025-11-28 12:30]`
+- ❌ NEVER use short format: `[HH:MM]-[HH:MM]`
+
+**Exceptions:**
+- ONLY for filenames: `.dev/journal/2025-11/2025-11-28.md`
+- All content MUST use complete format
 
 ---
 

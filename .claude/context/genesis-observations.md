@@ -9,7 +9,7 @@ Journal des observations, recommandations et auto-ameliorations de GENESIS.
 <!-- Format:
 ### [REC-XXX] Titre
 
-**Date**: YYYY-MM-DD
+**Date**: YYYY-MM-DD HH:MM
 **Type**: Nouvel agent | Amelioration | Nouvelle skill | Optimisation
 **Priorite**: Haute | Moyenne | Basse
 **Status**: En attente | Approuve | Rejete | Implemente

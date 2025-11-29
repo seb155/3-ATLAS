@@ -12,7 +12,7 @@
  * 3. Provide consistent interface regardless of provider
  */
 
-import { apiClient } from './apiClient';
+import apiClient from './apiClient';
 import { Asset, IOType } from '../types';
 
 export interface AIClassificationResult {

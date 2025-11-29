@@ -111,10 +111,30 @@ Quand la session se termine (inactivité 5+ min ou après `/0-ship`):
 
 ## Timestamp Format
 
-**TOUJOURS utiliser le format complet:**
-- `YYYY-MM-DD HH:MM`
-- Exemple: `2025-11-28 14:30`
-- Jamais juste la date sans l'heure
+**TOUJOURS utiliser le format complet `YYYY-MM-DD HH:MM`**
+
+Guide complet: [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md)
+
+### Règles
+
+- **Format standard:** `YYYY-MM-DD HH:MM`
+- **Exemple:** `2025-11-28 14:30`
+- **Jamais** juste la date sans l'heure
+- **Jamais** juste l'heure sans la date
+
+### Time Ranges
+
+- **Format:** `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]`
+- **Exemple:** `[2025-11-28 09:00] - [2025-11-28 12:30]`
+- **Interdit:** `[HH:MM]-[HH:MM]` (format court non autorisé)
+
+### Exceptions
+
+**SEULE exception:** Noms de fichiers système (contrainte filesystem)
+- Journal quotidien: `.dev/journal/2025-11/2025-11-28.md`
+- Session summary: `.dev/journal/2025-11/2025-11-28-14-30.md`
+
+**Tout le contenu** des documents DOIT utiliser le format complet
 
 ## Task Management
 
@@ -161,11 +181,12 @@ fix: Handle null asset properties
 ## Best Practices
 
 1. **Always propose numbered choices** - Ne jamais oublier!
-2. **Use timestamps with HH:MM** - Format complet systématique
-3. **Update todos in real-time** - Marquer completed immédiatement
-4. **Dispatch to agents** - Utiliser agents spécialisés pour tâches complexes
-5. **Use /commands** - Connaissance des commandes disponibles
-6. **Track context** - Hot files, session history, task queue
+2. **Use complete timestamps** - Toujours `YYYY-MM-DD HH:MM` (voir guide 07-timestamp-format.md)
+3. **Use full time ranges** - Format `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]`
+4. **Update todos in real-time** - Marquer completed immédiatement
+5. **Dispatch to agents** - Utiliser agents spécialisés pour tâches complexes
+6. **Use /commands** - Connaissance des commandes disponibles
+7. **Track context** - Hot files, session history, task queue
 
 ---
 

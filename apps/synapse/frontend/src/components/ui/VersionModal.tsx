@@ -50,7 +50,12 @@ Next Sprint:    v0.2.3 - 3-Tier Asset Model`;
                         className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
                     >
                         <X size={20} />
-                    </h3>
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-6">
+                    {/* Sprint Info */}
                     <div className="space-y-2">
                         <div className="bg-mining-teal/10 border border-mining-teal/30 rounded-lg p-3">
                             <div className="flex items-center gap-2 mb-1">
@@ -67,25 +72,24 @@ Next Sprint:    v0.2.3 - 3-Tier Asset Model`;
                             <p className="text-slate-400 text-sm ml-4">v0.2.3 - 3-Tier Asset Model</p>
                         </div>
                     </div>
-                </div>
 
-                {/* System Info */}
-                <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-mining-teal uppercase tracking-wider">
-                        System
-                    </h3>
-                    <div className="bg-slate-800/50 rounded-lg p-4 space-y-2 font-mono text-sm">
-                        <div className="flex justify-between">
-                            <span className="text-slate-400">Platform:</span>
-                            <span className="text-white">Web Application</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-slate-400">Framework:</span>
-                            <span className="text-white">React 19 + FastAPI</span>
+                    {/* System Info */}
+                    <div className="space-y-3">
+                        <h3 className="text-sm font-semibold text-mining-teal uppercase tracking-wider">
+                            System
+                        </h3>
+                        <div className="bg-slate-800/50 rounded-lg p-4 space-y-2 font-mono text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Platform:</span>
+                                <span className="text-white">Web Application</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Framework:</span>
+                                <span className="text-white">React 19 + FastAPI</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             {/* Footer */}
             <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between gap-3">
@@ -115,7 +119,7 @@ Next Sprint:    v0.2.3 - 3-Tier Asset Model`;
                     <span>Changelog</span>
                 </a>
             </div>
+            </div>
         </div>
-        </div >
     );
 }

@@ -303,6 +303,7 @@ export const EngineeringExplorer: React.FC = () => {
                                                 locations={locations}
                                                 onNavigate={handleCrossNavigate}
                                                 initialTab={assetDetailsTab}
+                                                projectId={currentProject?.id}
                                             /> :
                                             <div className="p-10 text-center text-slate-500">No asset selected.</div>
                                     )}

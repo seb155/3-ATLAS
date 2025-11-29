@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Check, Columns3, RotateCcw } from 'lucide-react';
 import { ColDef } from 'ag-grid-community';
 import { useColumnPresets, ColumnPreset } from '../hooks/useColumnPresets';

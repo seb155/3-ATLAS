@@ -7,6 +7,8 @@ description: Navigation quick links to documentation, context, and credentials
 
 **Purpose:** Quick navigation to documentation, project state, and credentials.
 
+**Timestamp Format:** Always use `YYYY-MM-DD HH:MM` (see [07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md))
+
 ---
 
 ## 📊 Project State & Tracking

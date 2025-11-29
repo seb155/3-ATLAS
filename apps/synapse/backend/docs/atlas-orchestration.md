@@ -397,13 +397,19 @@ Just type the number!
 
 ## Timestamp Format
 
+**Complete guide:** [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md)
+
 **ALWAYS use:** `YYYY-MM-DD HH:MM`
 
 Example: `2025-11-28 14:30`
 
+**Time ranges:** `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]`
+Example: `[2025-11-28 09:00] - [2025-11-28 12:30]`
+
 Never:
 - Just date: `2025-11-28`
 - Just time: `14:30`
+- Short time ranges: `[HH:MM]-[HH:MM]`
 - Other formats: `11/28/2025 2:30 PM`
 
 ---
@@ -441,7 +447,7 @@ Never:
 
 ### Issue: Timestamps wrong format
 
-**Solution:** Always use `YYYY-MM-DD HH:MM` format
+**Solution:** Always use `YYYY-MM-DD HH:MM` format. For time ranges, use `[YYYY-MM-DD HH:MM] - [YYYY-MM-DD HH:MM]`. See [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md) for complete guide
 
 ---
 

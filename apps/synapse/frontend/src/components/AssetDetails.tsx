@@ -1,18 +1,20 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Asset, AssetType, IOType, PhysicalLocation } from '../../types';
+import { Asset, AssetType, PhysicalLocation } from '../../types';
 import { CabinetPlanner as Engine } from '../services/engineeringEngine';
-import { Settings, Cpu, Zap, ShoppingCart, FileText, Box, MapPin, Factory, ArrowRight, Network, Activity, Cable } from 'lucide-react';
+import { Settings, Cpu, Zap, ShoppingCart, FileText, Box, MapPin, Factory, ArrowRight, Network, Activity, Cable, History } from 'lucide-react';
+import { AssetHistory } from './AssetHistory';
 
 interface AssetDetailsProps {
     asset: Asset;
     locations: PhysicalLocation[]; // Needed to resolve connection names
     onNavigate?: (viewMode: 'LBS' | 'FBS' | 'WBS', nodeId: string) => void;
-    initialTab?: 'SPECS' | 'WIRING' | 'PURCHASE' | 'DOCS';
+    initialTab?: 'SPECS' | 'WIRING' | 'PURCHASE' | 'DOCS' | 'HISTORY';
+    projectId?: string; // Required for AssetHistory API calls
 }
 
-export const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, locations, onNavigate, initialTab = 'SPECS' }) => {
-    const [activeTab, setActiveTab] = useState<'SPECS' | 'WIRING' | 'PURCHASE' | 'DOCS'>(initialTab);
+export const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, locations, onNavigate, initialTab = 'SPECS', projectId }) => {
+    const [activeTab, setActiveTab] = useState<'SPECS' | 'WIRING' | 'PURCHASE' | 'DOCS' | 'HISTORY'>(initialTab);
 
     // Sync active tab if initialTab changes (e.g. selecting a signal vs an asset in the tree)
     useEffect(() => {
@@ -110,6 +112,10 @@ export const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, locations, on
                 <button onClick={() => setActiveTab('WIRING')} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'WIRING' ? 'border-mining-teal text-white' : 'border-transparent text-slate-400'}`}>Wiring & Loop</button>
                 <button onClick={() => setActiveTab('PURCHASE')} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'PURCHASE' ? 'border-mining-teal text-white' : 'border-transparent text-slate-400'}`}>Procurement</button>
                 <button onClick={() => setActiveTab('DOCS')} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'DOCS' ? 'border-mining-teal text-white' : 'border-transparent text-slate-400'}`}>Documents</button>
+                <button onClick={() => setActiveTab('HISTORY')} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'HISTORY' ? 'border-mining-teal text-white' : 'border-transparent text-slate-400'}`}>
+                    <History size={14} />
+                    Version History
+                </button>
             </div>
 
             {/* Content */}
@@ -215,7 +221,9 @@ export const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, locations, on
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    connectionInfo.destination && onNavigate && onNavigate('LBS', connectionInfo.destination.id);
+                                                    if (connectionInfo.destination && onNavigate) {
+                                                        onNavigate('LBS', connectionInfo.destination.id);
+                                                    }
                                                 }}
                                                 className="font-mono font-bold text-mining-teal text-sm hover:underline cursor-pointer transition-all flex items-center gap-1"
                                             >
@@ -268,6 +276,23 @@ export const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, locations, on
                                     {asset.purchasing?.status || 'Unknown'}
                                 </span>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'HISTORY' && projectId && (
+                    <AssetHistory
+                        assetId={asset.id}
+                        projectId={projectId}
+                    />
+                )}
+
+                {activeTab === 'HISTORY' && !projectId && (
+                    <div className="bg-slate-950 rounded border border-slate-800 overflow-hidden p-6">
+                        <div className="text-center py-12 text-slate-500">
+                            <History size={32} className="mx-auto mb-2 opacity-20" />
+                            <p>Version history requires a project context</p>
+                            <p className="text-xs mt-1">Please ensure projectId is provided</p>
                         </div>
                     </div>
                 )}

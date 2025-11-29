@@ -157,6 +157,106 @@ React 19 + TypeScript + Vite + Zustand (state) + React Router v6
 | Grafana | `forge-grafana` | 3000 |
 | MeiliSearch | `forge-meilisearch` | 7700 |
 | Docs (Docsify) | `forge-wiki` | 3080 |
+| Traefik | `forge-traefik` | 80, 443, 8888 |
+
+---
+
+## Infrastructure Management System
+
+**NEW (2025-11-28)**: Professional Infrastructure as Code system for managing AXIOM Docker infrastructure.
+
+### ⚠️ MANDATORY POLICY FOR ALL AGENTS
+
+**BEFORE any operation involving ports, networks, or Docker configuration:**
+
+🔴 **YOU MUST READ THE INFRASTRUCTURE REGISTRY FIRST**
+
+```
+Read file: .dev/infra/registry.yml
+```
+
+**This applies to**:
+- ✅ Adding new services or containers
+- ✅ Allocating ports
+- ✅ Configuring networks
+- ✅ Modifying docker-compose files
+- ✅ Diagnosing infrastructure issues
+- ✅ Validating configurations
+
+**DO NOT**:
+- ❌ Guess port numbers
+- ❌ Assume network configuration
+- ❌ Create docker-compose without checking registry
+- ❌ Modify infrastructure without consulting DevOps Manager
+
+**Rule**: Registry is SINGLE SOURCE OF TRUTH. Read it first, ALWAYS.
+
+### For AI Agents
+
+**Quick Status (Read-Only)**:
+```
+skill: "infra"
+```
+Shows running services, port allocations, network health.
+
+**Complex Operations (Diagnosis, Configuration, Validation)**:
+```
+Use Task tool with subagent_type="devops-manager"
+```
+Invokes intelligent Opus-powered DevOps Manager agent.
+
+**When to use DevOps Manager**:
+- Adding new services (port allocation, network configuration)
+- Diagnosing infrastructure problems
+- Validating docker-compose configurations
+- Resolving port conflicts or network issues
+- Major infrastructure changes
+
+### For Developers (PowerShell CLI)
+
+```powershell
+# Quick status
+.\.dev\scripts\axiom.ps1 status
+
+# View port allocations
+.\.dev\scripts\axiom.ps1 ports
+
+# Start services
+.\.dev\scripts\axiom.ps1 start synapse
+
+# Validate infrastructure
+.\.dev\scripts\axiom.ps1 validate
+
+# Check health
+.\.dev\scripts\axiom.ps1 health
+```
+
+### Port Allocation Ranges
+
+| Application | Range | Allocated | Available |
+|-------------|-------|-----------|-----------|
+| **FORGE** | 3000-3999 | 9 ports | 991 ports |
+| **SYNAPSE** | 4000-4999 | 2 ports | 998 ports |
+| **NEXUS** | 5000-5999 | 2 ports | 998 ports |
+| **PRISM** | 6000-6999 | 0 ports | 1000 ports |
+| **ATLAS** | 7000-7999 | 0 ports | 1000 ports |
+
+**Rule**: Each application has a dedicated 1000-port range. No conflicts allowed.
+
+### Key Files
+
+| File | Purpose | Used By |
+|------|---------|---------|
+| `.dev/infra/registry.yml` | Central registry (ports, services, networks) | DevOps Manager, validation |
+| `.dev/infra/infrastructure.md` | Complete documentation | All agents, developers |
+| `.dev/infra/CHANGELOG.md` | Change history | Tracking, rollback |
+| `.claude/agents/devops-manager.md` | DevOps Manager agent (Opus) | Infrastructure orchestration |
+| `.claude/skills/infra.md` | Infra skill (quick reference) | Status checking |
+
+**See**:
+- [.dev/infra/README.md](.dev/infra/README.md) - Complete Infrastructure Management System
+- [.dev/infra/AGENT-QUICK-REFERENCE.md](.dev/infra/AGENT-QUICK-REFERENCE.md) - Quick reference for AI agents
+- [docs/infrastructure/](docs/infrastructure/) - User documentation
 
 ---
 
@@ -199,6 +299,13 @@ At EVERY session start, load context:
 | **BRAINSTORM** | `/brainstorm` | Creative sessions for specs |
 | **SYSTEM-ARCHITECT** | `/system` | AI system governance (bypass) |
 | **GENESIS** | `/genesis` | AI evolution & agent creation (bypass) |
+| **DEVOPS-MANAGER** | Task tool | Infrastructure orchestration & troubleshooting |
+
+### Specialist Agents
+
+| Agent | Invocation | Purpose |
+|-------|------------|---------|
+| **DevOps Manager** | `subagent_type="devops-manager"` | Port allocation, network config, infrastructure diagnosis |
 
 ### GENESIS - Meta-Agent
 

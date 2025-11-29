@@ -99,8 +99,10 @@ ATLAS: "Démarrage workflow Git...
 
 Après `/0-ship`, ATLAS met automatiquement à jour:
 - `.dev/context/project-state.md` (version, recent changes)
-- `.dev/journal/YYYY-MM/YYYY-MM-DD-HH-MM.md` (session summary)
+- `.dev/journal/YYYY-MM/YYYY-MM-DD-HH-MM.md` (session summary - filename exception)
 - `CHANGELOG.md` (if version bump)
+
+**Note:** Filename format `YYYY-MM-DD-HH-MM` is an allowed filesystem exception. All content inside files must use `YYYY-MM-DD HH:MM` format (see [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md))
 
 ## When to use
 

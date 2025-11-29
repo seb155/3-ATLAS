@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Clock, RotateCcw, ChevronDown, ChevronRight, AlertCircle } from 'lucide-react'
-import { apiClient } from '../services/api'
+import apiClient from '../services/apiClient'
 
 interface AssetVersion {
     version: number

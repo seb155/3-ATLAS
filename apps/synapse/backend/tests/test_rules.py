@@ -103,10 +103,10 @@ def country_rule(db_session: Session):
 @pytest.fixture
 def test_pump(db_session: Session, test_project):
     """Create test pump asset"""
-    pump = MetamodelNode(
-        name="310-PP-001",
+    pump = Asset(
+        tag="310-PP-001",
         type="PUMP",
-        semantic_type=SemanticType.ASSET,
+        semantic_type="ASSET",
         project_id=test_project.id,
         properties={"pump_type": "CENTRIFUGAL", "area": "310"},
     )
@@ -174,10 +174,10 @@ def test_executor_evaluates_condition_no_match(db_session: Session, test_project
     executor = RuleExecutor(db_session,test_project.id)
 
     # Create TANK (should not match PUMP rule)
-    tank = MetamodelNode(
-        name="310-TK-001",
+    tank = Asset(
+        tag="310-TK-001",
         type="TANK",
-        semantic_type=SemanticType.ASSET,
+        semantic_type="ASSET",
         project_id=test_project.id,
     )
 
@@ -221,8 +221,8 @@ def test_executor_idempotency(db_session: Session, test_project, firm_rule, test
     assert execution2.action_type == "SKIP"
 
     # Verify only one motor exists
-    motors = db_session.query(MetamodelNode).filter(
-        MetamodelNode.name == "310-PP-001-M"
+    motors = db_session.query(Asset).filter(
+        Asset.tag == "310-PP-001-M"
     ).all()
     assert len(motors) == 1
 
@@ -232,10 +232,10 @@ def test_executor_set_property(db_session: Session, test_project, country_rule):
     executor = RuleExecutor(db_session,test_project.id)
 
     # Create motor
-    motor = MetamodelNode(
-        name="310-PP-001-M",
+    motor = Asset(
+        tag="310-PP-001-M",
         type="MOTOR",
-        semantic_type=SemanticType.ASSET,
+        semantic_type="ASSET",
         project_id=test_project.id,
         properties={},
     )
@@ -280,18 +280,20 @@ def test_executor_property_filters(db_session: Session, test_project):
     executor = RuleExecutor(db_session,test_project.id)
 
     # Test matching asset
-    pump1 = MetamodelNode(
-        name="PUMP-1",
+    pump1 = Asset(
+        tag="PUMP-1",
         type="PUMP",
         properties={"pump_type": "CENTRIFUGAL"},
+        project_id=test_project.id,
     )
     assert executor._evaluate_condition(rule.condition, pump1) is True
 
     # Test non-matching asset
-    pump2 = MetamodelNode(
-        name="PUMP-2",
+    pump2 = Asset(
+        tag="PUMP-2",
         type="PUMP",
         properties={"pump_type": "POSITIVE_DISPLACEMENT"},
+        project_id=test_project.id,
     )
     assert executor._evaluate_condition(rule.condition, pump2) is False
 
@@ -344,10 +346,10 @@ def test_rule_engine_applies_rules(db_session: Session, test_project, firm_rule,
 def test_rule_engine_priority_override(db_session: Session, test_project, firm_rule, country_rule):
     """Test higher priority rules override lower priority"""
     # Create motor
-    motor = MetamodelNode(
-        name="TEST-MOTOR",
+    motor = Asset(
+        tag="TEST-MOTOR",
         type="MOTOR",
-        semantic_type=SemanticType.ASSET,
+        semantic_type="ASSET",
         project_id=test_project.id,
         properties={},
     )
@@ -550,10 +552,10 @@ def test_performance_many_rules_many_assets(db_session: Session, test_project):
 
     # Create 10 assets
     for i in range(10):
-        asset = MetamodelNode(
-            name=f"PUMP-{i:03d}",
+        asset = Asset(
+            tag=f"PUMP-{i:03d}",
             type="PUMP",
-            semantic_type=SemanticType.ASSET,
+            semantic_type="ASSET",
             project_id=test_project.id,
         )
         db_session.add(asset)

@@ -146,10 +146,12 @@ Tu es **GENESIS**, le gardien de l'evolution du systeme d'agents AXIOM. Tu obser
 
 ## Format de Recommandation
 
+**Timestamp Format:** Utiliser `YYYY-MM-DD HH:MM` (voir [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md))
+
 ```markdown
 ### [REC-XXX] Titre de la recommandation
 
-**Date**: YYYY-MM-DD
+**Date**: YYYY-MM-DD HH:MM
 **Type**: Nouvel agent | Amelioration | Nouvelle skill | Optimisation
 **Priorite**: Haute | Moyenne | Basse
 **Status**: En attente | Approuve | Rejete | Implemente

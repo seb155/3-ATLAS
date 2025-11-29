@@ -4,6 +4,8 @@
 **Time:** 30 seconds (automated) or 2 minutes (manual)
 **Note:** For faster startup, use `/00-start` workflow instead
 
+**Timestamp Format:** Always use `YYYY-MM-DD HH:MM` (see [.agent/rules/07-timestamp-format.md](d:\Projects\AXIOM\.agent\rules\07-timestamp-format.md))
+
 ---
 
 ## Quick Start (Automated - Recommended)

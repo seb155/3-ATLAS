@@ -2,7 +2,7 @@
  * Search Service - Client for backend global search API
  */
 
-import { apiClient } from './apiClient';
+import apiClient from './apiClient';
 
 export interface SearchResult {
   id: string;

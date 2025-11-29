@@ -43,7 +43,8 @@
 | Change Log | asset_changelog table | ⚠️ Pending | ⚠️ Pending | TODO |
 | Event Logger | EventLogger service | ⚠️ Pending | ⚠️ Pending | TODO |
 | Timeline Viewer | WorkflowTraceViewer.tsx | ⚠️ Pending | ⚠️ Pending | TODO |
-| Asset History | AssetHistory.tsx | ⚠️ Pending | ⚠️ Pending | TODO |
+| Asset History | AssetHistory.tsx | ✅ Passed | ⚠️ Pending | IN PROGRESS |
+| Asset History Integration | AssetDetails.tsx | ✅ Passed | ⚠️ Pending | IN PROGRESS |
 
 ---
 

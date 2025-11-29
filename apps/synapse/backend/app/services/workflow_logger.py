@@ -38,7 +38,6 @@ Design based on: .dev/design/2025-11-28-whiteboard-session.md
 import time
 import uuid
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy.orm import Session
 

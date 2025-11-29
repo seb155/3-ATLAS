@@ -66,6 +66,11 @@ Unified dashboard for project management and analytics.
 AI-powered development and collaboration tools.
 - Coming soon
 
+### Infrastructure Management
+- [Infrastructure Overview](infrastructure/README.md) - Complete infrastructure guide
+- [CLI Reference](infrastructure/cli-reference.md) - axiom.ps1 command reference
+- [For Developers](infrastructure/for-developers.md) - Daily workflows and best practices
+
 ### Developer Guide
 - [Tools Setup](developer-guide/tools-setup.md)
 - [Testing](developer-guide/08-testing.md)
@@ -98,6 +103,24 @@ Shared services available to all applications:
 | Grafana | 3000 | http://localhost:3000 |
 | Loki | 3100 | http://localhost:3100 |
 | MeiliSearch | 7700 | http://localhost:7700 |
+| Traefik | 80, 443, 8888 | http://localhost:8888 |
+
+**Infrastructure Management**:
+```powershell
+# Quick status
+.\.dev\scripts\axiom.ps1 status
+
+# View port allocations
+.\.dev\scripts\axiom.ps1 ports
+
+# Start services
+.\.dev\scripts\axiom.ps1 start synapse
+
+# Check health
+.\.dev\scripts\axiom.ps1 health
+```
+
+**See**: [Infrastructure Documentation](infrastructure/) for complete guide
 
 ---
 
@@ -123,5 +146,5 @@ Shared services available to all applications:
 ---
 
 **Platform Version:** 1.0.0
-**Last Updated:** November 28, 2025
+**Last Updated:** 2025-11-28 18:44
 **Repository:** [github.com/seb155/AXIOM](https://github.com/seb155/AXIOM)

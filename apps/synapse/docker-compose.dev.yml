@@ -40,6 +40,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
+    container_name: synapse-frontend
     ports:
       - "4000:4000"
     volumes:
@@ -50,6 +51,9 @@ services:
     environment:
       VITE_API_URL: http://localhost:8001
       NODE_ENV: development
+    networks:
+      - default
+      - forge-network
     depends_on:
       - backend
 
