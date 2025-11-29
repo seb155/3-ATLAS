@@ -189,12 +189,32 @@ port_registry:
       description: "NEXUS backend API"
       networks: ["forge-network"]
 
+    # CORTEX Application (AI Agent Engine)
+    7100:
+      service: "cortex-engine"
+      app: "cortex"
+      type: "api"
+      internal_port: 8000
+      protocol: "http"
+      description: "CORTEX AI Agent Engine - FastAPI backend"
+      networks: ["forge-network", "axiom-ai-network"]
+
+    7101:
+      service: "cortex-sandbox"
+      app: "cortex"
+      type: "api"
+      internal_port: 8000
+      protocol: "http"
+      description: "CORTEX Sandbox Manager - Docker container orchestration"
+      networks: ["forge-network"]
+
   # Available ports for future allocation
   available:
     synapse: "4002-4999"
     nexus: "5174-5999"
     prism: "6000-6999 (all available)"
-    atlas: "7000-7999 (all available)"
+    atlas: "7102-7999"
+    cortex: "7102-7199 (reserved for CORTEX expansion)"
 
 # ===========================
 # DOCKER NETWORKS
@@ -220,6 +240,20 @@ networks:
       - "synapse-frontend"
       - "nexus-backend"
       - "nexus-frontend"
+      - "cortex-engine"
+      - "cortex-sandbox"
+
+  axiom-ai-network:
+    driver: "bridge"
+    scope: "external"
+    purpose: "Shared network for AI services (connects to ai-sandbox)"
+    services:
+      - "cortex-engine"
+      # External services from ai-sandbox:
+      # - litellm
+      # - ollama
+      # - langfuse-server
+      # - chromadb
 
   synapse-internal:
     driver: "bridge"
@@ -368,6 +402,26 @@ services:
         networks: ["forge-network"]
         dependencies: ["nexus-backend"]
         compose_file: "apps/nexus/standalone/docker-compose.dev.yml"
+
+  cortex:
+    dev:
+      - name: "cortex-engine"
+        image: "cortex-engine:dev"
+        ports: [7100]
+        networks: ["forge-network", "axiom-ai-network"]
+        volumes: ["./backend"]
+        dependencies: ["forge-postgres", "forge-redis"]
+        compose_file: "apps/cortex/docker-compose.dev.yml"
+        description: "CORTEX AI Agent Engine"
+
+      - name: "cortex-sandbox"
+        image: "cortex-sandbox:dev"
+        ports: [7101]
+        networks: ["forge-network"]
+        volumes: ["/var/run/docker.sock"]
+        dependencies: []
+        compose_file: "apps/cortex/docker-compose.dev.yml"
+        description: "CORTEX Sandbox Manager for isolated execution"
 
 # ===========================
 # STARTUP ORDER (Dependency Chain)
