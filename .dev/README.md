@@ -1,243 +1,253 @@
-# Development Tracking System
+# .dev - Development Tracking System
 
-**AI-Assisted development tracking for SYNAPSE**
-
----
-
-## 🎯 Purpose
-
-Track development progress, decisions, and releases in a structured, searchable format.
-
-**Inspired by:** Linear, Anthropic, Vercel, Basecamp SHAPE UP
+> **Centre de commande pour le developpement AXIOM**
+>
+> Ce dossier contient tout le contexte necessaire pour les agents AI et developpeurs.
 
 ---
 
-## 📁 Structure
+## Quick Start
+
+### Premiere fois?
+
+1. Lire [`ARCHITECTURE.md`](./ARCHITECTURE.md) - Vue complete du systeme
+2. Lire [`context/project-state.md`](./context/project-state.md) - Etat MVP courant
+3. Lire [`infra/registry.yml`](./infra/registry.yml) - Registre des ports
+
+### Session de developpement
+
+```bash
+# Demarrer une nouvelle session
+/0-new-session
+
+# Continuer le travail
+/0-next
+
+# Voir la progression
+/0-progress
+```
+
+---
+
+## Structure du Dossier
 
 ```
 .dev/
-├── journal/                 # Daily development logs
+├── ARCHITECTURE.md          # Vue complete architecture systeme
+├── README.md                # Ce fichier (index)
+├── index.md                 # Index alternatif
+│
+├── context/                 # Contexte projet
+│   ├── project-state.md     # ETAT MVP COURANT (lire en premier!)
+│   ├── credentials.md       # Identifiants (admin, DB, etc.)
+│   ├── task-queue.md        # File de taches prioritaires
+│   ├── test-coverage.md     # Couverture tests
+│   └── shared-context.md    # Contexte partage entre agents
+│
+├── infra/                   # Infrastructure
+│   ├── registry.yml         # REGISTRE PORTS (CRITIQUE!)
+│   ├── infrastructure.md    # Documentation complete infra
+│   ├── INFRASTRUCTURE-POLICY.md  # Politiques obligatoires
+│   ├── AGENT-QUICK-REFERENCE.md  # Reference rapide agents
+│   └── CHANGELOG.md         # Historique modifications
+│
+├── journal/                 # Logs quotidiens
+│   ├── session-template.md  # Template pour nouvelles sessions
+│   └── 2025-11/             # Logs novembre 2025
+│       ├── 2025-11-23.md
+│       ├── 2025-11-24.md
+│       ├── 2025-11-25.md
+│       ├── 2025-11-27.md
+│       └── 2025-11-28-*.md
+│
+├── roadmap/                 # Planning
+│   ├── README.md            # Index roadmap
+│   ├── current-sprint.md    # Sprint actuel
+│   ├── next-sprint.md       # Prochain sprint
+│   ├── mvp-week-2-sprint.md # Sprint semaine 2
+│   └── backlog/             # Backlog detaille
+│       ├── ai-strategy.md
+│       ├── rule-engine-event-sourcing.md
+│       ├── package-generation.md
+│       └── [14 autres items]
+│
 ├── decisions/               # Architecture Decision Records (ADR)
-├── roadmap/                 # Sprint planning & tracking
-├── releases/                # Release notes & plans
-├── context/                 # AI context files
-├── scripts/                 # Automation scripts
-└── README.md                # This file
+│   ├── 001-workspace-monorepo.md
+│   ├── 002-devconsole-v3-architecture.md
+│   └── 003-rule-engine-event-sourcing.md
+│
+├── testing/                 # Suivi des tests
+│   ├── test-status.md       # Status courant
+│   └── asset-history-integration-test-guide.md
+│
+├── analysis/                # Analyses techniques
+│   └── 2025-11-28-architecture-review.md
+│
+├── design/                  # Sessions design
+│   └── 2025-11-28-whiteboard-session.md
+│
+├── whiteboard/              # Ideas en cours
+│   ├── pending-decisions.md
+│   └── plant3d-sync-plan.md
+│
+├── 0-backlog/               # Backlog brut
+│   └── backlog.md
+│
+└── scripts/                 # Automatisation
+    ├── smart-resume-enhanced.ps1
+    └── validate-infra.ps1
 ```
 
 ---
 
-## 📝 Daily Workflow
+## Fichiers Critiques
 
-### 1. Start Session
+### A Lire en Debut de Session
 
-Open journal: `.dev/journal/YYYY-MM/YYYY-MM-DD.md`
+| Fichier | Purpose | Frequence |
+|:---|:---|:---|
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Architecture complete systeme | Reference |
+| **[context/project-state.md](./context/project-state.md)** | Etat MVP courant | Chaque session |
+| **[infra/registry.yml](./infra/registry.yml)** | Registre ports/services | Avant ops infra |
+| **[roadmap/current-sprint.md](./roadmap/current-sprint.md)** | Sprint actuel | Planning |
 
-Template (VS
+### Reference Rapide
 
-Code):
-- Type `devlog` + Tab (if snippet installed)
-- Or copy from previous day
-
-### 2. Work
-
-- Log progress in journal
-- Create ADR for big decisions
-- Update current sprint
-
-### 3. End Session
-
-- Complete journal (✅ done, ⏭️ next)
-- Update `context/project-state.md`
-- Commit `.dev/` to git
+| Besoin | Fichier |
+|:---|:---|
+| Architecture systeme | `ARCHITECTURE.md` |
+| Identifiants | `context/credentials.md` |
+| Status tests | `testing/test-status.md` |
+| Decisions architecture | `decisions/` |
+| Historique infra | `infra/CHANGELOG.md` |
 
 ---
 
-## 🏷️ Version Management
+## Conventions
 
-### Current Version
+### Journal Quotidien
 
-See `VERSION` file at project root.
+Creer un fichier `journal/YYYY-MM/YYYY-MM-DD.md` pour chaque session:
 
-### Bump Version
+```markdown
+# Session 2025-11-29
 
-```powershell
-.\dev\scripts\bump-version.ps1 -Type [major|minor|patch]
+## Objectif
+[Ce qu'on veut accomplir]
+
+## Accompli
+- [x] Task 1
+- [x] Task 2
+
+## Decisions
+- Decision 1: [rationale]
+
+## Problemes
+- Issue rencontre
+
+## Prochaines etapes
+- [ ] Next task
 ```
 
-This auto-updates:
-- VERSION file
-- package.json
-- backend __version__
-- CHANGELOG.md
+### Architecture Decision Record (ADR)
 
-### Create Release
+Pour les decisions importantes, creer `decisions/XXX-title.md`:
 
-```powershell
-.\dev\scripts\create-release.ps1 -Version X.Y.Z
-```
+```markdown
+# ADR-XXX: Titre
 
-Creates release notes template in `.dev/releases/`
+## Statut
+Accepted | Proposed | Deprecated
 
----
+## Contexte
+[Pourquoi cette decision]
 
-## 📚 File Types
+## Decision
+[Ce qu'on a decide]
 
-### Journal (`journal/YYYY-MM-DD.md`)
-
-Daily development log:
-- Objective
-- Accomplished
-- Decisions
-- Problems
-- Metrics
-- Next steps
-
-**Why:** Historical record, searchable
-
-### ADR (`decisions/XXX-title.md`)
-
-Architecture Decision Records:
-- Context
-- Decision
-- Consequences
-- Alternatives
-
-**Format:** [Standard ADR](https://adr.github.io/)
-
-**Why:** Document important decisions with rationale
-
-### Roadmap (`roadmap/current-sprint.md`)
-
-Sprint tracking:
-- Goals
-- Scope (bets)
-- Progress
-- Blockers
-
-**Format:** SHAPE UP inspired
-
-**Why:** Track sprint health, velocity
-
-### Releases (`releases/vX.Y.Z.md`)
-
-Release notes:
-- Highlights
-- Features
-- Fixes
-- Migration guide
-
-**Format:** User-friendly + technical
-
-**Why:** Clear communication of changes
-
-### Context (`context/project-state.md`)
-
-Current project state:
-- Architecture summary
-- What's working
-- Known issues
-- Recent changes
-
-**Why:** AI agents get instant context
-
----
-
-## 🛠️ Scripts
-
-### bump-version.ps1
-
-Bump version across project:
-```powershell
-.\dev\scripts\bump-version.ps1 -Type minor
-# Updates: VERSION, package.json, __init__.py, CHANGELOG
-# Creates: Git commit + tag
-```
-
-### generate-changelog.ps1
-
-Auto-generate CHANGELOG from git:
-```powershell
-.\dev\scripts\generate-changelog.ps1 -Version 0.3.0
-# Parses: Git commits (Conventional Commits format)
-# Generates: CHANGELOG section
-```
-
-### create-release.ps1
-
-Full release workflow:
-```powershell
-.\dev\scripts\create-release.ps1 -Version 0.3.0
-# Creates: Release notes template
-# Builds: Docker images
-# Guides: Through release process
+## Consequences
+[Impact positif et negatif]
 ```
 
 ---
 
-## 🔍 Searching
+## Workflows
 
-**Find anything:**
+### Nouveau Sprint
+
+1. Creer `roadmap/current-sprint.md` avec les objectifs
+2. Mettre a jour `context/project-state.md`
+3. Lancer `/0-new-session`
+
+### Fin de Session
+
+1. Mettre a jour le journal du jour
+2. Commit les changements `.dev/`
+3. Mettre a jour `project-state.md` si necessaire
+
+### Modification Infrastructure
+
+1. **LIRE** `infra/registry.yml` d'abord!
+2. Utiliser l'agent DevOps-Manager pour les changements
+3. Mettre a jour le registry
+4. Documenter dans `infra/CHANGELOG.md`
+
+---
+
+## Pour les Agents AI
+
+### Debut de Session
+
 ```
-Ctrl+Shift+F in VS Code
-Search in: .dev/
+1. Lire .dev/context/project-state.md
+2. Lire .dev/roadmap/current-sprint.md
+3. Verifier git status
 ```
 
-**Examples:**
-- "rule engine" → Find all decisions, logs about rules
-- "2025-11-23" → Find that day's work
-- "bug" → Find all bug fixes logged
+### Pendant le Travail
+
+```
+1. Mettre a jour journal/YYYY-MM/YYYY-MM-DD.md
+2. Creer ADR pour decisions importantes
+3. Mettre a jour sprint si progress
+```
+
+### Avant Operations Infra
+
+```
+1. TOUJOURS lire .dev/infra/registry.yml
+2. Ne jamais deviner les ports
+3. Utiliser DevOps-Manager pour changements complexes
+```
 
 ---
 
-## 📊 Best Practices
+## Commandes Disponibles
 
-### Journal
-- ✅ Write as you go (not at end)
-- ✅ Be specific (file names, line numbers)
-- ✅ Include metrics (time, files changed)
-- ❌ Don't just list tasks
-
-### ADR
-- ✅ Write when decision is made (not after)
-- ✅ Include alternatives considered
-- ✅ Link to related docs/code
-- ❌ Don't document trivial choices
-
-### Roadmap
-- ✅ Update daily (burn-down)
-- ✅ Be honest about reality
-- ✅ Document blockers immediately
-- ❌ Don't just track tasks (use GitHub for that)
+| Commande | Description |
+|:---|:---|
+| `/0-new-session` | Nouvelle session (contexte complet) |
+| `/0-next` | Continuer tache suivante |
+| `/0-resume` | Reprendre apres /compact |
+| `/0-progress` | Vue roadmap compacte |
+| `/0-dashboard` | Status session courante |
+| `/0-ship` | Git workflow (test + commit + push) |
+| `/0-backlog` | Trier et prioriser le backlog |
 
 ---
 
-## 🤖 For AI Agents
+## Liens Rapides
 
-**Read on session start:**
-1. `.dev/context/project-state.md` - Current state
-2. `.dev/journal/YYYY-MM/YYYY-MM-DD.md` - Today's log
-3. `.dev/roadmap/current-sprint.md` - Sprint status
-
-**Update during work:**
-- Journal (continuously)
-- Project state (when things change)
-- Sprint (when progress made)
-
-**Create as needed:**
-- ADR (for decisions)
-- Release notes (for versions)
+| Destination | Chemin |
+|:---|:---|
+| README principal | [`../README.md`](../README.md) |
+| Instructions AI | [`../CLAUDE.md`](../CLAUDE.md) |
+| Agents | [`../.claude/agents/`](../.claude/agents/) |
+| Documentation publique | [`../docs/`](../docs/) |
+| SYNAPSE backend | [`../apps/synapse/backend/`](../apps/synapse/backend/) |
+| SYNAPSE frontend | [`../apps/synapse/frontend/`](../apps/synapse/frontend/) |
+| FORGE infra | [`../forge/`](../forge/) |
 
 ---
 
-## 📖 References
-
-- [ADR](https://adr.github.io/) - Architecture Decision Records
-- [Keep a Changelog](https://keepachangelog.com/) - Changelog format
-- [SemVer](https://semver.org/) - Semantic Versioning
-- [SHAPE UP](https://basecamp.com/shapeup) - Sprint methodology
-- [Conventional Commits](https://www.conventionalcommits.org/) - Commit format
-
----
-
-**Questions?** See examples in existing files or ask in discussions.
+*Maintenu par le systeme d'agents AI - Derniere mise a jour: 2025-11-29*
