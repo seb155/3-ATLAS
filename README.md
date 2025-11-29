@@ -7,10 +7,10 @@
 *Streamline your engineering workflows, centralize knowledge, and collaborate with AI*
 
 [![Platform](https://img.shields.io/badge/Platform-AXIOM-blue?style=for-the-badge)](https://github.com/seb155/AXIOM)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green?style=for-the-badge)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.2.5-green?style=for-the-badge)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
-[**Get Started**](#-quick-start) · [**Applications**](#-applications) · [**Documentation**](#-documentation) · [**Tech Stack**](#-technology-stack)
+[**Quick Start**](#-quick-start) · [**Architecture**](#-architecture) · [**Applications**](#-applications) · [**Documentation**](#-documentation)
 
 ---
 
@@ -29,204 +29,85 @@
 
 ### The Solution
 
-AXIOM provides **four integrated applications** that work together seamlessly:
+AXIOM provides **four integrated applications** sharing a common infrastructure:
 
-<div align="center">
-
-| | Application | What it does | Who it's for |
-|:---:|:---|:---|:---|
-| ⚡ | [**SYNAPSE**](#-synapse---engineering-automation) | Automates engineering workflows & generates deliverables | Engineers, Project Managers |
-| 🔮 | [**NEXUS**](#-nexus---knowledge-hub) | Centralizes notes, wiki, tasks with visual knowledge graphs | Everyone |
-| 💎 | [**PRISM**](#-prism---enterprise-dashboard) | Project dashboards, metrics, and team oversight | Managers, Stakeholders |
-| 🤖 | [**ATLAS**](#-atlas---ai-collaboration) | AI-assisted development and decision support | Developers, Engineers |
-
-</div>
+| | App | Purpose | Port | Status |
+|:---:|:---|:---|:---:|:---:|
+| **S** | [**SYNAPSE**](#-synapse---mbse-platform) | Engineering automation & MBSE | `4000` | MVP Dec 2025 |
+| **N** | [**NEXUS**](#-nexus---knowledge-hub) | Knowledge graph, notes, wiki | `5173` | Phase 1.5 |
+| **P** | [**PRISM**](#-prism---enterprise-dashboard) | Dashboards & analytics | `6000` | Planning |
+| **A** | [**ATLAS**](#-atlas---ai-collaboration) | AI collaboration environment | `7000` | Planning |
 
 ---
 
-## 🚀 Applications
-
-### ⚡ SYNAPSE - Engineering Automation
-
-> **Model-Based Systems Engineering (MBSE) for EPCM Projects**
-
-Transform your engineering data into actionable deliverables automatically.
-
-**Key Features:**
-- 📥 **Smart Import** - CSV/Excel data ingestion with validation
-- 🔧 **Rule Engine** - Automated cable sizing, equipment creation, package generation
-- 📊 **Visual Metamodel** - Graph-based asset relationships
-- 📦 **Package Export** - Generate Excel/PDF deliverables from templates
-- 📜 **Full Traceability** - Complete audit trail of every action
-
-**Use Case:** Import a BBA list → Rules auto-create cables, instruments, packages → Export ready-to-use deliverables
+## Architecture
 
 ```
-Status: MVP Development (Target: December 2025)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AXIOM PLATFORM (Monorepo)                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   SYNAPSE   │ │    NEXUS    │ │    PRISM    │ │    ATLAS    │           │
+│  │  Port 4000  │ │  Port 5173  │ │  Port 6000  │ │  Port 7000  │           │
+│  │ MBSE Engine │ │Knowledge Mgmt│ │  Dashboard  │ │AI Collab Env│           │
+│  │  ✅ MVP     │ │  🔄 Dev     │ │  📋 Plan    │ │  📋 Plan    │           │
+│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └──────┬──────┘           │
+│         │               │               │               │                   │
+│         └───────────────┴───────────────┴───────────────┘                   │
+│                                   │                                         │
+│                          ┌────────▼────────┐                                │
+│                          │  forge-network  │                                │
+│                          └────────┬────────┘                                │
+│                                   │                                         │
+│  ┌────────────────────────────────┴────────────────────────────────────┐   │
+│  │                        FORGE INFRASTRUCTURE                          │   │
+│  │  ┌──────────┐ ┌────────┐ ┌────────┐ ┌───────┐ ┌─────────────────┐   │   │
+│  │  │PostgreSQL│ │ Redis  │ │  Loki  │ │Grafana│ │   MeiliSearch   │   │   │
+│  │  │  :5433   │ │ :6379  │ │ :3100  │ │ :3000 │ │      :7700      │   │   │
+│  │  └──────────┘ └────────┘ └────────┘ └───────┘ └─────────────────┘   │   │
+│  │  ┌──────────┐ ┌────────┐ ┌────────┐ ┌───────┐                       │   │
+│  │  │ pgAdmin  │ │ Prisma │ │Traefik │ │  Wiki │                       │   │
+│  │  │  :5050   │ │ :5555  │ │:80/443 │ │ :3080 │                       │   │
+│  │  └──────────┘ └────────┘ └────────┘ └───────┘                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
-
-<details>
-<summary>📸 Screenshots (coming soon)</summary>
-
-*Interface screenshots will be added here*
-
-</details>
-
----
-
-### 🔮 NEXUS - Knowledge Hub
-
-> **Your Second Brain - Notes, Wiki, Tasks, and Knowledge Graphs**
-
-Stop losing information. Connect your thoughts visually.
-
-**Key Features:**
-- 📝 **Rich Notes** - Markdown with live preview
-- 📚 **Team Wiki** - Collaborative documentation
-- ✅ **Task Management** - Kanban boards and lists
-- 🌐 **3D Knowledge Graph** - Visualize connections between ideas
-- 🎨 **13 Themes** - From Tokyo Night to Catppuccin
-
-**Use Case:** Take meeting notes → Link to project wiki → See connections in graph → Never lose context
-
-```
-Status: Phase 1.5 (Visual Polish Complete)
-```
-
----
-
-### 💎 PRISM - Enterprise Dashboard
-
-> **See Everything. Decide Faster.**
-
-One dashboard for all your projects and teams.
-
-**Key Features:**
-- 📈 **Project Metrics** - Real-time health indicators
-- 👥 **Team Overview** - Workload and capacity
-- 🏗️ **Infrastructure Status** - Service health monitoring
-- 📋 **Technical Debt** - Track and prioritize improvements
-
-```
-Status: In Development
-```
-
----
-
-### 🤖 ATLAS - AI Collaboration
-
-> **Your AI Engineering Partner**
-
-Leverage AI to accelerate development and decision-making.
-
-**Key Features:**
-
-- 🧠 **15 Specialized AI Agents** - Each expert in their domain
-- 🔄 **Hierarchical Workflows** - ATLAS orchestrates, agents execute
-- 🔗 **Context-Aware** - Remembers your preferences and project state
-- 💬 **Natural Interaction** - Talk naturally or use slash commands
-
-**Quick Example:**
-
-```
-You: "Add a refresh button to the project list"
-ATLAS: "Simple frontend task. Dispatching to FRONTEND-BUILDER..."
-→ Code created, tested, ready to commit
-```
-
-```
-Status: Active (AI Agents System Complete)
-```
-
-See [AI Agents Guide](./docs/developer-guide/ai-agents-overview.md) for details.
-
----
-
-## 🏗️ Architecture
-
-<div align="center">
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        AXIOM PLATFORM                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
-│   │ SYNAPSE  │  │  NEXUS   │  │  PRISM   │  │  ATLAS   │       │
-│   │   ⚡     │  │    🔮    │  │    💎    │  │    🤖    │       │
-│   │ :4000    │  │  :5173   │  │  :5174   │  │  :5175   │       │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘       │
-│        │             │             │             │              │
-│        └─────────────┴─────────────┴─────────────┘              │
-│                            │                                     │
-│   ┌────────────────────────┴────────────────────────┐           │
-│   │                  FORGE Infrastructure           │           │
-│   │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐ │           │
-│   │  │PostgreSQL│ │  Redis  │ │ Grafana │ │ Loki  │ │           │
-│   │  │  :5433  │ │  :6379  │ │  :3000  │ │ :3100 │ │           │
-│   │  └─────────┘ └─────────┘ └─────────┘ └───────┘ │           │
-│   └─────────────────────────────────────────────────┘           │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-</div>
 
 ### Project Structure
 
 ```
 AXIOM/
-├── 📁 apps/
-│   ├── 📁 synapse/           # ⚡ MBSE Platform
-│   │   ├── backend/          #    FastAPI + SQLAlchemy
-│   │   └── frontend/         #    React 19 + Vite
-│   ├── 📁 nexus/             # 🔮 Knowledge Graph
-│   ├── 📁 prism/             # 💎 Enterprise Portal
-│   └── 📁 atlas/             # 🤖 AI Collaboration
+├── apps/                        # Applications
+│   ├── synapse/                 # MBSE Platform (FastAPI + React 19)
+│   │   ├── backend/app/         #   API, services, models
+│   │   └── frontend/src/        #   React components, pages
+│   ├── nexus/                   # Knowledge Graph (Phase 1.5)
+│   ├── prism/                   # Dashboard (Planning)
+│   └── atlas/                   # AI Collab (Planning)
 │
-├── 📁 forge/                 # 🔧 Shared Infrastructure
-│   ├── docker-compose.yml    #    All services
-│   ├── config/               #    Service configurations
-│   └── databases/            #    Data persistence
+├── forge/                       # Shared Infrastructure
+│   └── docker-compose.yml       #   PostgreSQL, Redis, Loki, Grafana...
 │
-├── 📁 docs/                  # 📚 Documentation
-├── 📁 .agent/                # 🤖 AI Development Workflows
-└── 📁 .dev/                  # 📋 Development Context
+├── .claude/                     # AI Agents System
+│   ├── agents/                  #   18+ specialized agents
+│   ├── commands/                #   Slash commands (/0-new-session, etc.)
+│   └── skills/                  #   Reusable skills
+│
+├── .dev/                        # Development Tracking
+│   ├── context/                 #   Project state, credentials
+│   ├── infra/registry.yml       #   Port & service registry (CRITICAL)
+│   ├── journal/                 #   Daily development logs
+│   └── roadmap/                 #   Sprint planning
+│
+├── docs/                        # Public Documentation
+├── CLAUDE.md                    # AI Instructions (read this!)
+└── README.md                    # This file
 ```
 
 ---
 
-## 💻 Technology Stack
-
-<div align="center">
-
-### Backend
-
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.121+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-D71F00?style=flat-square)](https://sqlalchemy.org)
-
-### Frontend
-
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-7.2+-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4+-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Zustand](https://img.shields.io/badge/Zustand-5+-000000?style=flat-square)](https://zustand-demo.pmnd.rs)
-
-### Infrastructure
-
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
-[![Traefik](https://img.shields.io/badge/Traefik-3.x-24A1C1?style=flat-square&logo=traefik&logoColor=white)](https://traefik.io)
-[![Grafana](https://img.shields.io/badge/Grafana-11-F46800?style=flat-square&logo=grafana&logoColor=white)](https://grafana.com)
-
-</div>
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -242,180 +123,283 @@ AXIOM/
 git clone https://github.com/seb155/AXIOM.git
 cd AXIOM
 
-# 2. Start the platform
-.\dev.ps1          # Windows
-# ./dev.sh         # Linux/Mac (coming soon)
+# 2. Start the platform (FORGE + SYNAPSE)
+.\dev.ps1          # Windows PowerShell
+
+# Or manually:
+cd forge && docker compose up -d
+cd apps/synapse && docker compose -f docker-compose.dev.yml up --build
 ```
 
-### Access Your Applications
+### Access Applications
 
-| Application | URL | Description |
-|:---:|:---|:---|
-| ⚡ SYNAPSE | [localhost:4000](http://localhost:4000) | Engineering Platform |
-| 🔮 NEXUS | [localhost:5173](http://localhost:5173) | Knowledge Hub |
-| 📊 Grafana | [localhost:3000](http://localhost:3000) | Monitoring Dashboard |
-| 🗄️ pgAdmin | [localhost:5050](http://localhost:5050) | Database Admin |
-| 🔍 Prisma | [localhost:5555](http://localhost:5555) | Schema Browser |
+| Application | URL | Credentials |
+|:---|:---|:---|
+| **SYNAPSE** | [localhost:4000](http://localhost:4000) | `admin@axoiq.com` / `admin123!` |
+| **Grafana** | [localhost:3000](http://localhost:3000) | `admin` / `admin` |
+| **pgAdmin** | [localhost:5050](http://localhost:5050) | `admin@axiom.local` / `admin` |
+| **Prisma Studio** | [localhost:5555](http://localhost:5555) | - |
 
-**Default Login:** `admin@axoiq.com` / `admin123!`
+### Generate Demo Data
+
+```bash
+cd apps/synapse/backend
+python -m app.scripts.seed_demo
+```
+
+Creates: Admin user, 2 clients, 2 projects, 5 rules, 12 assets, 2 WBS packages.
 
 ---
 
-## 🔧 FORGE Infrastructure
+## Applications
 
-All applications share a common infrastructure layer called **FORGE**:
+### SYNAPSE - MBSE Platform
 
-| Service | Purpose | Port |
-|:---|:---|:---:|
-| **PostgreSQL** | Primary database for all apps | 5433 |
-| **Redis** | Caching, sessions, queues | 6379 |
-| **Grafana** | Metrics & log visualization | 3000 |
-| **Loki** | Log aggregation | 3100 |
-| **MeiliSearch** | Full-text search engine | 7700 |
-| **Prisma Studio** | Database schema browser | 5555 |
-| **pgAdmin** | PostgreSQL admin interface | 5050 |
+> **Model-Based Systems Engineering for EPCM Projects**
 
-```powershell
-# Start only infrastructure
-cd forge
-docker-compose up -d forge-postgres forge-redis
+Transform engineering data into deliverables automatically.
 
-# Start all FORGE services
-docker-compose up -d
-```
+**Features:**
+| Feature | Description |
+|:---|:---|
+| **Smart Import** | CSV/Excel ingestion with validation |
+| **Rule Engine** | 3 action types: CREATE_CHILD, CREATE_CABLE, CREATE_PACKAGE |
+| **Workflow Audit** | Complete event sourcing & traceability |
+| **Template Export** | IN-P040 (Instrument Index), CA-P040 (Cable Schedule) |
+| **Full-text Search** | MeiliSearch integration |
+| **Real-time Logs** | WebSocket DevConsole |
+
+**Tech Stack:** FastAPI + React 19 + TypeScript + PostgreSQL + Zustand
+
+**Status:** MVP v0.2.5 (Target: December 2025)
 
 ---
 
-## 🤖 AI Agents System
+### NEXUS - Knowledge Hub
 
-AXIOM includes a **complete AI development assistant** with 15 specialized agents:
+> **Your Second Brain - Notes, Wiki, Tasks, Knowledge Graphs**
 
-<div align="center">
+**Features:** Rich notes, team wiki, kanban boards, 3D knowledge graph, 13 themes
 
-| Layer | Agents | AI Model | Role |
-|:---:|:---|:---:|:---|
-| 🎯 | **ATLAS**, BRAINSTORM, SYSTEM-ARCHITECT | Opus | Orchestration & Strategy |
-| 📋 | **PLANNER**, DEBUGGER, UX-DESIGNER | Sonnet | Analysis & Planning |
-| 🔨 | **BACKEND**, FRONTEND, ARCHITECT, INTEGRATION | Sonnet/Opus | Code Implementation |
-| ✅ | **QA-TESTER**, ISSUE-REPORTER | Haiku | Validation |
-| 📊 | **DEV-TRACKER**, GIT-MANAGER, DOC-WRITER | Haiku | Tracking & Docs |
+**Status:** Phase 1.5
 
-</div>
+---
+
+### PRISM - Enterprise Dashboard
+
+> **See Everything. Decide Faster.**
+
+**Features:** Project metrics, team overview, infrastructure status
+
+**Status:** Planning
+
+---
+
+### ATLAS - AI Collaboration
+
+> **Your AI Engineering Partner**
+
+**Features:** 18+ specialized agents, hierarchical workflows, context-aware
+
+**Status:** Planning (AI Agents System already active in Claude Code)
+
+---
+
+## AI Agents System
+
+AXIOM includes a complete **AI development assistant** with specialized agents:
+
+```
+┌─────────────────────── ORCHESTRATORS (Opus) ─────────────────────────┐
+│  ATLAS (Main)  │  GENESIS (Meta)  │  BRAINSTORM  │  SYSTEM-ARCHITECT │
+└──────────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────── SPECIALISTS ──────────────────────────────────┐
+│ BUILDERS          │ VALIDATORS      │ TRACKERS       │ PLANNERS      │
+│ • Backend         │ • QA-Tester     │ • Dev-Tracker  │ • Debugger    │
+│ • Frontend        │ • Issue-Reporter│ • Git-Manager  │ • Planner     │
+│ • DevOps          │                 │                │ • UX-Designer │
+│ • Architect       │                 │                │               │
+│ • Integration     │                 │                │               │
+└───────────────────────────────────────────────────────────────────────┘
+```
 
 ### Quick Commands
 
 ```bash
-/new-session          # Start a new dev session
-/implement [feature]  # Implement a feature
-/debug [error]        # Debug an error
-/test                 # Run tests
-/commit               # Create a clean commit
-/brainstorm [idea]    # Creative session
+/0-new-session    # Start new dev session (full context)
+/0-next           # Continue next task (quick mode)
+/0-resume         # Resume after /compact
+/0-progress       # View roadmap progress
+/0-dashboard      # Current session status
+/0-ship           # Git workflow (test + commit + push)
 ```
 
-📖 **Full Guide:** [AI Agents Overview](./docs/developer-guide/ai-agents-overview.md) | [Technical Details](./docs/developer-guide/ai-agents-system.md)
+See [AI Agents Guide](./docs/developer-guide/ai-agents-overview.md) for details.
 
 ---
 
-## 📚 Documentation
+## FORGE Infrastructure
 
-| Document | Description |
-|:---|:---|
-| 📖 [**CLAUDE.md**](./CLAUDE.md) | AI assistant development guide |
-| 🤖 [**AI Agents Guide**](./docs/developer-guide/ai-agents-overview.md) | How to use the AI agents system |
-| 📋 [**CHANGELOG.md**](./CHANGELOG.md) | Version history and releases |
-| 🔄 [**Migration Guide**](./docs/MIGRATION-AXIOM.md) | Platform migration documentation |
-| 📊 [**Project State**](./.dev/context/project-state.md) | Current development status |
+Shared services for all applications:
 
-### Application Documentation
+| Service | Container | Port | Purpose |
+|:---|:---|:---:|:---|
+| **PostgreSQL** | `forge-postgres` | 5433 | Primary database |
+| **Redis** | `forge-redis` | 6379 | Cache & sessions |
+| **Loki** | `forge-loki` | 3100 | Log aggregation |
+| **Grafana** | `forge-grafana` | 3000 | Monitoring dashboards |
+| **MeiliSearch** | `forge-meilisearch` | 7700 | Full-text search |
+| **pgAdmin** | `forge-pgadmin` | 5050 | PostgreSQL GUI |
+| **Prisma Studio** | `forge-prisma` | 5555 | Database browser |
+| **Traefik** | `forge-traefik` | 80/443 | Reverse proxy + SSL |
+| **Wiki** | `forge-wiki` | 3080 | Documentation (Docsify) |
 
-| App | Docs |
-|:---|:---|
-| ⚡ SYNAPSE | [README](./apps/synapse/README.md) · [CHANGELOG](./apps/synapse/CHANGELOG.md) · [Deployment](./apps/synapse/DEPLOYMENT.md) |
-| 🔮 NEXUS | [README](./apps/nexus/README.md) · [CLAUDE](./apps/nexus/CLAUDE.md) · [Architecture](./apps/nexus/docs/ARCHITECTURE.md) |
-| 💎 PRISM | [README](./apps/prism/README.md) |
-| 🤖 ATLAS | [README](./apps/atlas/README.md) |
+### Port Allocation
+
+Each application has a dedicated 1000-port range:
+
+| Range | Application | Allocated |
+|:---|:---|:---:|
+| 3000-3999 | FORGE | 9 ports |
+| 4000-4999 | SYNAPSE | 2 ports |
+| 5000-5999 | NEXUS | 2 ports |
+| 6000-6999 | PRISM | - |
+| 7000-7999 | ATLAS | - |
+
+**Registry:** `.dev/infra/registry.yml` (source of truth)
 
 ---
 
-## 🧪 Development
+## Development
 
-### Running Tests
+### Backend (SYNAPSE)
 
 ```bash
-# Backend (SYNAPSE)
 cd apps/synapse/backend
-pytest --cov=app --cov-report=html
 
-# Frontend (SYNAPSE)
-cd apps/synapse/frontend
-npm run test
-npm run test:coverage
+# Run server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Migrations
+alembic upgrade head
+alembic revision --autogenerate -m "description"
+
+# Tests
+pytest                          # All tests
+pytest -k "test_name"           # Single test
+pytest --cov=app                # With coverage
+
+# Linting
+ruff check . --fix
 ```
 
-### Code Quality
+### Frontend (SYNAPSE)
 
 ```bash
-# Backend linting
-ruff check . --fix
-black .
+cd apps/synapse/frontend
 
-# Frontend linting
-npm run lint:fix
-npm run type-check
+npm run dev                     # Dev server (port 4000)
+npm run build                   # Production build
+npm run test                    # Run tests
+npm run lint:fix                # Fix linting
+npm run type-check              # TypeScript check
 ```
 
 ### Docker Commands
 
 ```bash
-# View logs
-docker logs synapse-backend -f --tail 100
-
-# Restart a service
-docker restart synapse-backend
-
-# Access database
-docker exec -it forge-postgres psql -U postgres -d synapse
+docker logs synapse-backend -f --tail 100    # View logs
+docker restart synapse-backend               # Restart
+docker exec -it forge-postgres psql -U postgres -d synapse  # DB shell
 ```
 
 ---
 
-## 🗺️ Roadmap
+## Documentation
 
-### Current Focus (Q4 2025)
-- [ ] SYNAPSE MVP - Demo-ready by December 20, 2025
-- [ ] CSV Import → Rule Engine → Package Export pipeline
-- [ ] Full traceability and audit logging
+### For New Users
 
-### Next Up (Q1 2026)
-- [ ] NEXUS Phase 2 - Backend integration
-- [ ] PRISM initial release
-- [ ] ATLAS planning and prototyping
+| Document | Description |
+|:---|:---|
+| **[CLAUDE.md](./CLAUDE.md)** | AI assistant guide (START HERE) |
+| **[Installation](./docs/getting-started/01-installation.md)** | Setup in 5 minutes |
+| **[Architecture](./.dev/ARCHITECTURE.md)** | Complete system architecture |
 
-### Future
-- [ ] Multi-tenant support
-- [ ] Advanced AI integrations
-- [ ] Mobile companion app
+### For Developers
+
+| Document | Description |
+|:---|:---|
+| **[Project Structure](./docs/developer-guide/01-project-structure.md)** | Code organization |
+| **[Rule Engine](./docs/developer-guide/rule-engine-event-sourcing.md)** | Rule engine deep dive |
+| **[Testing](./docs/developer-guide/08-testing.md)** | Test guide |
+| **[AI Agents](./docs/developer-guide/ai-agents-overview.md)** | Agent system |
+
+### Internal (`.dev/`)
+
+| Document | Description |
+|:---|:---|
+| **[.dev/README.md](./.dev/README.md)** | Development tracking index |
+| **[.dev/ARCHITECTURE.md](./.dev/ARCHITECTURE.md)** | Full architecture reference |
+| **[.dev/context/project-state.md](./.dev/context/project-state.md)** | Current MVP status |
+| **[.dev/infra/registry.yml](./.dev/infra/registry.yml)** | Port & service registry |
 
 ---
 
-## 🤝 Contributing
+## Roadmap
+
+### Current Focus (Q4 2025)
+
+- [x] SYNAPSE UI Foundation (VSCode-like shell)
+- [x] CSV Import with validation
+- [x] Rule Engine (CREATE_CHILD, CREATE_CABLE, CREATE_PACKAGE)
+- [x] Workflow audit trail & versioning
+- [x] Excel template export (IN-P040, CA-P040)
+- [ ] Auto tests & CI/CD
+- [ ] Demo preparation (December 20, 2025)
+
+### Next (Q1 2026)
+
+- [ ] NEXUS Phase 2 - Backend integration
+- [ ] PRISM initial release
+- [ ] Multi-tenant improvements
+
+### Future
+
+- [ ] ATLAS AI Collaboration app
+- [ ] Mobile companion
+- [ ] Advanced AI integrations
+
+---
+
+## Technology Stack
+
+| Layer | Technologies |
+|:---|:---|
+| **Frontend** | React 19, TypeScript, Vite, Zustand, TailwindCSS, shadcn/ui |
+| **Backend** | FastAPI, Python 3.11, SQLAlchemy, Pydantic, Alembic |
+| **Database** | PostgreSQL 15, Redis 7, MeiliSearch |
+| **Infrastructure** | Docker Compose, Traefik, Loki, Grafana |
+| **AI/Agents** | Claude (Opus/Sonnet/Haiku), 18+ specialized agents |
+
+---
+
+## Contributing
 
 This is currently a private project. For access or collaboration inquiries, please contact the repository owner.
 
 ---
 
-## 📄 License
+## License
 
 **Proprietary** - All rights reserved.
-
-This software and its documentation are proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
 
 ---
 
 <div align="center">
 
-### Built with ❤️ by **AXoiq**
+### Built with care by **AXoiq**
 
 *Engineering the future, one platform at a time*
 
