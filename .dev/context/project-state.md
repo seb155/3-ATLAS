@@ -69,6 +69,28 @@
 **Target:** Demo-ready for December 20, 2025
 **Sprint:** Week 4 - Auto Tests + CI/CD + Demo
 
+### Secondary: NEXUS Phase 2 Planning
+
+**Status:** Planned (après SYNAPSE MVP)
+**Feature:** FRED - 3D Memory Graph with TriliumNext Sync
+
+**Architecture:**
+```
+TriliumNext (notes.s-gagnon.com)
+       ↓ ETAPI Sync
+   PostgreSQL (notes, note_links)
+       ↓ Graph Analytics
+   FRED (react-force-graph-3d)
+       ↓ Click Node
+   NoteViewer (Markdown)
+```
+
+**Planning Files:**
+- `.dev/roadmap/nexus-development-plan.md` - Full architecture
+- `.dev/roadmap/nexus-phase-2-sprint.md` - 4-week sprint
+
+**Credentials:** `.dev/context/credentials.md` (TriliumNext ETAPI)
+
 **Completed Features:**
 - [x] VSCode-like UI (Allotment panels)
 - [x] CSV/Excel Import with validation
