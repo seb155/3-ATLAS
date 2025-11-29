@@ -48,7 +48,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.get('/api/v1/packages', {
+            const response = await apiClient.get('/packages', {
                 params: filters,
                 headers: { 'X-Project-ID': projectId }
             })
@@ -71,7 +71,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.get(`/api/v1/packages/${packageId}`, {
+            const response = await apiClient.get(`/packages/${packageId}`, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -94,7 +94,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.post('/api/v1/packages', data, {
+            const response = await apiClient.post('/packages', data, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -120,7 +120,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.patch(`/api/v1/packages/${packageId}`, data, {
+            const response = await apiClient.patch(`/packages/${packageId}`, data, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -139,7 +139,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            await apiClient.delete(`/api/v1/packages/${packageId}`, {
+            await apiClient.delete(`/packages/${packageId}`, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -167,7 +167,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.get(`/api/v1/packages/${packageId}/assets`, {
+            const response = await apiClient.get(`/packages/${packageId}/assets`, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -189,7 +189,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            await apiClient.post(`/api/v1/packages/${packageId}/assets/${assetId}`, {}, {
+            await apiClient.post(`/packages/${packageId}/assets/${assetId}`, {}, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -211,7 +211,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            await apiClient.delete(`/api/v1/packages/${packageId}/assets/${assetId}`, {
+            await apiClient.delete(`/packages/${packageId}/assets/${assetId}`, {
                 headers: { 'X-Project-ID': projectId }
             })
 
@@ -238,7 +238,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.get(`/api/v1/packages/${packageId}/export`, {
+            const response = await apiClient.get(`/packages/${packageId}/export`, {
                 params: { template_type: templateType, format },
                 headers: { 'X-Project-ID': projectId },
                 responseType: 'blob' // Important for file download
@@ -277,7 +277,7 @@ export const usePackages = (projectId: string) => {
             setLoading(true)
             setError(null)
 
-            const response = await apiClient.get(`/api/v1/packages/${packageId}/export/preview`, {
+            const response = await apiClient.get(`/packages/${packageId}/export/preview`, {
                 params: { template_type: templateType },
                 headers: { 'X-Project-ID': projectId }
             })

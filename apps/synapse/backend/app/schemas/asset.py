@@ -48,6 +48,7 @@ class AssetBase(BaseModel):
     purchasing: dict[str, Any] | None = None
     manufacturer_part_id: str | None = Field(None, alias="manufacturerPartId")
     location_id: str | None = Field(None, alias="locationId")
+    package_id: str | None = Field(None, alias="packageId")
     data_status: AssetDataStatusEnum | None = Field(
         default=AssetDataStatusEnum.FRESH_IMPORT, alias="dataStatus"
     )

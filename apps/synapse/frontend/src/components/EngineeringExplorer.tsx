@@ -66,11 +66,15 @@ export const EngineeringExplorer: React.FC = () => {
 
     // Load packages on mount
     useEffect(() => {
+        console.log('[WBS] Loading packages, projectId:', currentProject?.id);
         if (currentProject?.id) {
             listPackages().then(result => {
+                console.log('[WBS] listPackages result:', result);
                 if (result) {
                     setPackages(result.packages);
                 }
+            }).catch(err => {
+                console.error('[WBS] listPackages error:', err);
             });
         }
     }, [currentProject?.id, listPackages]);
@@ -78,9 +82,14 @@ export const EngineeringExplorer: React.FC = () => {
     // Trees (Memoized)
     const fbsTree = useMemo(() => Engine.getFBSTree(instruments), [instruments]);
     const wbsTree = useMemo(() => {
-        if (!packages || packages.length === 0) return [];
+        console.log('[WBS] Building wbsTree, packages:', packages?.length);
+        if (!packages || packages.length === 0) {
+            // Fallback to engine-generated tree when no packages loaded
+            console.log('[WBS] No packages, using fallback');
+            return Engine.getWBSTree(instruments);
+        }
 
-        return packages.map(pkg => ({
+        const tree = packages.map(pkg => ({
             id: pkg.id,
             name: pkg.name,
             type: 'PACKAGE' as const,
@@ -88,7 +97,9 @@ export const EngineeringExplorer: React.FC = () => {
             count: pkg.asset_count,
             children: []
         }));
-    }, [packages]);
+        console.log('[WBS] Built tree:', tree);
+        return tree;
+    }, [packages, instruments]);
 
     // --- NAVIGATION LOGIC ---
     const addToHistory = useCallback(() => {

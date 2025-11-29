@@ -53,9 +53,16 @@ export const useAppStore = create<AppState>((set) => ({
             ]);
 
             // Defensive normalization: ALWAYS ensure arrays
-            const assets = Array.isArray(assetsRes.data) ? assetsRes.data : [];
+            const rawAssets = Array.isArray(assetsRes.data) ? assetsRes.data : [];
             const locations = Array.isArray(locationsRes.data) ? locationsRes.data : [];
             const cables = Array.isArray(cablesRes.data) ? cablesRes.data : [];
+
+            // Map snake_case to camelCase for package_id
+            const assets = rawAssets.map((a: any) => ({
+                ...a,
+                packageId: a.package_id || a.packageId,
+                locationId: a.location_id || a.locationId,
+            }));
 
             console.log("Mapped Assets:", assets.length);
             set({ instruments: assets, locations: locations, cables: cables });
