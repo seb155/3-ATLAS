@@ -48,6 +48,22 @@
 |------|-----|-------------|
 | **Redis** | localhost:6379 | (no auth) |
 
+## External Services (NEXUS)
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **TriliumNext** | https://notes.s-gagnon.com | ETAPI Token (see below) |
+
+### TriliumNext ETAPI Configuration
+
+```env
+# For .env file in apps/nexus/backend/
+TRILIUM_URL=https://notes.s-gagnon.com
+TRILIUM_ETAPI_TOKEN=kdxShXTohAf2_yIMC5iNAk/SsXfVkKTiz2kL6/BaTNCawu5SYRnAHEQY=
+```
+
+**Note:** Server is behind Cloudflare - sync must run from whitelisted IP or local network.
+
 ## Quick Start
 
 ```powershell
