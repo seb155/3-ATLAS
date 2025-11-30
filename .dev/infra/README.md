@@ -343,6 +343,46 @@ Infra skill will automatically recommend using DevOps Manager agent when:
 
 ---
 
+## Traefik Routing (OBLIGATOIRE)
+
+**IMPORTANT:** Toutes les applications AXIOM doivent être accédées via Traefik avec des noms de domaine.
+
+### URLs Officielles
+
+| App | URL |
+|-----|-----|
+| SYNAPSE | `https://synapse.axoiq.com` |
+| SYNAPSE API | `https://api.axoiq.com` |
+| NEXUS | `https://nexus.axoiq.com` |
+| NEXUS API | `https://api-nexus.axoiq.com` |
+| CORTEX | `https://cortex.axoiq.com` |
+| Grafana | `https://grafana.axoiq.com` |
+| Traefik | `http://localhost:8888` |
+
+### Démarrage Obligatoire avec Traefik
+
+```powershell
+# Utiliser le script unifié
+.\start.ps1           # FORGE + SYNAPSE + NEXUS
+.\start.ps1 synapse   # FORGE + SYNAPSE seulement
+.\start.ps1 nexus     # FORGE + NEXUS seulement
+.\start.ps1 all       # Tout incluant CORTEX
+```
+
+### Configuration Hosts (Prérequis)
+
+```powershell
+# En Admin PowerShell
+notepad C:\Windows\System32\drivers\etc\hosts
+# Copier le contenu de: .dev\infra\hosts-entries.txt
+```
+
+### Documentation Complète
+
+Voir `.claude/agents/rules/10-traefik-routing.md` pour toutes les règles.
+
+---
+
 ## Future Enhancements
 
 **Planned**:

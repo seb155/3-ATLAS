@@ -1,0 +1,315 @@
+# ============================================================================
+# AXIOM URL Registry - Single Source of Truth
+# ============================================================================
+# This file is the central registry for all URLs, domains, and port allocations
+# across the AXIOM platform and personal projects.
+#
+# ALL agents, documentation, and configurations MUST reference this file.
+#
+# Last Updated: 2025-11-29
+# Version: 1.0.0
+# ============================================================================
+
+version: "1.0.0"
+last_updated: "2025-11-29T00:00:00Z"
+maintainer: "AXIOM Platform"
+
+# ============================================================================
+# AXIOM CORE APPLICATIONS
+# ============================================================================
+
+axiom_applications:
+
+  synapse:
+    name: "SYNAPSE"
+    description: "MBSE Platform - Model-Based Systems Engineering"
+    frontend:
+      url: "https://synapse.axoiq.com"
+      port: 4000
+    backend:
+      url: "https://api.axoiq.com"
+      port: 8001
+    status: "active"
+    traefik_enabled: true
+    range: "4000-4999"
+
+  nexus:
+    name: "NEXUS"
+    description: "Knowledge Graph + Notes/Wiki + 3D Visualization"
+    frontend:
+      url: "https://nexus.axoiq.com"
+      port: 5173
+    backend:
+      url: "https://api-nexus.axoiq.com"
+      port: 8000
+    status: "active"
+    traefik_enabled: true
+    range: "5000-5999"
+
+  cortex:
+    name: "CORTEX"
+    description: "AI Engine - LLM orchestration & RAG"
+    backend:
+      url: "https://cortex.axoiq.com"
+      port: null
+    status: "development"
+    traefik_enabled: false
+    range: "5000-5999"
+    notes: "Shares NEXUS port range - no frontend"
+
+  prism:
+    name: "PRISM"
+    description: "Enterprise Dashboard - Analytics & KPIs"
+    frontend:
+      url: "https://prism.axoiq.com"
+      port: null
+    status: "planned"
+    traefik_enabled: false
+    range: "6000-6999"
+
+  atlas:
+    name: "ATLAS"
+    description: "AI Collaboration Environment - Agent workspace"
+    frontend:
+      url: "https://atlas.axoiq.com"
+      port: null
+    status: "planned"
+    traefik_enabled: false
+    range: "7000-7999"
+
+# ============================================================================
+# FORGE INFRASTRUCTURE
+# ============================================================================
+
+forge_infrastructure:
+
+  traefik:
+    name: "Traefik"
+    description: "Reverse Proxy + SSL/TLS Termination + Load Balancer"
+    url: "https://traefik.axoiq.com"
+    port: 8888
+    internal_ports: [80, 443]
+    status: "active"
+    access: "Dashboard at http://localhost:8888 or https://traefik.axoiq.com"
+
+  grafana:
+    name: "Grafana"
+    description: "Monitoring & Dashboards - Logs visualization (Loki)"
+    url: "https://grafana.axoiq.com"
+    port: 3000
+    status: "active"
+    credentials: "admin / admin"
+
+  pgadmin:
+    name: "pgAdmin"
+    description: "PostgreSQL Administration Tool"
+    url: "https://pgadmin.axoiq.com"
+    port: 5050
+    status: "active"
+    credentials: "admin@axoiq.com / admin"
+
+  prisma:
+    name: "Prisma Studio"
+    description: "Database Viewer & Editor (Prisma v7)"
+    url: "https://prisma.axoiq.com"
+    port: 5555
+    status: "active"
+
+  loki:
+    name: "Loki"
+    description: "Log Aggregation System"
+    url: "https://loki.axoiq.com"
+    port: 3100
+    status: "active"
+    access: "API only - query via Grafana"
+
+  meilisearch:
+    name: "MeiliSearch"
+    description: "Full-Text Search Engine (MIT License)"
+    port: 7700
+    status: "active"
+    access: "API only - no web UI"
+    api_key: "axiom_dev_key_change_in_prod"
+
+  wiki:
+    name: "AXIOM Wiki"
+    description: "Documentation Server (Docsify)"
+    url: "https://wiki.axoiq.com"
+    port: 3080
+    status: "active"
+
+  portainer:
+    name: "Portainer"
+    description: "Docker Container Management UI"
+    url: "https://portainer.axoiq.com"
+    port: null
+    status: "planned"
+    notes: "Alternative to CLI for Docker management"
+
+  postgres:
+    name: "PostgreSQL"
+    description: "Shared Database Server (PostgreSQL 15)"
+    port: 5433
+    status: "active"
+    access: "Internal only - connect via pgAdmin or CLI"
+
+  redis:
+    name: "Redis"
+    description: "Cache & Session Store (Redis 7)"
+    port: 6379
+    status: "active"
+    access: "Internal only - no web UI"
+
+# ============================================================================
+# PERSONAL PROJECTS
+# ============================================================================
+
+personal_projects:
+
+  findash:
+    name: "FinDash"
+    description: "Personal Finance Dashboard (Gemini AI Studio app)"
+    url: "https://findash.axoiq.com"
+    port: 6400
+    status: "active"
+    traefik_enabled: true
+    tech_stack: ["React", "TypeScript", "Vite", "Gemini AI"]
+
+  pulse:
+    name: "Pulse"
+    description: "Homelab Infrastructure Monitor (Proxmox + UniFi)"
+    url: "https://pulse.axoiq.com"
+    port: null
+    status: "planned"
+    notes: "Dashboard for Homelab_MSH project"
+
+  trilium:
+    name: "TriliumNext"
+    description: "Hierarchical Note-Taking (Trilium fork)"
+    url: "https://trilium.axoiq.com"
+    port: null
+    status: "planned"
+    notes: "Integration with NEXUS via ETAPI"
+
+  neo4j:
+    name: "Neo4j"
+    description: "Graph Database for NEXUS Knowledge Graph"
+    url: "https://neo4j.axoiq.com"
+    port: null
+    status: "planned"
+
+  homelab:
+    name: "Homelab Dashboard"
+    description: "Proxmox + UniFi + GPU Profile Manager"
+    url: "https://homelab.axoiq.com"
+    port: null
+    status: "planned"
+
+  nest:
+    name: "Nest"
+    description: "TBD - Reserved for future project"
+    url: "https://nest.axoiq.com"
+    port: null
+    status: "reserved"
+
+# ============================================================================
+# TESTING & QA (FUTURE)
+# ============================================================================
+
+testing_qa:
+
+  reportportal:
+    name: "ReportPortal"
+    description: "Test Management & Reporting Platform"
+    url: "https://reportportal.axoiq.com"
+    port: null
+    status: "planned"
+    notes: "Integration for pytest + E2E tests"
+
+  allure:
+    name: "Allure Reports"
+    description: "Test Report Visualization"
+    url: "https://allure.axoiq.com"
+    port: null
+    status: "planned"
+
+# ============================================================================
+# PORT ALLOCATION POLICY
+# ============================================================================
+
+allocation_policy:
+
+  ranges:
+    forge: "3000-3999"
+    synapse: "4000-4999"
+    nexus: "5000-5999"
+    prism: "6000-6999"
+    atlas: "7000-7999"
+
+  conventions:
+    domain_format: "{app-name}.axoiq.com"
+    valid_examples:
+      - "prism.axoiq.com"
+      - "atlas.axoiq.com"
+      - "findash.axoiq.com"
+    invalid_examples:
+      - "my-app.local"
+      - "test.localhost"
+      - "app.example.com"
+
+  request_process:
+    - "Check url-registry.yml for available ports in appropriate range"
+    - "Verify domain follows naming convention"
+    - "Reserve port number (add to this registry)"
+    - "Add Traefik labels to docker-compose.traefik-labels.yml"
+    - "Update hosts-entries.txt"
+    - "Update 10-traefik-routing.md rule for agents"
+    - "Inform user of manual steps (hosts file, DNS flush)"
+
+  agent_responsibilities:
+    devops_manager: "Final authority on port allocation and Traefik configuration"
+    all_agents: "MUST read this registry before proposing new services"
+    validation: "Use skill zz-url-check to validate allocations"
+
+# ============================================================================
+# DEVELOPMENT ALIASES (localhost domain)
+# ============================================================================
+
+development_aliases:
+  notes: "These are .localhost domains for Traefik HTTPS testing"
+  enabled: true
+  domains:
+    - "synapse.localhost"
+    - "api.localhost"
+    - "nexus.localhost"
+    - "api-nexus.localhost"
+    - "grafana.localhost"
+    - "traefik.localhost"
+
+# ============================================================================
+# REFERENCE FILES
+# ============================================================================
+
+related_files:
+  hosts_file: "C:\\Windows\\System32\\drivers\\etc\\hosts"
+  hosts_template: ".dev/infra/hosts-entries.txt"
+  traefik_rule: ".claude/agents/rules/10-traefik-routing.md"
+  registry_rule: ".claude/agents/rules/11-url-registry.md"
+  infrastructure_doc: ".dev/infra/infrastructure.md"
+  quick_reference: ".dev/infra/QUICK-REFERENCE-URLS.md"
+  project_registry: ".registry/projects.json"
+
+# ============================================================================
+# CHANGELOG
+# ============================================================================
+
+changelog:
+  - version: "1.0.0"
+    date: "2025-11-29"
+    changes:
+      - "Initial registry creation"
+      - "Added all AXIOM applications (SYNAPSE, NEXUS, CORTEX, PRISM, ATLAS)"
+      - "Added FORGE infrastructure services"
+      - "Added personal projects (FinDash, Pulse, Trilium, etc.)"
+      - "Defined port allocation policy and ranges"
+      - "Established naming conventions and request process"

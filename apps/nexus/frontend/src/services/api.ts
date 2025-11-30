@@ -14,7 +14,34 @@ import type {
   NoteDrawingEmbedCreate,
 } from '@/types/excalidraw.types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+/**
+ * Smart API URL detection based on current origin.
+ * Priority: ENV variable > Origin detection > Fallback
+ */
+const getApiUrl = (): string => {
+  // 1. Check environment variable first (highest priority)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // 2. Detect based on current origin (Traefik vs direct access)
+  const origin = window.location.origin;
+
+  // Production: via Traefik (https://nexus.axoiq.com)
+  if (origin.includes('nexus.axoiq.com')) {
+    return 'https://api-nexus.axoiq.com';
+  }
+
+  // Development: via Traefik localhost (https://nexus.localhost)
+  if (origin.includes('nexus.localhost')) {
+    return 'https://api-nexus.localhost';
+  }
+
+  // Fallback: direct port access (http://localhost:5173)
+  return 'http://localhost:8000';
+};
+
+const API_URL = getApiUrl();
 
 interface RequestOptions extends RequestInit {
   token?: string;

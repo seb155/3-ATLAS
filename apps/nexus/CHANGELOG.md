@@ -13,6 +13,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wiki links with backlinks
 - Full-text search
 
+## [0.2.0] - 2025-11-29
+
+### Added - Excalidraw Enhancements
+- **Library Integration**: Full support for installing libraries from libraries.excalidraw.com
+  - Configured `window.name` to prevent new tabs
+  - Added `hashchange` event listener for library installation
+  - Implemented `updateLibrary()` API calls with confirmation prompts
+  - localStorage persistence for installed libraries
+
+- **Advanced UX Features**:
+  - Collapsible sidebar with localStorage state persistence
+  - Fullscreen mode with `F` keyboard shortcut and `Escape` to exit
+  - Inline rename via double-click in sidebar tree
+  - Auto-selection of newly created drawings
+  - Enhanced title input with hover/focus visual feedback
+
+### Changed
+- ExcalidrawCanvas component now uses `useRef` to access Excalidraw API
+- Both Drawing.tsx and ExcalidrawBlockNode.tsx share library state via localStorage
+
+### Fixed
+- Library menu no longer opens in new tab
+- "Add to Excalidraw" button now functional
+- New drawings automatically selected and displayed
+
 ## [0.1.0-alpha] - 2025-11-27
 
 ### Added - Phase 1: Foundation

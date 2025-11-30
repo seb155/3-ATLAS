@@ -5,7 +5,7 @@
  * Opens modal or expands inline for editing based on editMode setting.
  */
 
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, useRef } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { PenTool, Maximize2, Trash2, Settings, Loader2, ExternalLink } from 'lucide-react';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -45,7 +45,60 @@ export function ExcalidrawBlockNode({
   const [isEditing, setIsEditing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
+  // Library state management - shared with Drawing page via localStorage
+  const [libraries, setLibraries] = useState<any[]>(() => {
+    const saved = localStorage.getItem('excalidraw-libraries');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Ref to access Excalidraw API methods like updateLibrary()
+  // Required for programmatic library installation from libraries.excalidraw.com
+  const excalidrawRef = useRef<any>(null);
+
   const { drawingId, editMode, width, height } = node.attrs;
+
+  const handleLibraryChange = useCallback((items: any) => {
+    localStorage.setItem('excalidraw-libraries', JSON.stringify(items));
+    setLibraries(items);
+  }, []);
+
+  // Handle library installation from libraries.excalidraw.com
+  // When user clicks "Add to Excalidraw", the browser redirects back with
+  // hash parameters: #addLibrary=<libraryURL>&token=<token>
+  // This effect listens for those parameters and installs the library
+  useEffect(() => {
+    const handleHashChange = async () => {
+      // Parse URL hash to extract library URL
+      const hash = new URLSearchParams(window.location.hash.slice(1));
+      const libraryUrl = hash.get('addLibrary');
+
+      if (libraryUrl && excalidrawRef.current) {
+        try {
+          // Install library via Excalidraw API
+          await excalidrawRef.current.updateLibrary({
+            libraryItems: libraryUrl,      // URL to fetch library from
+            merge: true,                    // Merge with existing libraries
+            prompt: true,                   // Show confirmation dialog
+            openLibraryMenu: true,         // Auto-open library menu
+          });
+          // Clean up hash after successful installation
+          window.location.hash = '';
+        } catch (error) {
+          console.error('Failed to install library:', error);
+        }
+      }
+    };
+
+    // Listen for hash changes (library browser redirect)
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Also check on component mount in case hash already present
+    handleHashChange();
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
 
   // Fetch drawing data
   useEffect(() => {
@@ -161,6 +214,7 @@ export function ExcalidrawBlockNode({
               }
             >
               <Excalidraw
+                ref={excalidrawRef}
                 initialData={{
                   elements: drawing.elements,
                   appState: drawing.app_state,
@@ -171,6 +225,8 @@ export function ExcalidrawBlockNode({
                   handleSave(elements, appState, files);
                 }}
                 theme="dark"
+                libraryReturnUrl={`${window.location.origin}${window.location.pathname}`}
+                onLibraryChange={handleLibraryChange}
               />
             </Suspense>
           </div>

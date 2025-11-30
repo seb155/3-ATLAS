@@ -1,30 +1,71 @@
-# stop.ps1 - Stop All AXIOM Services
+# ============================================
+# AXIOM - Script d'Arret
+# ============================================
+# Usage: .\stop.ps1 [app]
+#
+# Options:
+#   .\stop.ps1           # Arrete SYNAPSE + NEXUS (garde FORGE)
+#   .\stop.ps1 all       # Arrete TOUT (incluant FORGE)
+#   .\stop.ps1 synapse   # Arrete seulement SYNAPSE
+#   .\stop.ps1 nexus     # Arrete seulement NEXUS
+# ============================================
 
-Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "   AXIOM Platform - Shutting Down     " -ForegroundColor Cyan
-Write-Host "======================================" -ForegroundColor Cyan
-Write-Host ""
+param(
+    [string]$App = "apps"
+)
 
-# Stop SYNAPSE
-Write-Host "Stopping SYNAPSE..." -ForegroundColor Yellow
-Set-Location apps\synapse
-docker-compose -f docker-compose.dev.yml down 2>$null
+$ErrorActionPreference = "SilentlyContinue"
+$BaseDir = $PSScriptRoot
 
-# Stop NEXUS (if running)
-Write-Host "Stopping NEXUS..." -ForegroundColor Yellow
-Set-Location ..\nexus
-docker-compose down 2>$null
+Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host "  AXIOM - Arret des Services" -ForegroundColor Cyan
+Write-Host "========================================`n" -ForegroundColor Cyan
 
-# Stop PRISM (if running)
-Write-Host "Stopping PRISM..." -ForegroundColor Yellow
-Set-Location ..\prism
-docker-compose down 2>$null
+function Stop-Service {
+    param(
+        [string]$Name,
+        [string]$Path
+    )
 
-# Stop FORGE Infrastructure
-Write-Host ""
-Write-Host "Stopping FORGE Infrastructure..." -ForegroundColor Yellow
-Set-Location ..\..\forge
-docker-compose down
+    if (-not (Test-Path $Path)) {
+        return
+    }
 
-Write-Host ""
-Write-Host "All AXIOM services stopped" -ForegroundColor Green
+    Write-Host ">> Arret de $Name..." -ForegroundColor Yellow
+
+    Push-Location $Path
+    try {
+        docker compose down 2>$null
+        Write-Host "   $Name arrete." -ForegroundColor Green
+    }
+    finally {
+        Pop-Location
+    }
+}
+
+switch ($App) {
+    "all" {
+        Stop-Service -Name "CORTEX" -Path "$BaseDir\apps\cortex"
+        Stop-Service -Name "NEXUS" -Path "$BaseDir\apps\nexus"
+        Stop-Service -Name "SYNAPSE" -Path "$BaseDir\apps\synapse"
+        Stop-Service -Name "FORGE" -Path "$BaseDir\forge"
+        Write-Host "`nTous les services arretes." -ForegroundColor Green
+    }
+    "synapse" {
+        Stop-Service -Name "SYNAPSE" -Path "$BaseDir\apps\synapse"
+    }
+    "nexus" {
+        Stop-Service -Name "NEXUS" -Path "$BaseDir\apps\nexus"
+    }
+    "cortex" {
+        Stop-Service -Name "CORTEX" -Path "$BaseDir\apps\cortex"
+    }
+    default {
+        # Arrete les apps mais garde FORGE
+        Stop-Service -Name "CORTEX" -Path "$BaseDir\apps\cortex"
+        Stop-Service -Name "NEXUS" -Path "$BaseDir\apps\nexus"
+        Stop-Service -Name "SYNAPSE" -Path "$BaseDir\apps\synapse"
+        Write-Host "`nApps arretees. FORGE reste actif." -ForegroundColor Yellow
+        Write-Host "Pour arreter FORGE: .\stop.ps1 all" -ForegroundColor Gray
+    }
+}

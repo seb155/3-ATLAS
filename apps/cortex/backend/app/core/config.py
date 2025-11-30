@@ -16,10 +16,14 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Database
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/cortex"
+    # Default uses FORGE infrastructure (Docker DNS)
+    # For local development, override in .env with localhost:5433
+    DATABASE_URL: str = "postgresql://postgres:postgres@forge-postgres:5432/cortex"
 
     # Cache
-    REDIS_URL: str = "redis://localhost:6379/2"
+    # Default uses FORGE Redis (database 2 for CORTEX)
+    # For local development, override in .env with localhost:6379/2
+    REDIS_URL: str = "redis://forge-redis:6379/2"
 
     # AI Providers
     ANTHROPIC_API_KEY: str = ""

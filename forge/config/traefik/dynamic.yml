@@ -201,7 +201,7 @@ http:
     synapse-frontend:
       loadBalancer:
         servers:
-          - url: "http://synapse-frontend-1:4000"
+          - url: "http://synapse-frontend:4000"
 
     synapse-backend:
       loadBalancer:

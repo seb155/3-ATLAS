@@ -12,6 +12,7 @@
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.0",
     "@tanstack/react-query": "^5.90.11",
+    "@tiptap/core": "^3.11.1",
     "@tiptap/extension-highlight": "^3.11.1",
     "@tiptap/extension-link": "^3.11.1",
     "@tiptap/extension-placeholder": "^3.11.1",

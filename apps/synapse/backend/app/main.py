@@ -49,25 +49,19 @@ def on_startup():
 
 
 # CORS Configuration - Secure by default
-# Development: Allow localhost origins
-# Production: Use ALLOWED_ORIGINS environment variable
+# Configure via ALLOWED_ORIGINS environment variable
 import os
 
-_env = os.getenv("ENVIRONMENT", "development")
-_allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+# Read ALLOWED_ORIGINS from environment
+# Default to localhost URLs for local development
+_allowed_origins_env = os.getenv(
+    "ALLOWED_ORIGINS",
+    # Default origins for local development (override in .env for production)
+    "http://localhost:4000,http://localhost:5173,http://localhost:8000,http://localhost:8001,http://127.0.0.1:4000,http://127.0.0.1:8000"
+)
 
-if _env == "production" and _allowed_origins_env:
-    origins = [origin.strip() for origin in _allowed_origins_env.split(",") if origin.strip()]
-else:
-    # Development origins
-    origins = [
-        "http://localhost:4000",
-        "http://localhost:8000",
-        "http://localhost:8001",
-        "http://localhost:5173",
-        "http://127.0.0.1:4000",
-        "http://127.0.0.1:8000",
-    ]
+# Parse comma-separated origins
+origins = [origin.strip() for origin in _allowed_origins_env.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,

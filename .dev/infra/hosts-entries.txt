@@ -1,27 +1,67 @@
 # ============================================
 # AXIOM + Personal Projects - Hosts Entries
-# Add to: C:\Windows\System32\drivers\etc\hosts
 # ============================================
-# Run as Administrator:
-# notepad C:\Windows\System32\drivers\etc\hosts
+#
+# INSTRUCTIONS:
+# 1. Ouvrir PowerShell en tant qu'Administrateur
+# 2. Executer: notepad C:\Windows\System32\drivers\etc\hosts
+# 3. Copier-coller TOUT le contenu ci-dessous
+# 4. Sauvegarder et fermer
+#
+# OU executer cette commande (Admin PowerShell):
+# Get-Content ".dev\infra\hosts-entries.txt" | Where-Object { $_ -notmatch "^#" -and $_.Trim() } | Add-Content C:\Windows\System32\drivers\etc\hosts
+#
+# ============================================
 
-# AXIOM Core Services
+# ------------------------------------------
+# AXIOM Core Applications
+# ------------------------------------------
 127.0.0.1 synapse.axoiq.com
 127.0.0.1 api.axoiq.com
 127.0.0.1 nexus.axoiq.com
 127.0.0.1 api-nexus.axoiq.com
 127.0.0.1 cortex.axoiq.com
+127.0.0.1 atlas.axoiq.com
+127.0.0.1 prism.axoiq.com
+
+# ------------------------------------------
+# FORGE Infrastructure
+# ------------------------------------------
 127.0.0.1 traefik.axoiq.com
 127.0.0.1 grafana.axoiq.com
 127.0.0.1 pgadmin.axoiq.com
 127.0.0.1 prisma.axoiq.com
 127.0.0.1 loki.axoiq.com
+127.0.0.1 wiki.axoiq.com
+127.0.0.1 portainer.axoiq.com
 
+# ------------------------------------------
+# Testing & QA
+# ------------------------------------------
+127.0.0.1 reportportal.axoiq.com
+127.0.0.1 allure.axoiq.com
+
+# ------------------------------------------
 # Personal Projects
-127.0.0.1 nest.axoiq.com
+# ------------------------------------------
+127.0.0.1 findash.axoiq.com
+127.0.0.1 pulse.axoiq.com
 127.0.0.1 trilium.axoiq.com
 127.0.0.1 neo4j.axoiq.com
 127.0.0.1 graph.axoiq.com
 127.0.0.1 homelab.axoiq.com
-127.0.0.1 pulse.axoiq.com
-127.0.0.1 findash.axoiq.com
+127.0.0.1 nest.axoiq.com
+
+# ------------------------------------------
+# Development Aliases (localhost domain)
+# ------------------------------------------
+127.0.0.1 synapse.localhost
+127.0.0.1 api.localhost
+127.0.0.1 nexus.localhost
+127.0.0.1 api-nexus.localhost
+127.0.0.1 grafana.localhost
+127.0.0.1 traefik.localhost
+
+# ============================================
+# END OF HOSTS ENTRIES
+# ============================================

@@ -7,6 +7,8 @@ Complete guide to managing and deploying AXIOM's Docker infrastructure.
 ## Quick Links
 
 - **[Getting Started](getting-started.md)** - Start here for setup and basics
+- **[Docker Networking](docker-networking.md)** - Network best practices and DNS resolution
+- **[Environment Variables](environment-variables.md)** - Managing .env files and configuration
 - **[Port Management](port-management.md)** - Port allocation rules and registry
 - **[Network Architecture](network-architecture.md)** - Docker networks and service communication
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
@@ -217,6 +219,43 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions | Debugging infrastructure problems |
 | [CLI Reference](cli-reference.md) | Complete CLI command reference | Daily operations |
 | [For Developers](for-developers.md) | Developer workflows and best practices | Development |
+| [Docker Networking](docker-networking.md) | Network best practices and anti-patterns | Understanding service communication |
+| [Environment Variables](environment-variables.md) | .env management and auto-generation | Configuration management |
+
+---
+
+## Network Best Practices
+
+### Use Docker DNS Names (Never IPs)
+
+**Correct:**
+```env
+DATABASE_URL=postgresql://postgres:postgres@forge-postgres:5432/synapse
+REDIS_URL=redis://forge-redis:6379
+```
+
+**Incorrect:**
+```env
+DATABASE_URL=postgresql://postgres:postgres@192.168.1.10:5432/synapse  # ❌
+REDIS_URL=redis://localhost:6379                                       # ❌
+```
+
+**Why:** Docker DNS names work across environments and container restarts. IPs and localhost only work in specific scenarios.
+
+**See:** [Docker Networking Guide](docker-networking.md) for complete patterns and anti-patterns.
+
+### Environment Variable Auto-Generation
+
+All applications use `.env.template` with auto-generation scripts:
+
+```powershell
+cd apps/synapse/backend
+.\generate-env.ps1
+```
+
+The script automatically detects Docker vs local environment and generates appropriate configuration.
+
+**See:** [Environment Variables Guide](environment-variables.md) for complete setup instructions.
 
 ---
 

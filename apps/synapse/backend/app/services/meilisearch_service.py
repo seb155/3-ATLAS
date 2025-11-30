@@ -21,7 +21,9 @@ from meilisearch.errors import MeilisearchApiError
 logger = logging.getLogger(__name__)
 
 # Configuration
-MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://localhost:7700")
+# Default uses Docker DNS (forge-meilisearch) for containerized environments
+# Override with MEILISEARCH_URL env var for local development
+MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://forge-meilisearch:7700")
 MEILISEARCH_API_KEY = os.getenv("MEILISEARCH_API_KEY", "synapse_dev_key_change_in_prod")
 
 # Index names

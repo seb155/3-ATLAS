@@ -15,6 +15,7 @@
 - [x] TipTap rich text editor in frontend
 - [x] Authentication with workspace SSO
 - [x] **TriliumNext Integration** (bidirectional sync)
+- [x] **Excalidraw Integration** (drawings with tree, JSONB storage, TipTap embed)
 
 ### TriliumNext Integration Details
 

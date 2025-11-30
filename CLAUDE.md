@@ -24,30 +24,69 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AXIOM** is the unified AXoiq development platform - a monorepo containing:
 
-| App | Purpose | Port | Status |
-|-----|---------|------|--------|
-| **SYNAPSE** | MBSE Platform (FastAPI + React 19) | 4000 | MVP Dec 2025 |
-| **NEXUS** | Knowledge Graph + Notes/Wiki | 5173 | Phase 1.5 |
-| **PRISM** | Enterprise Dashboard | 5174 | Development |
-| **ATLAS** | AI Collaboration Environment | 5175 | Planning |
+| App | Purpose | URL | Status |
+|-----|---------|-----|--------|
+| **SYNAPSE** | MBSE Platform (FastAPI + React 19) | `https://synapse.axoiq.com` | MVP Dec 2025 |
+| **NEXUS** | Knowledge Graph + Notes/Wiki | `https://nexus.axoiq.com` | Phase 2.0 |
+| **CORTEX** | AI Engine | `https://cortex.axoiq.com` | Development |
+| **PRISM** | Enterprise Dashboard | `https://prism.axoiq.com` | Planning |
+| **ATLAS** | AI Collaboration Environment | `https://atlas.axoiq.com` | Planning |
 
-**FORGE** = Shared infrastructure (PostgreSQL 5433, Redis 6379, Grafana 3000, Loki 3100)
+**FORGE** = Shared infrastructure via Traefik reverse proxy
+
+**IMPORTANT:**
+- **URLs Registry:** `.dev/infra/url-registry.yml` (SOURCE DE VÉRITÉ pour toutes les adresses)
+- **Routing Rules:** `.claude/agents/rules/10-traefik-routing.md` (règles d'accès obligatoires)
+- **Quick Reference:** `.dev/infra/QUICK-REFERENCE-URLS.md` (vue d'ensemble rapide)
 
 ---
 
 ## Quick Start
 
+### Prérequis: Configurer le fichier hosts (une seule fois)
+
 ```powershell
-# Start everything (FORGE + SYNAPSE)
-.\dev.ps1
-
-# Or start manually:
-cd forge && docker compose up -d forge-postgres forge-redis
-cd apps/synapse && docker compose -f docker-compose.dev.yml up --build
-
-# Access: http://localhost:4000
-# Login: admin@axoiq.com / admin123!
+# En tant qu'Administrateur
+notepad C:\Windows\System32\drivers\etc\hosts
+# Copier le contenu de: .dev\infra\hosts-entries.txt
 ```
+
+### Démarrer les applications
+
+```powershell
+# 1. FORGE (Infrastructure + Traefik) - TOUJOURS EN PREMIER
+cd D:\Projects\AXIOM\forge
+docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+
+# 2. SYNAPSE (avec labels Traefik)
+cd D:\Projects\AXIOM\apps\synapse
+docker compose -f docker-compose.dev.yml -f docker-compose.traefik-labels.yml up -d
+
+# 3. NEXUS (avec labels Traefik)
+cd D:\Projects\AXIOM\apps\nexus
+docker compose -f docker-compose.dev.yml -f docker-compose.traefik-labels.yml up -d
+```
+
+### Accès (via noms de domaine)
+
+**⚠️ TOUJOURS utiliser les noms de domaine, JAMAIS localhost:PORT**
+
+| App | URL | Login |
+|-----|-----|-------|
+| **SYNAPSE** | https://synapse.axoiq.com | admin@aurumax.com / admin123! |
+| **SYNAPSE API** | https://api.axoiq.com | - |
+| **NEXUS** | https://nexus.axoiq.com | admin@aurumax.com / admin123! |
+| **NEXUS API** | https://api-nexus.axoiq.com | - |
+| **Grafana** | https://grafana.axoiq.com | admin / admin |
+| **pgAdmin** | https://pgadmin.axoiq.com | admin@axoiq.com / admin |
+| **Traefik** | https://traefik.axoiq.com | - |
+
+**Personal Projects:**
+| App | URL |
+|-----|-----|
+| **FinDash** | https://findash.axoiq.com |
+
+**Voir:** `.dev/infra/QUICK-REFERENCE-URLS.md` pour la liste complète
 
 ---
 

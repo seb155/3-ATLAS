@@ -36,7 +36,7 @@
 
 ## ✨ Features
 
-### Current (v0.1.0-alpha) ✅
+### Current (v0.2.0) ✅
 
 | Feature | Status | Description |
 |---------|--------|-------------|
@@ -47,6 +47,19 @@
 | **Routing** | ✅ Complete | React Router with 6 enhanced pages |
 | **State Management** | ✅ Complete | Zustand for global state |
 | **TypeScript** | ✅ Complete | Full type safety with strict mode |
+| **Drawing & Whiteboarding** | ✅ Complete | Excalidraw integration with library support |
+
+### Drawing & Whiteboarding (Excalidraw)
+
+NEXUS integrates Excalidraw for powerful whiteboard and diagramming capabilities:
+
+- **Library Support**: Browse and install shapes from [libraries.excalidraw.com](https://libraries.excalidraw.com)
+- **Advanced UX**: Collapsible sidebar, fullscreen mode (F key), inline rename
+- **Persistence**: Auto-save drawings, localStorage for libraries and UI state
+- **Integration**: Use drawings in notes via TipTap blocks
+- **Collaboration Ready**: Backend sync preparation for real-time collaboration
+
+See [docs/EXCALIDRAW-INTEGRATION.md](docs/EXCALIDRAW-INTEGRATION.md) for detailed documentation.
 
 ### Planned Features 🚀
 

@@ -11,10 +11,10 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# CORS Configuration
+# CORS Configuration (uses settings.cors_origins_list from config)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Frontend dev server
+    allow_origins=settings.cors_origins_list,  # Dynamic CORS from environment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
