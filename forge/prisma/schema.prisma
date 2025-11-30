@@ -16,41 +16,46 @@ model action_logs {
   discipline        disciplinetype?
   description       String          @db.VarChar
   details           Json?           @db.Json
-  status            actionstatus?
-  timestamp         DateTime?       @db.Timestamp(6)
+  status            actionstatus?   @default(COMPLETED)
+  timestamp         DateTime?       @default(now()) @db.Timestamptz(6)
   action_logs       action_logs?    @relation("action_logsToaction_logs", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_action_logs action_logs[]   @relation("action_logsToaction_logs")
 }
 
 model assets {
-  id                                  String           @id @db.VarChar
-  tag                                 String           @db.VarChar
-  description                         String?          @db.VarChar
-  type                                String           @db.VarChar
-  project_id                          String           @db.VarChar
-  area                                String?          @db.VarChar
-  system                              String?          @db.VarChar
+  id                                  String             @id @db.VarChar
+  tag                                 String             @db.VarChar
+  description                         String?            @db.VarChar
+  type                                String             @db.VarChar
+  project_id                          String             @db.VarChar
+  area                                String?            @db.VarChar
+  system                              String?            @db.VarChar
   io_type                             iotype?
-  mechanical                          Json?            @db.Json
-  electrical                          Json?            @db.Json
-  process                             Json?            @db.Json
-  purchasing                          Json?            @db.Json
-  manufacturer_part_id                String?          @db.VarChar
-  data_status                         assetdatastatus?
-  confidence_score                    Float?
-  data_source_id                      String?          @db.VarChar
-  discipline                          String?          @db.VarChar
-  semantic_type                       String?          @db.VarChar
+  mechanical                          Json?              @db.Json
+  electrical                          Json?              @db.Json
+  process                             Json?              @db.Json
+  purchasing                          Json?              @db.Json
+  manufacturer_part_id                String?            @db.VarChar
+  data_status                         assetdatastatus?   @default(FRESH_IMPORT)
+  confidence_score                    Float?             @default(1)
+  data_source_id                      String?            @db.VarChar
+  discipline                          String?            @db.VarChar
+  semantic_type                       String?            @db.VarChar
   lod                                 Int?
   isa95_level                         Int?
-  properties                          Json?            @db.Json
-  location_id                         String?          @db.VarChar
-  package_id                          String?          @db.VarChar
-  lbs_nodes                           lbs_nodes?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  packages                            packages?        @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects                            projects         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  cables_cables_from_asset_idToassets cables[]         @relation("cables_from_asset_idToassets")
-  cables_cables_to_asset_idToassets   cables[]         @relation("cables_to_asset_idToassets")
+  properties                          Json?              @db.Json
+  location_id                         String?            @db.VarChar
+  package_id                          String?            @db.VarChar
+  deleted_at                          DateTime?          @db.Timestamptz(6)
+  asset_changes                       asset_changes[]
+  asset_versions                      asset_versions[]
+  lbs_nodes                           lbs_nodes?         @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  packages                            packages?          @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects                            projects           @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cables_cables_from_asset_idToassets cables[]           @relation("cables_from_asset_idToassets")
+  cables_cables_to_asset_idToassets   cables[]           @relation("cables_to_asset_idToassets")
+  property_changes                    property_changes[]
+  staged_rows                         staged_rows[]
 
   @@unique([tag, project_id], map: "uix_project_tag")
   @@index([data_status], map: "ix_assets_data_status")
@@ -58,43 +63,37 @@ model assets {
   @@index([package_id], map: "ix_assets_package_id")
   @@index([semantic_type], map: "ix_assets_semantic_type")
   @@index([tag], map: "ix_assets_tag")
+  @@index([deleted_at], map: "ix_assets_deleted_at")
+  @@index([project_id], map: "ix_assets_project_id")
+  @@index([type, project_id], map: "ix_assets_type_project")
 }
 
 model audit_logs {
   id          String    @id @db.VarChar
-  user_id     String    @db.VarChar
+  user_id     String?   @db.VarChar
+  project_id  String?   @db.VarChar
   action      String    @db.VarChar
-  target_type String    @db.VarChar
-  target_id   String    @db.VarChar
-  details     Json?     @db.Json
+  entity_type String    @db.VarChar
+  entity_id   String    @db.VarChar
+  changes     Json?     @db.Json
   timestamp   DateTime? @default(now()) @db.Timestamptz(6)
-  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects    projects? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model cable_sizing_rules {
-  id                       String    @id @db.Uuid
-  code_standard            String    @db.VarChar(50)
-  voltage_level            String?   @db.VarChar(20)
-  application              String?   @db.VarChar(50)
-  conductor_size           String    @db.VarChar(20)
-  conductor_material       String?   @db.VarChar(20)
-  insulation_type          String?   @db.VarChar(50)
-  temperature_rating       String?   @db.VarChar(20)
-  ampacity_amps            Float
-  derating_factors         Json?     @db.Json
-  max_voltage_drop_percent Float?
-  resistance_ohm_per_km    Float?
-  reactance_ohm_per_km     Float?
-  code_reference           String?   @db.VarChar(200)
-  table_number             String?   @db.VarChar(50)
-  notes                    String?
-  properties               Json?     @db.Json
-  created_at               DateTime? @db.Timestamp(6)
-  is_active                Boolean?
+  id                    String    @id @db.Uuid
+  code_standard         String    @db.VarChar(50)
+  voltage_level         String?   @db.VarChar(20)
+  conductor_size        String    @db.VarChar(20)
+  ampacity_amps         Float
+  derating_factors      Json?     @db.Json
+  resistance_ohm_per_km Float?
+  properties            Json?     @db.Json
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+  is_active             Boolean?  @default(true)
 
-  @@index([application], map: "ix_cable_sizing_rules_application")
   @@index([code_standard], map: "ix_cable_sizing_rules_code_standard")
-  @@index([voltage_level], map: "ix_cable_sizing_rules_voltage_level")
 }
 
 model cable_types {
@@ -107,34 +106,16 @@ model cable_types {
   conductor_material   String?   @db.VarChar(20)
   conductor_size       String?   @db.VarChar(20)
   number_of_conductors Int?
-  construction         String?   @db.VarChar(100)
   insulation_type      String?   @db.VarChar(50)
-  armor_type           String?   @db.VarChar(50)
-  sheath_material      String?   @db.VarChar(50)
   voltage_rating       String?   @db.VarChar(20)
   current_rating_amps  Float?
-  temperature_rating   String?   @db.VarChar(20)
-  standards            Json?     @db.Json
-  outer_diameter_mm    Float?
-  weight_kg_per_m      Float?
-  min_bend_radius_mm   Float?
-  temp_range_celsius   String?   @db.VarChar(50)
-  flame_rating         String?   @db.VarChar(50)
-  outdoor_rated        Boolean?
-  sunlight_resistant   Boolean?
-  oil_resistant        Boolean?
-  unit_price_per_m     Float?
-  currency             String?   @db.VarChar(10)
-  lead_time_days       Int?
   properties           Json?     @db.Json
-  created_at           DateTime? @db.Timestamp(6)
-  updated_at           DateTime? @db.Timestamp(6)
-  is_active            Boolean?
+  created_at           DateTime? @default(now()) @db.Timestamptz(6)
+  is_active            Boolean?  @default(true)
   cables               cables[]
 
   @@index([cable_type], map: "ix_cable_types_cable_type")
   @@index([manufacturer], map: "ix_cable_types_manufacturer")
-  @@index([part_number], map: "ix_cable_types_part_number")
 }
 
 model cables {
@@ -144,36 +125,36 @@ model cables {
   cable_type                          String?           @db.VarChar(50)
   description                         String?
   from_asset_id                       String?           @db.VarChar
-  from_terminal                       String?           @db.VarChar(50)
   to_asset_id                         String?           @db.VarChar
-  to_terminal                         String?           @db.VarChar(50)
   conductor_size                      String?           @db.VarChar(20)
+  length_meters                       Float?
+  voltage_drop_volts                  Float?
+  voltage_drop_percent                Float?
+  code_standard                       String?           @db.VarChar(50)
+  cable_type_id                       String?           @db.Uuid
+  properties                          Json?             @db.Json
+  created_by_rule_id                  String?           @db.VarChar
+  is_active                           Boolean?          @default(true)
+  status                              String?           @db.VarChar(20)
+  created_at                          DateTime?         @default(now()) @db.Timestamptz(6)
+  updated_at                          DateTime?         @default(now()) @db.Timestamptz(6)
+  from_terminal                       String?           @db.VarChar(50)
+  to_terminal                         String?           @db.VarChar(50)
+  route_description                   String?
+  installation_method                 String?           @db.VarChar(50)
   construction                        String?           @db.VarChar(100)
-  conductor_material                  String?           @db.VarChar(20)
+  conductor_material                  String?           @default("Copper") @db.VarChar(20)
   insulation_type                     String?           @db.VarChar(50)
   armor_type                          String?           @db.VarChar(50)
   sheath_material                     String?           @db.VarChar(50)
-  length_meters                       Float?
-  route_description                   String?
-  installation_method                 String?           @db.VarChar(50)
   conduit_size                        String?           @db.VarChar(20)
   voltage_rating                      String?           @db.VarChar(20)
   current_rating_amps                 Float?
-  voltage_drop_volts                  Float?
-  voltage_drop_percent                Float?
   power_loss_watts                    Float?
-  code_standard                       String?           @db.VarChar(50)
   temperature_rating                  String?           @db.VarChar(20)
   flame_rating                        String?           @db.VarChar(50)
-  cable_type_id                       String?           @db.Uuid
   manufacturer                        String?           @db.VarChar(100)
   part_number                         String?           @db.VarChar(100)
-  properties                          Json?             @db.Json
-  created_by_rule_id                  String?           @db.VarChar
-  is_active                           Boolean?
-  status                              String?           @db.VarChar(20)
-  created_at                          DateTime?         @db.Timestamp(6)
-  updated_at                          DateTime?         @db.Timestamp(6)
   created_by                          String?           @db.VarChar(100)
   notes                               String?
   cable_types                         cable_types?      @relation(fields: [cable_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -183,10 +164,8 @@ model cables {
   assets_cables_to_asset_idToassets   assets?           @relation("cables_to_asset_idToassets", fields: [to_asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([cable_type], map: "ix_cables_cable_type")
-  @@index([from_asset_id], map: "ix_cables_from_asset_id")
   @@index([project_id], map: "ix_cables_project_id")
   @@index([tag], map: "ix_cables_tag")
-  @@index([to_asset_id], map: "ix_cables_to_asset_id")
 }
 
 model clients {
@@ -197,26 +176,41 @@ model clients {
 }
 
 model connections {
-  id         String   @id @db.VarChar
-  from_id    String   @db.VarChar
-  to_id      String   @db.VarChar
-  project_id String   @db.VarChar
-  type       String?  @db.VarChar
-  cable_tag  String?  @db.VarChar
-  projects   projects @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         String    @id @db.VarChar
+  from_id    String    @db.VarChar
+  to_id      String    @db.VarChar
+  project_id String    @db.VarChar
+  type       String?   @db.VarChar
+  cable_tag  String?   @db.VarChar
+  deleted_at DateTime? @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([deleted_at], map: "ix_connections_deleted_at")
+  @@index([project_id], map: "ix_connections_project_id")
 }
 
 model data_sources {
-  id            String        @id @db.VarChar
-  project_id    String        @db.VarChar
-  filename      String        @db.VarChar
-  file_hash     String?       @db.VarChar
-  ingest_status ingeststatus?
-  detected_type detectedtype?
-  metadata_json Json?
-  created_at    DateTime?     @db.Timestamp(6)
-  updated_at    DateTime?     @db.Timestamp(6)
-  staged_rows   staged_rows[]
+  id             String        @id @db.VarChar
+  project_id     String        @db.VarChar
+  filename       String        @db.VarChar
+  file_type      String?       @db.VarChar
+  file_size      Int?
+  row_count      Int?
+  column_count   Int?
+  headers        Json?         @db.Json
+  column_mapping Json?         @db.Json
+  status         importstatus? @default(PENDING)
+  error_message  String?
+  stats          Json?         @db.Json
+  uploaded_by    String?       @db.VarChar
+  created_at     DateTime?     @default(now()) @db.Timestamptz(6)
+  completed_at   DateTime?     @db.Timestamptz(6)
+  projects       projects      @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?        @relation(fields: [uploaded_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  staged_rows    staged_rows[]
+
+  @@index([project_id], map: "ix_data_sources_project_id")
+  @@index([status], map: "ix_data_sources_status")
 }
 
 model lbs_nodes {
@@ -228,70 +222,86 @@ model lbs_nodes {
   capacity_slots          Int?
   design_heat_dissipation Float?
   ip_rating               String?      @db.VarChar
+  deleted_at              DateTime?    @db.Timestamptz(6)
   assets                  assets[]
   lbs_nodes               lbs_nodes?   @relation("lbs_nodesTolbs_nodes", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_lbs_nodes         lbs_nodes[]  @relation("lbs_nodesTolbs_nodes")
   projects                projects     @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([deleted_at], map: "ix_lbs_nodes_deleted_at")
+  @@index([project_id], map: "ix_lbs_nodes_project_id")
 }
 
 model metamodel_edges {
-  id             String          @id @db.VarChar
-  source_node_id String          @db.VarChar
-  target_node_id String          @db.VarChar
-  relation_type  String          @db.VarChar
-  cardinality    String?         @db.VarChar
-  discipline     disciplinetype?
-  properties     Json?           @db.Json
+  id             String  @id @db.VarChar
+  source_node_id String  @db.VarChar
+  target_node_id String  @db.VarChar
+  relation_type  String  @db.VarChar
+  discipline     String? @db.VarChar
+  properties     Json?   @db.Json
+  cardinality    String? @default("1:N") @db.VarChar
 
-  @@unique([source_node_id, target_node_id, relation_type], map: "uix_metamodel_edge")
+  @@index([relation_type], map: "ix_metamodel_edges_relation")
+  @@index([source_node_id], map: "ix_metamodel_edges_source")
+  @@index([target_node_id], map: "ix_metamodel_edges_target")
 }
 
 model metamodel_nodes {
-  id               String           @id @db.VarChar
-  name             String           @db.VarChar
-  project_id       String?          @db.VarChar
-  type             String           @db.VarChar
-  discipline       disciplinetype?
-  semantic_type    semantictype?
-  lod              Int?
-  isa95_level      Int?
-  description      String?          @db.VarChar
-  properties       Json?            @db.Json
-  data_status      assetdatastatus?
-  confidence_score Float?
-  data_source_id   String?          @db.VarChar
+  id            String           @id @db.VarChar
+  name          String           @db.VarChar
+  type          String           @db.VarChar
+  discipline    disciplinetype?
+  semantic_type String?          @db.VarChar
+  lod           Int?
+  isa95_level   Int?
+  properties    Json?            @db.Json
+  project_id    String?          @db.VarChar
+  data_status   assetdatastatus?
+  projects      projects?        @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([data_status], map: "ix_metamodel_nodes_data_status")
+  @@index([discipline], map: "ix_metamodel_nodes_discipline")
+  @@index([project_id], map: "ix_metamodel_nodes_project_id")
+  @@index([type], map: "ix_metamodel_nodes_type")
 }
 
 model packages {
-  id          String         @id @db.VarChar
-  name        String         @db.VarChar
-  description String?        @db.VarChar
-  project_id  String         @db.VarChar
-  status      packagestatus?
-  created_at  DateTime?      @db.Timestamp(6)
-  updated_at  DateTime?      @db.Timestamp(6)
-  assets      assets[]
-  projects    projects       @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String         @id @db.VarChar
+  name             String         @db.VarChar
+  description      String?        @db.VarChar
+  project_id       String         @db.VarChar
+  status           packagestatus? @default(OPEN)
+  created_at       DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?      @default(now()) @db.Timestamptz(6)
+  package_type     String?        @db.VarChar
+  metadata         Json?
+  package_metadata Json?
+  assets           assets[]
+  projects         projects       @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([project_id], map: "ix_packages_project_id")
 }
 
 model projects {
-  id              String            @id @db.VarChar
-  name            String            @db.VarChar
-  client_id       String            @db.VarChar
-  description     String?           @db.VarChar
-  status          String?           @db.VarChar
-  created_at      DateTime?         @default(now()) @db.Timestamptz(6)
-  assets          assets[]
-  cables          cables[]
-  connections     connections[]
-  lbs_nodes       lbs_nodes[]
-  packages        packages[]
-  clients         clients           @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rule_executions rule_executions[]
+  id               String             @id @db.VarChar
+  name             String             @db.VarChar
+  client_id        String             @db.VarChar
+  country          String?            @db.VarChar
+  description      String?            @db.VarChar
+  status           String?            @db.VarChar
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  assets           assets[]
+  audit_logs       audit_logs[]
+  batch_operations batch_operations[]
+  cables           cables[]
+  connections      connections[]
+  data_sources     data_sources[]
+  lbs_nodes        lbs_nodes[]
+  metamodel_nodes  metamodel_nodes[]
+  packages         packages[]
+  clients          clients            @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rule_executions  rule_executions[]
+  workflow_events  workflow_events[]
 }
 
 model rule_definitions {
@@ -300,25 +310,25 @@ model rule_definitions {
   description            String?
   source                 rulesource
   source_id              String?               @db.VarChar
-  priority               Int
+  priority               Int                   @default(10)
   discipline             String?               @db.VarChar
   category               String?               @db.VarChar
   action_type            ruleactiontype
-  is_enforced            Boolean?
+  is_enforced            Boolean               @default(false)
   condition              Json                  @db.Json
   action                 Json                  @db.Json
   overrides_rule_id      String?               @db.VarChar
   conflicts_with         Json?                 @db.Json
-  validation_status      rulevalidationstatus?
-  is_active              Boolean?
+  validation_status      rulevalidationstatus? @default(DRAFT)
+  is_active              Boolean               @default(true)
   created_by             String?               @db.VarChar
-  created_at             DateTime?             @db.Timestamp(6)
-  updated_at             DateTime?             @db.Timestamp(6)
-  version                Int?
-  execution_count        Int?
-  last_executed_at       DateTime?             @db.Timestamp(6)
-  success_count          Int?
-  failure_count          Int?
+  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  version                Int                   @default(1)
+  execution_count        Int                   @default(0)
+  last_executed_at       DateTime?             @db.Timestamptz(6)
+  success_count          Int                   @default(0)
+  failure_count          Int                   @default(0)
   cables                 cables[]
   users                  users?                @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   rule_definitions       rule_definitions?     @relation("rule_definitionsTorule_definitions", fields: [overrides_rule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -343,10 +353,10 @@ model rule_executions {
   asset_id            String?          @db.VarChar
   action_type         String           @db.VarChar
   action_taken        String
-  condition_matched   Boolean?
+  condition_matched   Boolean          @default(false)
   created_entity_id   String?          @db.VarChar
   created_entity_type String?          @db.VarChar
-  timestamp           DateTime?        @db.Timestamp(6)
+  timestamp           DateTime?        @default(now()) @db.Timestamptz(6)
   execution_time_ms   Int?
   error_message       String?
   stack_trace         String?
@@ -360,32 +370,169 @@ model rule_executions {
 }
 
 model staged_rows {
-  id             String        @id @db.VarChar
-  data_source_id String        @db.VarChar
-  row_index      Int
-  raw_data       Json
-  import_status  importstatus?
-  asset_id       String?       @db.VarChar
-  created_at     DateTime?     @db.Timestamp(6)
-  data_sources   data_sources  @relation(fields: [data_source_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                String        @id @db.VarChar
+  data_source_id    String        @db.VarChar
+  row_number        Int
+  raw_data          Json          @db.Json
+  mapped_data       Json?         @db.Json
+  detected_type     detectedtype? @default(UNKNOWN)
+  status            ingeststatus? @default(PENDING)
+  validation_errors Json?         @db.Json
+  created_asset_id  String?       @db.VarChar
+  assets            assets?       @relation(fields: [created_asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  data_sources      data_sources  @relation(fields: [data_source_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([data_source_id], map: "ix_staged_rows_data_source_id")
+  @@index([status], map: "ix_staged_rows_status")
 }
 
 model users {
+  id                                                      String             @id @db.VarChar
+  email                                                   String             @unique(map: "ix_users_email") @db.VarChar
+  hashed_password                                         String             @db.VarChar
+  full_name                                               String?            @db.VarChar
+  role                                                    userrole?
+  is_active                                               Boolean?           @default(true)
+  created_at                                              DateTime?          @default(now()) @db.Timestamptz(6)
+  asset_versions                                          asset_versions[]
+  audit_logs                                              audit_logs[]
+  batch_operations_batch_operations_created_byTousers     batch_operations[] @relation("batch_operations_created_byTousers")
+  batch_operations_batch_operations_rolled_back_byTousers batch_operations[] @relation("batch_operations_rolled_back_byTousers")
+  data_sources                                            data_sources[]
+  property_changes                                        property_changes[]
+  rule_definitions                                        rule_definitions[]
+  workflow_events                                         workflow_events[]
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+model asset_changes {
+  id              String          @id @db.VarChar
+  event_id        String          @db.VarChar
+  asset_id        String          @db.VarChar
+  field_name      String          @db.VarChar(100)
+  old_value       Json?           @db.Json
+  new_value       Json?           @db.Json
+  assets          assets          @relation(fields: [asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workflow_events workflow_events @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([asset_id], map: "ix_asset_changes_asset_id")
+  @@index([event_id], map: "ix_asset_changes_event_id")
+}
+
+model asset_versions {
   id               String             @id @db.VarChar
-  email            String             @unique(map: "ix_users_email") @db.VarChar
-  hashed_password  String             @db.VarChar
-  full_name        String?            @db.VarChar
-  role             userrole?
-  is_active        Boolean?
-  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
-  audit_logs       audit_logs[]
-  rule_definitions rule_definitions[]
+  asset_id         String             @db.VarChar
+  version_number   Int
+  snapshot         Json               @db.Json
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  created_by       String?            @db.VarChar
+  change_reason    String?            @db.VarChar(500)
+  change_source    changesource       @default(USER)
+  event_id         String?            @db.VarChar
+  batch_id         String?            @db.VarChar
+  assets           assets             @relation(fields: [asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  batch_operations batch_operations?  @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?             @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workflow_events  workflow_events?   @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  property_changes property_changes[]
+
+  @@index([asset_id], map: "ix_asset_versions_asset_id")
+  @@index([asset_id, version_number], map: "ix_asset_versions_asset_version")
+  @@index([batch_id], map: "ix_asset_versions_batch_id")
+}
+
+model batch_operations {
+  id                                           String             @id @db.VarChar
+  operation_type                               batchoperationtype
+  description                                  String?
+  project_id                                   String             @db.VarChar
+  affected_assets                              Int                @default(0)
+  started_at                                   DateTime           @default(now()) @db.Timestamptz(6)
+  completed_at                                 DateTime?          @db.Timestamptz(6)
+  created_by                                   String?            @db.VarChar
+  is_rolled_back                               Boolean            @default(false)
+  rolled_back_at                               DateTime?          @db.Timestamptz(6)
+  rolled_back_by                               String?            @db.VarChar
+  rollback_reason                              String?
+  correlation_id                               String             @db.VarChar
+  asset_versions                               asset_versions[]
+  users_batch_operations_created_byTousers     users?             @relation("batch_operations_created_byTousers", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects                                     projects           @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_batch_operations_rolled_back_byTousers users?             @relation("batch_operations_rolled_back_byTousers", fields: [rolled_back_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([correlation_id], map: "ix_batch_operations_correlation_id")
+  @@index([is_rolled_back], map: "ix_batch_operations_is_rolled_back")
+  @@index([operation_type], map: "ix_batch_operations_operation_type")
+  @@index([project_id], map: "ix_batch_operations_project_id")
+}
+
+model property_changes {
+  id             String         @id @db.VarChar
+  asset_id       String         @db.VarChar
+  version_id     String         @db.VarChar
+  property_name  String         @db.VarChar(100)
+  property_path  String?        @db.VarChar(500)
+  old_value      Json?          @db.Json
+  new_value      Json?          @db.Json
+  changed_at     DateTime       @default(now()) @db.Timestamptz(6)
+  changed_by     String?        @db.VarChar
+  assets         assets         @relation(fields: [asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?         @relation(fields: [changed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  asset_versions asset_versions @relation(fields: [version_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([asset_id], map: "ix_property_changes_asset_id")
+  @@index([asset_id, property_name], map: "ix_property_changes_asset_property")
+  @@index([version_id], map: "ix_property_changes_version_id")
+}
+
+model workflow_events {
+  id                    String             @id @db.VarChar
+  timestamp             DateTime           @default(now()) @db.Timestamptz(6)
+  level                 loglevel
+  source                logsource
+  action_type           workflowactiontype
+  project_id            String             @db.VarChar
+  user_id               String?            @db.VarChar
+  session_id            String?            @db.VarChar
+  entity_type           String?            @db.VarChar(50)
+  entity_id             String?            @db.VarChar
+  entity_tag            String?            @db.VarChar(100)
+  message               String
+  details               Json?              @default("{}") @db.Json
+  parent_event_id       String?            @db.VarChar
+  correlation_id        String             @db.VarChar
+  status                workflowstatus     @default(COMPLETED)
+  duration_ms           Int?
+  error                 String?
+  fbs_code              String?            @db.VarChar(20)
+  lbs_code              String?            @db.VarChar(20)
+  discipline            String?            @db.VarChar(50)
+  package_code          String?            @db.VarChar(50)
+  asset_changes         asset_changes[]
+  asset_versions        asset_versions[]
+  workflow_events       workflow_events?   @relation("workflow_eventsToworkflow_events", fields: [parent_event_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_workflow_events workflow_events[]  @relation("workflow_eventsToworkflow_events")
+  projects              projects           @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                 users?             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([action_type], map: "ix_workflow_events_action_type")
+  @@index([correlation_id], map: "ix_workflow_events_correlation_id")
+  @@index([entity_type, entity_id], map: "ix_workflow_events_entity")
+  @@index([level], map: "ix_workflow_events_level")
+  @@index([project_id], map: "ix_workflow_events_project_id")
+  @@index([project_id, timestamp], map: "ix_workflow_events_project_timestamp")
+  @@index([source], map: "ix_workflow_events_source")
+  @@index([user_id], map: "ix_workflow_events_user_id")
 }
 
 enum actionstatus {
   COMPLETED
   ROLLED_BACK
   FAILED
+  WARNING
 }
 
 enum actiontype {
@@ -404,9 +551,9 @@ enum assetdatastatus {
 }
 
 enum detectedtype {
-  BBA_INSTRUMENT_LIST
-  CABLE_SCHEDULE
-  GENERIC_LIST
+  ASSET
+  CONNECTION
+  LOCATION
   UNKNOWN
 }
 
@@ -414,25 +561,26 @@ enum disciplinetype {
   PROCESS
   ELECTRICAL
   AUTOMATION
+  PROCUREMENT
   MECHANICAL
   PROJECT
-  PROCUREMENT
-  GENERAL
 }
 
 enum importstatus {
   PENDING
-  SKIPPED
-  IMPORTED
-  ERROR
+  MAPPING
+  VALIDATING
+  IMPORTING
+  COMPLETED
+  FAILED
 }
 
 enum ingeststatus {
   PENDING
-  STAGED
-  MAPPED
-  IMPORTED
+  VALID
+  WARNING
   ERROR
+  IMPORTED
 }
 
 enum iotype {
@@ -487,15 +635,65 @@ enum rulevalidationstatus {
   DEPRECATED
 }
 
-enum semantictype {
-  CONTAINER
-  ASSET
-  LINK
-}
-
 enum userrole {
   ADMIN
   ENGINEER
   VIEWER
   CLIENT
+}
+
+enum batchoperationtype {
+  IMPORT
+  RULE_EXECUTION
+  BULK_UPDATE
+  BULK_DELETE
+  PACKAGE_GENERATION
+}
+
+enum changesource {
+  USER
+  RULE
+  IMPORT
+  API
+  ROLLBACK
+  SYSTEM
+}
+
+enum loglevel {
+  TRACE
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+enum logsource {
+  SYSTEM
+  IMPORT
+  RULE
+  PACKAGE
+  USER
+  API
+  ROLLBACK
+}
+
+enum workflowactiontype {
+  CREATE
+  UPDATE
+  DELETE
+  EXECUTE
+  EXPORT
+  IMPORT
+  ROLLBACK
+  VALIDATE
+  LINK
+}
+
+enum workflowstatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  ROLLED_BACK
 }
