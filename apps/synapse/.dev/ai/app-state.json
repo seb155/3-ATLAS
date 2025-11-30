@@ -1,0 +1,64 @@
+{
+  "$schema": "app-state-schema",
+  "version": "1.0",
+  "app": "synapse",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "status": {
+    "phase": "MVP",
+    "version": "0.2.5",
+    "progress_percent": 85,
+    "target_date": "2025-12-20",
+    "days_remaining": 20
+  },
+
+  "current_focus": {
+    "sprint": "Week 4 - Tests & Demo",
+    "primary_task": "Demo preparation",
+    "blockers": []
+  },
+
+  "features": {
+    "completed": [
+      "VSCode-like UI (Allotment panels)",
+      "CSV/Excel Import with validation",
+      "Rule Engine (CREATE_CHILD, CREATE_CABLE, CREATE_PACKAGE)",
+      "Workflow audit trail & versioning",
+      "Excel template export (IN-P040, CA-P040)",
+      "Package management system",
+      "WebSocket real-time logs",
+      "Full-text search (MeiliSearch)"
+    ],
+    "in_progress": [
+      "Auto tests setup",
+      "CI/CD pipeline",
+      "Demo data preparation"
+    ],
+    "pending": [
+      "Plant 3D POC connector",
+      "Demo rehearsal"
+    ]
+  },
+
+  "demo_readiness": {
+    "import_csv": true,
+    "rule_engine": true,
+    "export_excel": true,
+    "traçability": true,
+    "plant3d_poc": false,
+    "mock_data": false
+  },
+
+  "tech_debt": [],
+
+  "recent_changes": [
+    {
+      "date": "2025-11-29",
+      "description": "Documentation update - architecture reference"
+    },
+    {
+      "date": "2025-11-28",
+      "description": "v0.2.5 - Atlas Orchestration System"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "hot-files-schema",
+  "version": "1.0",
+  "app": "synapse",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "backend": [
+    {
+      "path": "backend/app/main.py",
+      "category": "core",
+      "description": "FastAPI app entry point"
+    },
+    {
+      "path": "backend/app/api/endpoints/assets.py",
+      "category": "api",
+      "description": "Asset CRUD endpoints"
+    },
+    {
+      "path": "backend/app/api/endpoints/rules.py",
+      "category": "api",
+      "description": "Rule engine endpoints"
+    },
+    {
+      "path": "backend/app/services/rule_engine.py",
+      "category": "services",
+      "description": "Rule evaluation logic"
+    },
+    {
+      "path": "backend/app/services/rule_execution_service.py",
+      "category": "services",
+      "description": "Rule execution (CREATE_CHILD, etc.)"
+    },
+    {
+      "path": "backend/app/services/workflow_logger.py",
+      "category": "services",
+      "description": "Event sourcing & audit"
+    },
+    {
+      "path": "backend/app/services/template_service.py",
+      "category": "services",
+      "description": "Excel template generation"
+    }
+  ],
+
+  "frontend": [
+    {
+      "path": "frontend/src/App.tsx",
+      "category": "core",
+      "description": "Main React app"
+    },
+    {
+      "path": "frontend/src/components/EngineeringExplorer.tsx",
+      "category": "components",
+      "description": "Asset tree view"
+    },
+    {
+      "path": "frontend/src/components/DevConsole.tsx",
+      "category": "components",
+      "description": "Real-time logs"
+    }
+  ],
+
+  "config": [
+    {
+      "path": "docker-compose.dev.yml",
+      "category": "docker",
+      "description": "Development Docker config"
+    }
+  ]
+}

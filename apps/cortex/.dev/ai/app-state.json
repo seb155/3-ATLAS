@@ -1,0 +1,39 @@
+{
+  "$schema": "app-state-schema",
+  "version": "1.0",
+  "app": "cortex",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "status": {
+    "phase": "Design",
+    "version": null,
+    "progress_percent": 10,
+    "target_date": "2026-Q2",
+    "days_remaining": null
+  },
+
+  "current_focus": {
+    "sprint": null,
+    "primary_task": "Architecture design",
+    "blockers": []
+  },
+
+  "description": "Memory Engine - AI context management with CAG/RAG hybrid architecture",
+
+  "planned_features": [
+    "HOT memory (active session context)",
+    "WARM memory (recent projects, patterns)",
+    "COLD memory (archives, historical)",
+    "Context-Aware Generation (CAG)",
+    "Retrieval-Augmented Generation (RAG)",
+    "Cross-session learning"
+  ],
+
+  "tech_stack": {
+    "backend": "FastAPI + Python",
+    "database": "PostgreSQL + Vector DB",
+    "ai": "Claude API integration"
+  },
+
+  "architecture_notes": "Three-tier memory system: HOT (session) → WARM (project) → COLD (archive)"
+}

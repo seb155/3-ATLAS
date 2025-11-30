@@ -1,0 +1,57 @@
+{
+  "$schema": "app-state-schema",
+  "version": "1.0",
+  "app": "atlas",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "status": {
+    "phase": "Active",
+    "version": "0.2.5",
+    "progress_percent": 70,
+    "target_date": "Ongoing",
+    "days_remaining": null
+  },
+
+  "current_focus": {
+    "sprint": "Agent system enhancement",
+    "primary_task": "Structure migration",
+    "blockers": []
+  },
+
+  "description": "AI OS - Central orchestration system containing CORTEX, Agents, ECHO, and Note_synch",
+
+  "components": {
+    "agents": {
+      "status": "active",
+      "count": 18,
+      "description": "Specialized AI agents for development"
+    },
+    "cortex": {
+      "status": "development",
+      "description": "Memory engine (separate app)"
+    },
+    "echo": {
+      "status": "development",
+      "description": "Voice transcription → Memory"
+    },
+    "note_synch": {
+      "status": "started",
+      "description": "TriliumNext → Memory sync"
+    }
+  },
+
+  "commands": [
+    "/0-new-session",
+    "/0-next",
+    "/0-resume",
+    "/0-progress",
+    "/0-dashboard",
+    "/0-ship"
+  ],
+
+  "tech_stack": {
+    "runtime": "Claude Code CLI",
+    "config": ".claude/ directory",
+    "agents": "Markdown-based definitions"
+  }
+}

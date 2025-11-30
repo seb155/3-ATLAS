@@ -1,0 +1,66 @@
+{
+  "$schema": "owner-preferences-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+  "description": "Owner preferences for AI agents - loaded at session start",
+
+  "identity": {
+    "role": "Automation Engineer",
+    "industry": "Gold Mining (EPCM)",
+    "location": "Quebec, Canada",
+    "company_type": "Engineering firm - Self-perform"
+  },
+
+  "communication": {
+    "language": "fr",
+    "fallback_language": "en",
+    "style": "direct",
+    "detail_level": "high",
+    "prefer_diagrams": true,
+    "prefer_tables": true
+  },
+
+  "development": {
+    "prefer_validation_before_action": true,
+    "brainstorm_sessions_enabled": true,
+    "show_plans_before_execution": true,
+    "require_approval_for_protected_docs": true,
+    "auto_commit": false,
+    "test_strategy": "integration-focused"
+  },
+
+  "session": {
+    "show_project_review_at_start": true,
+    "show_app_progress_summary": true,
+    "track_agent_stats": true,
+    "economize_tokens": true
+  },
+
+  "hardware": {
+    "laptop": {
+      "model": null,
+      "os": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "notes": "TODO: Fill in laptop specs"
+    },
+    "proxmox_server": {
+      "status": "planned",
+      "specs": null,
+      "notes": "Future home server for personal AXIOM instance"
+    }
+  },
+
+  "protected_docs_policy": {
+    "always_ask_before_modify": true,
+    "protected_patterns": [
+      ".dev/infra/registry.yml",
+      ".dev/infra/infrastructure.md",
+      ".dev/ARCHITECTURE.md",
+      ".dev/context/credentials.md",
+      "docs/infrastructure/*.md",
+      ".claude/agents/rules/*.md"
+    ]
+  }
+}

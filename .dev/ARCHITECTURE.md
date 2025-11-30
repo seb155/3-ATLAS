@@ -1,8 +1,16 @@
+<!-- ============================================================================
+🔒 PROTECTED DOCUMENT - DO NOT MODIFY WITHOUT OWNER VALIDATION
+============================================================================
+This file defines the core system architecture.
+Changes must be proposed and approved by the owner before implementation.
+AI Agents: READ-ONLY unless explicitly instructed by owner.
+============================================================================ -->
+
 # AXIOM - Architecture Systeme Complete
 
 > **Reference technique pour les agents AI et developpeurs**
 >
-> Derniere mise a jour: 2025-11-29 | Version: 0.2.5
+> Derniere mise a jour: 2025-11-30 | Version: 0.2.5
 
 ---
 

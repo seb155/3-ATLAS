@@ -1,0 +1,41 @@
+{
+  "$schema": "session-state-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "current_session": {
+    "id": null,
+    "started_at": null,
+    "mode": null,
+    "focus": null
+  },
+
+  "active_apps": [],
+
+  "last_session": {
+    "id": "2025-11-30-brainstorm",
+    "date": "2025-11-30",
+    "mode": "BRAINSTORM",
+    "focus": "Architecture restructuration",
+    "duration_minutes": null,
+    "completed_tasks": [
+      "Owner profile documentation",
+      "Architecture analysis",
+      "Migration plan creation"
+    ],
+    "next_tasks": [
+      "Execute migration plan",
+      "Create AI runtime files",
+      "Setup app-level .dev/ structures"
+    ],
+    "apps_worked_on": ["axiom-root"],
+    "commits": []
+  },
+
+  "session_modes": {
+    "FULL": "First session - load complete context",
+    "QUICK": "Continue work - minimal context",
+    "RECOVERY": "After /compact - restore context",
+    "BRAINSTORM": "Whiteboard/design session"
+  }
+}
