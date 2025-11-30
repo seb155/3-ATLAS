@@ -1,7 +1,7 @@
 # ATLAS - État Actuel
 
 **Dernière mise à jour:** 2025-11-30
-**Session:** Phase 2 - Agents
+**Session:** Phase 3 - Skills
 
 ---
 
@@ -12,9 +12,9 @@
 | Règles agents | 4 | 4 | 100% |
 | Agents | 3 | 3 | 100% |
 | Slash commands | 6 | 6 | 100% |
-| Skills | 0 | 3 | 0% |
+| Skills | 2 | 2 | 100% |
 | Hooks | 0 | 3 | 0% |
-| **TOTAL** | **13** | **19** | **68%** |
+| **TOTAL** | **15** | **18** | **83%** |
 
 ---
 
@@ -77,15 +77,20 @@
 
 ---
 
-### 4. Skills ❌ À CRÉER
+### 4. Skills ✅ COMPLET
 
-| Skill | Fichier | Status | Priorité | Description |
-|-------|---------|--------|----------|-------------|
-| infra | `infra.md` | ❌ | MOYENNE | Status infrastructure rapide |
-| brainstorm | `brainstorm.md` | ❌ | MOYENNE | Mode whiteboard |
-| session-start | `session-start-hook.md` | ✅ | N/A | Existe (user skill) |
+| Skill | Fichier | Status | Description |
+|-------|---------|--------|-------------|
+| infra | `infra.md` | ✅ | Status infrastructure rapide |
+| brainstorm | `brainstorm.md` | ✅ | Mode whiteboard |
 
-**Localisation prévue:** `.claude/skills/`
+**Localisation:** `.claude/skills/`
+
+**Usage:**
+```bash
+skill: "infra"       # Affiche status infrastructure
+skill: "brainstorm"  # Active mode whiteboard
+```
 
 ---
 
@@ -106,24 +111,24 @@
 ```
 .claude/
 ├── agents/
-│   ├── atlas.md                    # ❌ MANQUANT
-│   ├── devops-manager.md           # ❌ MANQUANT
-│   ├── brainstorm.md               # ❌ MANQUANT
+│   ├── atlas.md                    # ✅
+│   ├── devops-manager.md           # ✅
+│   ├── brainstorm.md               # ✅
 │   └── rules/
 │       ├── 10-traefik-routing.md   # ✅
 │       ├── 11-url-registry.md      # ✅
 │       ├── 12-docker-networking.md # ✅
 │       └── 20-protected-docs.md    # ✅
 ├── commands/
-│   ├── 0-new-session.md            # ❌ MANQUANT
-│   ├── 0-next.md                   # ❌ MANQUANT
-│   ├── 0-resume.md                 # ❌ MANQUANT
-│   ├── 0-ship.md                   # ❌ MANQUANT
-│   ├── 0-progress.md               # ❌ MANQUANT
-│   └── 0-dashboard.md              # ❌ MANQUANT
+│   ├── 0-new-session.md            # ✅
+│   ├── 0-next.md                   # ✅
+│   ├── 0-resume.md                 # ✅
+│   ├── 0-ship.md                   # ✅
+│   ├── 0-progress.md               # ✅
+│   └── 0-dashboard.md              # ✅
 ├── skills/
-│   ├── infra.md                    # ❌ MANQUANT
-│   └── brainstorm.md               # ❌ MANQUANT
+│   ├── infra.md                    # ✅
+│   └── brainstorm.md               # ✅
 ├── context/                        # ✅ Existe
 └── settings.local.json             # ✅ Existe
 ```

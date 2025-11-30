@@ -206,11 +206,11 @@ skill: "infra"
 - [x] Implémenter `brainstorm.md`
 - [ ] Intégrer avec agent-stats.json
 
-### Phase 3 - Skills ← PROCHAINE
-- [ ] Implémenter `infra.md`
-- [ ] Implémenter `brainstorm.md`
+### Phase 3 - Skills ✅ COMPLET
+- [x] Implémenter `infra.md`
+- [x] Implémenter `brainstorm.md`
 
-### Phase 4 - Hooks
+### Phase 4 - Hooks ← PROCHAINE
 - [ ] Configurer session start hook
 - [ ] Configurer pre-commit hook
 - [ ] Configurer context update hook
@@ -237,7 +237,12 @@ skill: "infra"
 - 3 agents créés dans `.claude/agents/`
 - atlas.md, devops-manager.md, brainstorm.md
 - Progression: 53% → 68%
-- Prochaine étape: Phase 3 (skills)
+
+### 2025-11-30 - Phase 3 Complétée
+- 2 skills créés dans `.claude/skills/`
+- infra.md, brainstorm.md
+- Progression: 68% → 83%
+- Prochaine étape: Phase 4 (hooks)
 
 ---
 
