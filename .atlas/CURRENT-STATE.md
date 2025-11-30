@@ -149,14 +149,28 @@ skill: "brainstorm"  # Active mode whiteboard
 
 ---
 
-## Dépendances à Résoudre
+## Dépendances Résolues ✅
 
-1. **CLAUDE.md référence des fichiers inexistants** - À synchroniser après création
-2. **settings.json** - À configurer pour hooks quand créés
-3. **Agent tracking** - Intégrer avec `.dev/ai/agent-stats.json`
+1. ~~**CLAUDE.md référence des fichiers inexistants**~~ - RÉSOLU (2025-11-30)
+2. **settings.json** - À configurer pour hooks quand créés (optionnel)
+3. **Agent tracking** - Intégrer avec `.dev/ai/agent-stats.json` (v2.0)
 
 ---
 
-## Prochaines Actions
+## Prochaines Évolutions (v2.0)
 
-Voir `.atlas/ROADMAP.md` pour le plan détaillé.
+- Activation des hooks shell (`.sh` scripts)
+- Agent tracking dans status line
+- Métriques performance agents
+- GENESIS meta-agent
+
+---
+
+## Notes Finalisation
+
+**Phase 1-4 complétées le 2025-11-30**
+
+Tous les composants sont implémentés et documentés:
+- CLAUDE.md synchronisé avec la réalité
+- Tous les fichiers créés et validés
+- Structure .atlas/ pour développement futur
