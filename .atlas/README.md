@@ -16,7 +16,6 @@ Ce dossier contient le **développement** du système ATLAS lui-même.
 ├── README.md                 # Ce fichier
 ├── ROADMAP.md               # Plan de développement ATLAS
 ├── CURRENT-STATE.md         # État actuel vs planifié
-├── ARCHITECTURE.md          # Architecture du système AI
 ├── sessions/                # Logs des sessions de développement
 │   └── 2025-11-30.md       # Session courante
 └── drafts/                  # Brouillons d'agents/commands en dev
