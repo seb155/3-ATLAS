@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* Tailwind v4 theme customization */
+@theme {
+  --color-echo-50: #f0f9ff;
+  --color-echo-100: #e0f2fe;
+  --color-echo-200: #bae6fd;
+  --color-echo-300: #7dd3fc;
+  --color-echo-400: #38bdf8;
+  --color-echo-500: #0ea5e9;
+  --color-echo-600: #0284c7;
+  --color-echo-700: #0369a1;
+  --color-echo-800: #075985;
+  --color-echo-900: #0c4a6e;
+}
+
 /* Custom styles for ECHO */
 :root {
   --color-bg-primary: #0f172a;

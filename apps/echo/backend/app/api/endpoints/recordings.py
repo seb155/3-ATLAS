@@ -2,7 +2,7 @@
 Recording endpoints.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -10,8 +10,9 @@ from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 import os
+import logging
 
-from ...database import get_db
+from ...database import get_db, SessionLocal
 from ...models.recording import Recording, RecordingStatus
 from ...schemas.recording import (
     RecordingCreate,
@@ -21,12 +22,85 @@ from ...schemas.recording import (
     FolderEnum,
 )
 from ...config import get_settings
+from ...services.transcription_service import TranscriptionService
 
 router = APIRouter()
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # Placeholder user_id (will be replaced with auth)
 DEMO_USER_ID = UUID("00000000-0000-0000-0000-000000000001")
+
+
+def run_transcription_task(
+    recording_id: UUID,
+    transcription_id: UUID,
+    audio_path: str,
+    language: str,
+):
+    """
+    Background task to run Whisper transcription.
+
+    Uses a new DB session since this runs in a background thread.
+    """
+    db = SessionLocal()
+    try:
+        from ...models.transcription import Transcription, TranscriptionStatus
+
+        transcription = db.query(Transcription).filter(
+            Transcription.id == transcription_id
+        ).first()
+
+        if not transcription:
+            logger.error(f"Transcription {transcription_id} not found")
+            return
+
+        recording = db.query(Recording).filter(
+            Recording.id == recording_id
+        ).first()
+
+        if not recording:
+            logger.error(f"Recording {recording_id} not found")
+            return
+
+        # Update status to processing
+        transcription.status = TranscriptionStatus.PROCESSING.value
+        transcription.started_at = datetime.utcnow()
+        db.commit()
+
+        logger.info(f"Starting transcription for {recording_id} with language={language}")
+
+        # Run Whisper transcription
+        service = TranscriptionService()
+        whisper_lang = None if language in ("auto", "bilingual") else language
+        result = service.transcribe(audio_path, language=whisper_lang)
+
+        # Update transcription with result
+        transcription.full_text = result.text
+        transcription.detected_language = result.language
+        transcription.model_used = result.model
+        transcription.processing_time_seconds = result.duration
+        transcription.word_count = len(result.text.split())
+        transcription.status = TranscriptionStatus.COMPLETED.value
+        transcription.completed_at = datetime.utcnow()
+
+        # Update recording status
+        recording.status = RecordingStatus.TRANSCRIBED.value
+
+        db.commit()
+        logger.info(f"Transcription completed for {recording_id}: {len(result.text)} chars")
+
+    except Exception as e:
+        logger.error(f"Transcription failed for {recording_id}: {e}")
+        try:
+            if transcription:
+                transcription.status = TranscriptionStatus.FAILED.value
+                transcription.error_message = str(e)
+                db.commit()
+        except Exception:
+            pass
+    finally:
+        db.close()
 
 
 # =============================================================================
@@ -248,6 +322,7 @@ async def download_recording(
 async def transcribe_recording(
     recording_id: UUID,
     language: str = "auto",
+    background_tasks: BackgroundTasks = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -304,7 +379,28 @@ async def transcribe_recording(
     db.commit()
     db.refresh(transcription)
 
-    # TODO: Trigger async transcription job
+    # Build audio file path
+    audio_path = os.path.join(settings.audio_storage_path, recording.file_path)
+
+    # Trigger async transcription job
+    if background_tasks:
+        background_tasks.add_task(
+            run_transcription_task,
+            recording_id=recording.id,
+            transcription_id=transcription.id,
+            audio_path=audio_path,
+            language=language,
+        )
+        logger.info(f"Queued transcription task for recording {recording_id}")
+    else:
+        # Fallback: run synchronously if no background_tasks
+        logger.warning(f"Running transcription synchronously for {recording_id}")
+        run_transcription_task(
+            recording_id=recording.id,
+            transcription_id=transcription.id,
+            audio_path=audio_path,
+            language=language,
+        )
 
     return {
         "message": "Transcription started",

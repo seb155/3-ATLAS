@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, Square, Pause, Play, Monitor, Volume2 } from 'lucide-react';
-import { useRecordingStore, AudioSource, Folder, Language } from '@/stores/useRecordingStore';
-import { audioApi } from '@/services/api';
+import { useState, useEffect, useCallback } from 'react';
+import { Mic, Square, Pause, Play, Monitor, Volume2, Loader2 } from 'lucide-react';
+import { useRecordingStore, Folder, Language } from '@/stores/useRecordingStore';
+import { audioApi, recordingsApi } from '@/services/api';
 import { cn, formatDuration } from '@/lib/utils';
+import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { AudioVisualizer } from '@/components/AudioVisualizer';
+
+type RecordingPhase = 'idle' | 'recording' | 'uploading' | 'transcribing' | 'done' | 'error';
 
 export function RecordPage() {
   const {
-    isRecording,
-    isPaused,
-    duration,
     source,
     folder,
     language,
@@ -18,37 +19,50 @@ export function RecordPage() {
     setFolder,
     setLanguage,
     setTitle,
-    startRecording,
-    stopRecording,
-    pauseRecording,
-    resumeRecording,
-    updateDuration,
+    startRecording: storeStartRecording,
+    stopRecording: storeStopRecording,
   } = useRecordingStore();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [phase, setPhase] = useState<RecordingPhase>('idle');
   const [error, setError] = useState<string | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>('');
 
-  // Duration timer
+  // Use the audio recorder hook
+  const {
+    isRecording,
+    isPaused,
+    audioBlob,
+    error: recorderError,
+    duration,
+    startRecording: recorderStart,
+    stopRecording: recorderStop,
+    pauseRecording: recorderPause,
+    resumeRecording: recorderResume,
+    getWaveformData,
+    clearRecording,
+  } = useAudioRecorder();
+
+  // Handle recorder errors
   useEffect(() => {
-    if (isRecording && !isPaused) {
-      timerRef.current = window.setInterval(() => {
-        updateDuration(duration + 1);
-      }, 1000);
+    if (recorderError) {
+      setError(recorderError);
+      setPhase('error');
     }
+  }, [recorderError]);
 
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [isRecording, isPaused, duration, updateDuration]);
+  // Handle audio blob ready (after recording stops)
+  useEffect(() => {
+    if (audioBlob && currentRecordingId && phase === 'recording') {
+      handleUploadAndTranscribe();
+    }
+  }, [audioBlob, currentRecordingId, phase]);
 
   const handleStartRecording = useCallback(async () => {
-    setIsLoading(true);
     setError(null);
+    setPhase('idle');
 
     try {
+      // Create recording entry in backend
       const response = await audioApi.start({
         title: title || undefined,
         folder,
@@ -56,37 +70,73 @@ export function RecordPage() {
         language,
       });
 
-      startRecording(response.recording_id);
+      storeStartRecording(response.recording_id);
+      setPhase('recording');
 
-      // TODO: Trigger Tauri audio capture
-      console.log('Started recording:', response);
+      // Start actual audio recording
+      await recorderStart();
     } catch (err) {
       setError('Failed to start recording');
+      setPhase('error');
       console.error(err);
-    } finally {
-      setIsLoading(false);
     }
-  }, [title, folder, source, language, startRecording]);
+  }, [title, folder, source, language, storeStartRecording, recorderStart]);
 
-  const handleStopRecording = useCallback(async () => {
-    if (!currentRecordingId) return;
+  const handleStopRecording = useCallback(() => {
+    // Stop the audio recorder (this will trigger audioBlob to be set)
+    recorderStop();
+  }, [recorderStop]);
 
-    setIsLoading(true);
+  const handleUploadAndTranscribe = useCallback(async () => {
+    if (!audioBlob || !currentRecordingId) return;
+
     try {
-      await audioApi.stop(currentRecordingId, duration, 0);
+      // Phase 1: Upload audio
+      setPhase('uploading');
+      setStatusMessage('Uploading audio...');
 
-      // TODO: Stop Tauri audio capture
-      stopRecording();
+      await audioApi.upload(currentRecordingId, audioBlob);
+
+      // Note: audioApi.stop() removed - upload() already sets status to COMPLETED
+      // and reads WAV metadata (duration, sample_rate, channels)
+
+      // Phase 2: Start transcription
+      setPhase('transcribing');
+      setStatusMessage('Transcribing audio...');
+
+      await recordingsApi.transcribe(currentRecordingId, language);
+
+      // Done!
+      setPhase('done');
+      setStatusMessage('Transcription complete!');
+
+      // Reset after 3 seconds
+      setTimeout(() => {
+        storeStopRecording();
+        clearRecording();
+        setPhase('idle');
+        setStatusMessage('');
+      }, 3000);
+
     } catch (err) {
-      setError('Failed to stop recording');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      console.error('Upload/transcription failed:', err);
+      setError('Failed to process recording');
+      setPhase('error');
     }
-  }, [currentRecordingId, duration, stopRecording]);
+  }, [audioBlob, currentRecordingId, duration, language, storeStopRecording, clearRecording]);
+
+  const handleReset = useCallback(() => {
+    storeStopRecording();
+    clearRecording();
+    setPhase('idle');
+    setError(null);
+    setStatusMessage('');
+  }, [storeStopRecording, clearRecording]);
+
+  const isDisabled = phase !== 'idle' && phase !== 'recording';
 
   return (
-    <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto">
+    <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto p-6">
       {/* Title Input */}
       <div className="w-full mb-8">
         <input
@@ -94,7 +144,7 @@ export function RecordPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Recording title (optional)"
-          disabled={isRecording}
+          disabled={isRecording || isDisabled}
           className={cn(
             'w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg',
             'text-white placeholder-slate-500',
@@ -104,23 +154,27 @@ export function RecordPage() {
         />
       </div>
 
-      {/* Waveform Placeholder */}
-      <div className="w-full h-32 bg-slate-800 rounded-lg mb-8 flex items-center justify-center">
-        {isRecording ? (
-          <div className="flex items-center gap-1">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="w-1 bg-echo-500 rounded-full animate-pulse"
-                style={{
-                  height: `${Math.random() * 60 + 20}%`,
-                  animationDelay: `${i * 0.1}s`,
-                }}
-              />
-            ))}
+      {/* Waveform Visualizer */}
+      <div className="w-full h-48 bg-slate-800 rounded-lg mb-8 flex items-center justify-center overflow-hidden">
+        {phase === 'idle' && !isRecording ? (
+          <span className="text-slate-500">Click record to start</span>
+        ) : phase === 'uploading' || phase === 'transcribing' ? (
+          <div className="flex items-center gap-3 text-echo-400">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>{statusMessage}</span>
+          </div>
+        ) : phase === 'done' ? (
+          <div className="flex items-center gap-3 text-green-400">
+            <span>{statusMessage}</span>
           </div>
         ) : (
-          <span className="text-slate-500">Waveform will appear here</span>
+          <AudioVisualizer
+            getWaveformData={getWaveformData}
+            isActive={isRecording}
+            isPaused={isPaused}
+            sensitivity={7}
+            className="w-full h-full"
+          />
         )}
       </div>
 
@@ -131,23 +185,21 @@ export function RecordPage() {
 
       {/* Main Controls */}
       <div className="flex items-center gap-6 mb-8">
-        {!isRecording ? (
+        {phase === 'idle' ? (
           <button
             onClick={handleStartRecording}
-            disabled={isLoading}
             className={cn(
               'w-20 h-20 rounded-full flex items-center justify-center',
-              'bg-red-500 hover:bg-red-600 transition-smooth',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+              'bg-red-500 hover:bg-red-600 transition-smooth'
             )}
           >
             <Mic className="w-8 h-8 text-white" />
           </button>
-        ) : (
+        ) : phase === 'recording' ? (
           <>
             {/* Pause/Resume */}
             <button
-              onClick={isPaused ? resumeRecording : pauseRecording}
+              onClick={isPaused ? recorderResume : recorderPause}
               className={cn(
                 'w-14 h-14 rounded-full flex items-center justify-center',
                 'bg-slate-700 hover:bg-slate-600 transition-smooth'
@@ -163,17 +215,15 @@ export function RecordPage() {
             {/* Stop */}
             <button
               onClick={handleStopRecording}
-              disabled={isLoading}
               className={cn(
                 'w-20 h-20 rounded-full flex items-center justify-center',
-                'bg-red-500 hover:bg-red-600 transition-smooth recording-indicator',
-                'disabled:opacity-50 disabled:cursor-not-allowed'
+                'bg-red-500 hover:bg-red-600 transition-smooth recording-indicator'
               )}
             >
               <Square className="w-8 h-8 text-white" />
             </button>
 
-            {/* Mute placeholder */}
+            {/* Volume indicator placeholder */}
             <button
               className={cn(
                 'w-14 h-14 rounded-full flex items-center justify-center',
@@ -183,7 +233,31 @@ export function RecordPage() {
               <Volume2 className="w-6 h-6 text-white" />
             </button>
           </>
-        )}
+        ) : phase === 'uploading' || phase === 'transcribing' ? (
+          <div className="w-20 h-20 rounded-full flex items-center justify-center bg-slate-700">
+            <Loader2 className="w-8 h-8 text-echo-400 animate-spin" />
+          </div>
+        ) : phase === 'done' ? (
+          <button
+            onClick={handleReset}
+            className={cn(
+              'w-20 h-20 rounded-full flex items-center justify-center',
+              'bg-green-500 hover:bg-green-600 transition-smooth'
+            )}
+          >
+            <Mic className="w-8 h-8 text-white" />
+          </button>
+        ) : phase === 'error' ? (
+          <button
+            onClick={handleReset}
+            className={cn(
+              'w-20 h-20 rounded-full flex items-center justify-center',
+              'bg-red-500 hover:bg-red-600 transition-smooth'
+            )}
+          >
+            <Mic className="w-8 h-8 text-white" />
+          </button>
+        ) : null}
       </div>
 
       {/* Source Selection */}
@@ -193,14 +267,15 @@ export function RecordPage() {
           label="Microphone"
           active={source === 'microphone'}
           onClick={() => setSource('microphone')}
-          disabled={isRecording}
+          disabled={isRecording || isDisabled}
         />
         <SourceButton
           icon={<Monitor className="w-5 h-5" />}
           label="System Audio"
           active={source === 'system'}
           onClick={() => setSource('system')}
-          disabled={isRecording}
+          disabled={true}
+          tooltip="Requires desktop app"
         />
         <SourceButton
           icon={
@@ -212,7 +287,8 @@ export function RecordPage() {
           label="Both"
           active={source === 'both'}
           onClick={() => setSource('both')}
-          disabled={isRecording}
+          disabled={true}
+          tooltip="Requires desktop app"
         />
       </div>
 
@@ -222,7 +298,7 @@ export function RecordPage() {
         <select
           value={folder}
           onChange={(e) => setFolder(e.target.value as Folder)}
-          disabled={isRecording}
+          disabled={isRecording || isDisabled}
           className={cn(
             'px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg',
             'text-white focus:outline-none focus:border-echo-500',
@@ -237,7 +313,7 @@ export function RecordPage() {
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value as Language)}
-          disabled={isRecording}
+          disabled={isRecording || isDisabled}
           className={cn(
             'px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg',
             'text-white focus:outline-none focus:border-echo-500',
@@ -247,6 +323,7 @@ export function RecordPage() {
           <option value="auto">Auto-detect</option>
           <option value="fr">Francais</option>
           <option value="en">English</option>
+          <option value="bilingual">Bilingue (FR + EN)</option>
         </select>
       </div>
 
@@ -254,6 +331,13 @@ export function RecordPage() {
       {error && (
         <div className="mt-4 px-4 py-2 bg-red-500/20 border border-red-500 rounded-lg text-red-400">
           {error}
+        </div>
+      )}
+
+      {/* Status Message */}
+      {statusMessage && phase !== 'done' && !error && (
+        <div className="mt-4 px-4 py-2 bg-echo-500/20 border border-echo-500 rounded-lg text-echo-400">
+          {statusMessage}
         </div>
       )}
     </div>
@@ -266,13 +350,15 @@ interface SourceButtonProps {
   active: boolean;
   onClick: () => void;
   disabled?: boolean;
+  tooltip?: string;
 }
 
-function SourceButton({ icon, label, active, onClick, disabled }: SourceButtonProps) {
+function SourceButton({ icon, label, active, onClick, disabled, tooltip }: SourceButtonProps) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      title={tooltip}
       className={cn(
         'flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth',
         active
