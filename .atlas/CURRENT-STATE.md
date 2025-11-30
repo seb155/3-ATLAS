@@ -1,7 +1,7 @@
 # ATLAS - État Actuel
 
 **Dernière mise à jour:** 2025-11-30
-**Session:** Migration structure AI-first
+**Session:** Phase 1 - Slash Commands
 
 ---
 
@@ -11,10 +11,10 @@
 |-----------|------------|----------|-------------|
 | Règles agents | 4 | 4 | 100% |
 | Agents | 0 | 3 | 0% |
-| Slash commands | 0 | 6 | 0% |
+| Slash commands | 6 | 6 | 100% |
 | Skills | 0 | 3 | 0% |
 | Hooks | 0 | 3 | 0% |
-| **TOTAL** | **4** | **19** | **21%** |
+| **TOTAL** | **10** | **19** | **53%** |
 
 ---
 
@@ -51,26 +51,27 @@
 
 ---
 
-### 3. Slash Commands ❌ À CRÉER
+### 3. Slash Commands ✅ COMPLET
 
-| Commande | Fichier | Status | Priorité | Description |
-|----------|---------|--------|----------|-------------|
-| `/0-new-session` | `0-new-session.md` | ❌ | HAUTE | Première session du jour |
-| `/0-next` | `0-next.md` | ❌ | HAUTE | Continuer tâche suivante |
-| `/0-resume` | `0-resume.md` | ❌ | HAUTE | Reprendre après /compact |
-| `/0-ship` | `0-ship.md` | ❌ | HAUTE | Git workflow |
-| `/0-progress` | `0-progress.md` | ❌ | MOYENNE | Vue roadmap |
-| `/0-dashboard` | `0-dashboard.md` | ❌ | MOYENNE | Status session |
+| Commande | Fichier | Status | Description |
+|----------|---------|--------|-------------|
+| `/0-new-session` | `0-new-session.md` | ✅ | Mode FULL - Première session du jour |
+| `/0-next` | `0-next.md` | ✅ | Mode QUICK - Continuer tâche suivante |
+| `/0-resume` | `0-resume.md` | ✅ | Mode RECOVERY - Reprendre après /compact |
+| `/0-ship` | `0-ship.md` | ✅ | Git workflow (test → commit → push) |
+| `/0-progress` | `0-progress.md` | ✅ | Vue roadmap de toutes les apps |
+| `/0-dashboard` | `0-dashboard.md` | ✅ | Status session courante |
 
-**Localisation prévue:** `.claude/commands/`
+**Localisation:** `.claude/commands/`
 
-**Specs /0-new-session:**
-```
-1. Charger contexte global (.dev/ai/)
-2. Afficher revue progression de chaque app
-3. Demander sur quelle(s) app(s) travailler
-4. Charger contexte app sélectionnée
-5. Proposer prochaines tâches
+**Usage:**
+```bash
+/0-new-session   # Nouvelle journée de travail
+/0-next          # Continuer rapidement
+/0-resume        # Après interruption
+/0-ship          # Commiter et pusher
+/0-progress      # Vue d'ensemble
+/0-dashboard     # Status actuel
 ```
 
 ---

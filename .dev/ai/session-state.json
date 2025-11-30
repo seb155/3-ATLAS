@@ -4,13 +4,13 @@
   "last_updated": "2025-11-30T14:30:00Z",
 
   "current_session": {
-    "id": null,
-    "started_at": null,
-    "mode": null,
-    "focus": null
+    "id": "2025-11-30-phase1",
+    "started_at": "2025-11-30T15:00:00Z",
+    "mode": "DEVELOPMENT",
+    "focus": "Phase 1 - Creating slash commands"
   },
 
-  "active_apps": [],
+  "active_apps": ["atlas"],
 
   "last_session": {
     "id": "2025-11-30-atlas-dev",
