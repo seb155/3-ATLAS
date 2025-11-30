@@ -1,12 +1,18 @@
-# CORTEX - The Contextual Intelligence Engine
+# CORTEX - The Memory Engine
 
-> **Version**: 0.5.0 (Planning)
-> **Status**: Architecture Phase
+> **Version**: 0.5.0-dev
+> **Status**: Development
 > **Company**: Axoiq
+> **Part of**: ATLAS (AI OS)
 
 ## Overview
 
-**CORTEX** is an autonomous AI agent inspired by Factory.ai, designed to navigate codebases, plan and execute tasks, and modify files with an "elephant memory" for context tracking.
+**CORTEX** is the unified memory engine within ATLAS. It provides a CAG/RAG hybrid system for contextual intelligence across all AXIOM applications.
+
+**CORTEX is a component of ATLAS**, not a standalone application. It serves as the "brain's memory" that connects:
+- **NEXUS** (Knowledge Portal) - displays CORTEX data as 3D graph
+- **SYNAPSE** (Engineering App) - sends events to CORTEX
+- **APEX** (Enterprise Portal) - queries CORTEX for insights
 
 ### What CORTEX Is
 
@@ -109,7 +115,7 @@ type: PROJECT
 name: "AXIOM Platform"
 sensitivity: INTERNAL
 content:
-  apps: ["SYNAPSE", "NEXUS", "PRISM", "ATLAS", "CORTEX"]
+  apps: ["SYNAPSE", "NEXUS", "APEX", "ATLAS", "CORTEX"]
   conventions:
     commit_style: "conventional"
 ```
@@ -395,6 +401,7 @@ networks:
 
 ## Related
 
-- [NEXUS](./nexus.md) - UI and Knowledge Graph
-- [ATLAS](./atlas.md) - Session orchestration
+- [ATLAS](./atlas.md) - Parent AI OS (CORTEX lives here)
+- [NEXUS](./nexus.md) - UI and Knowledge Graph visualization
+- [APEX](./apex.md) - Enterprise portal (uses CORTEX insights)
 - [ai-sandbox](https://github.com/seb155/ai-sandbox) - LLM infrastructure

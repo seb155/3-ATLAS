@@ -29,8 +29,8 @@ Consultez toujours le registre central pour les URLs à jour. Cette section est 
 | **SYNAPSE** | `https://synapse.axoiq.com` | `https://api.axoiq.com` | ✅ Active |
 | **NEXUS** | `https://nexus.axoiq.com` | `https://api-nexus.axoiq.com` | ✅ Active |
 | **CORTEX** | - | `https://cortex.axoiq.com` | 🚧 Dev |
-| **PRISM** | `https://prism.axoiq.com` | - | 📋 Planned |
-| **ATLAS** | `https://atlas.axoiq.com` | - | 📋 Planned |
+| **APEX** | `https://apex.axoiq.com` | - | 📋 Planned |
+| **ATLAS** | - | - | ✅ Active (AI OS) |
 
 ### Infrastructure FORGE
 
@@ -214,14 +214,14 @@ curl -k https://api-nexus.axoiq.com/api/v1/health
    - FORGE: 3000-3999
    - SYNAPSE: 4000-4999
    - NEXUS: 5000-5999
-   - PRISM: 6000-6999
-   - ATLAS: 7000-7999
+   - APEX: 6000-6999
+   - CORTEX: 7000-7999
 
 3. **Choisir un port libre** dans le range approprié
 
 4. **Proposer un nom de domaine** suivant la convention:
    - Format: `{app-name}.axoiq.com`
-   - ✅ Exemples valides: `prism.axoiq.com`, `atlas.axoiq.com`, `findash.axoiq.com`
+   - ✅ Exemples valides: `apex.axoiq.com`, `cortex.axoiq.com`, `findash.axoiq.com`
    - ❌ Exemples invalides: `my-app.local`, `test.localhost`, `app.example.com`
 
 5. **Créer un plan** incluant:

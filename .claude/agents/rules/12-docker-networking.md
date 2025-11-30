@@ -120,8 +120,8 @@ Avant de créer un nouveau service/application, l'agent DOIT:
   - FORGE: 3000-3999
   - SYNAPSE: 4000-4999
   - NEXUS: 5000-5999
-  - PRISM: 6000-6999
-  - ATLAS: 7000-7999
+  - APEX: 6000-6999
+  - CORTEX: 7000-7999
 
 - [ ] **3. Créer .env.template** avec placeholders `{{VAR}}`
 
@@ -353,7 +353,7 @@ services:
     image: postgres:15
     container_name: newapp-postgres-standalone
     ports:
-      - "6500:5432"  # Port dans range PRISM (6000-6999)
+      - "6500:5432"  # Port dans range APEX (6000-6999)
 
   backend-standalone:
     environment:

@@ -88,7 +88,7 @@ axiom_applications:
 - `synapse.axoiq.com`
 - `nexus.axoiq.com`
 - `findash.axoiq.com`
-- `prism.axoiq.com`
+- `apex.axoiq.com`
 
 **Exemples INVALIDES:**
 - ❌ `my-app.local`
@@ -118,8 +118,8 @@ Pour les applications avec frontend + backend séparés:
 | **FORGE** | 3000-3999 | ~10 | ~990 |
 | **SYNAPSE** | 4000-4999 | 2 | 998 |
 | **NEXUS** | 5000-5999 | 2 | 998 |
-| **PRISM** | 6000-6999 | 0 | 1000 |
-| **ATLAS** | 7000-7999 | 0 | 1000 |
+| **APEX** | 6000-6999 | 0 | 1000 |
+| **CORTEX** | 7000-7999 | 2 | 998 |
 
 **Règle:** Chaque application a un range dédié de 1000 ports. Pas de chevauchement autorisé.
 
@@ -288,13 +288,13 @@ skill: "zz-url-check"
 
 ### Cas 1: Nouvelle Application AXIOM
 
-**Scénario:** Créer PRISM (Enterprise Dashboard)
+**Scénario:** Créer APEX (Enterprise Portal)
 
 ```markdown
 1. Read: url-registry.yml
-2. Identifier range: PRISM = 6000-6999
+2. Identifier range: APEX = 6000-6999
 3. Choisir port: 6000 (premier port du range)
-4. Domaine: prism.axoiq.com
+4. Domaine: apex.axoiq.com
 5. Valider avec utilisateur
 6. Mettre à jour registre
 7. Configurer Traefik labels

@@ -22,15 +22,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Platform Overview
 
-**AXIOM** is the unified AXoiq development platform - a monorepo containing:
+**AXIOM** is the unified AXoiq development platform with an AI OS at its core:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                        ATLAS (AI OS)                           │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │  CORTEX (Memory)  │  Agents  │  ECHO  │  Note_synch      │ │
+│  └──────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────┘
+         │                    │                    │
+         ▼                    ▼                    ▼
+   ┌──────────┐         ┌──────────┐         ┌──────────┐
+   │   APEX   │         │  NEXUS   │         │ SYNAPSE  │
+   └──────────┘         └──────────┘         └──────────┘
+```
 
 | App | Purpose | URL | Status |
 |-----|---------|-----|--------|
-| **SYNAPSE** | MBSE Platform (FastAPI + React 19) | `https://synapse.axoiq.com` | MVP Dec 2025 |
-| **NEXUS** | Knowledge Graph + Notes/Wiki | `https://nexus.axoiq.com` | Phase 2.0 |
-| **CORTEX** | AI Engine | `https://cortex.axoiq.com` | Development |
-| **PRISM** | Enterprise Dashboard | `https://prism.axoiq.com` | Planning |
-| **ATLAS** | AI Collaboration Environment | `https://atlas.axoiq.com` | Planning |
+| **ATLAS** | AI OS (contient CORTEX, Agents, ECHO) | - | ✅ Active |
+| **CORTEX** | Memory Engine (CAG/RAG) - dans ATLAS | `https://cortex.axoiq.com` | 🚧 Dev |
+| **APEX** | Enterprise Portal / Dashboard | `https://apex.axoiq.com` | 📋 Planning |
+| **NEXUS** | Knowledge Portal + UI pour CORTEX | `https://nexus.axoiq.com` | 🏗️ Phase 2.0 |
+| **SYNAPSE** | MBSE Platform (FastAPI + React 19) | `https://synapse.axoiq.com` | ✅ MVP Dec 2025 |
 
 **FORGE** = Shared infrastructure via Traefik reverse proxy
 
@@ -305,8 +319,8 @@ Invokes intelligent Opus-powered DevOps Manager agent.
 | **FORGE** | 3000-3999 | 9 ports | 991 ports |
 | **SYNAPSE** | 4000-4999 | 2 ports | 998 ports |
 | **NEXUS** | 5000-5999 | 2 ports | 998 ports |
-| **PRISM** | 6000-6999 | 0 ports | 1000 ports |
-| **ATLAS** | 7000-7999 | 0 ports | 1000 ports |
+| **APEX** | 6000-6999 | 0 ports | 1000 ports |
+| **CORTEX** | 7000-7999 | 2 ports | 998 ports |
 
 **Rule**: Each application has a dedicated 1000-port range. No conflicts allowed.
 

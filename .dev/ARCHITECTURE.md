@@ -30,14 +30,22 @@
 │                           AXIOM PLATFORM (Monorepo)                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   SYNAPSE   │ │    NEXUS    │ │    PRISM    │ │    ATLAS    │           │
-│  │  Port 4000  │ │  Port 5173  │ │  Port 6000  │ │  Port 7000  │           │
-│  │ MBSE Engine │ │Knowledge Mgmt│ │  Dashboard  │ │AI Collab Env│           │
-│  │  ✅ MVP     │ │  🔄 Dev     │ │  📋 Plan    │ │  📋 Plan    │           │
-│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └──────┬──────┘           │
-│         │               │               │               │                   │
-│         └───────────────┴───────────────┴───────────────┘                   │
+│  ┌───────────────────────────────────────────────────────────────────────┐ │
+│  │                          ATLAS (AI OS)                                 │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐     │ │
+│  │  │   CORTEX    │ │   Agents    │ │    ECHO     │ │ Note_synch  │     │ │
+│  │  │  (Memory)   │ │(Claude Code)│ │  (Voice)    │ │  (Trilium)  │     │ │
+│  │  │  CAG/RAG    │ │  ✅ Active  │ │  🚧 Dev     │ │  🏗️ Started │     │ │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘     │ │
+│  └───────────────────────────────────────────────────────────────────────┘ │
+│         │                       │                       │                   │
+│         ▼                       ▼                       ▼                   │
+│  ┌─────────────┐         ┌─────────────┐         ┌─────────────┐           │
+│  │    APEX     │         │    NEXUS    │         │   SYNAPSE   │           │
+│  │  Port 6000  │         │  Port 5173  │         │  Port 4000  │           │
+│  │   Portal    │         │  Knowledge  │         │  MBSE App   │           │
+│  │  📋 Plan    │         │  🏗️ Dev     │         │  ✅ MVP     │           │
+│  └─────────────┘         └─────────────┘         └─────────────┘           │
 │                                   │                                         │
 │                          ┌────────▼────────┐                                │
 │                          │  forge-network  │                                │
@@ -59,26 +67,40 @@
 
 ### Concept Cle
 
-**AXIOM** = Monorepo unifie avec 4 applications partageant l'infrastructure **FORGE**
+**AXIOM** = Ecosysteme avec un **AI OS (ATLAS)** au centre, connectant les applications via **FORGE**
 
 | Composant | Role |
 |:---|:---|
-| **Apps** | Applications metier independantes |
+| **ATLAS** | AI OS central - contient CORTEX, Agents, ECHO, Note_synch |
+| **Apps** | Applications metier (SYNAPSE, NEXUS, APEX) |
 | **FORGE** | Infrastructure partagee (DB, cache, logs, search) |
 | **forge-network** | Reseau Docker reliant toutes les apps |
-| **.claude/** | Systeme d'agents AI pour le developpement |
+| **.claude/** | Systeme d'agents AI (partie d'ATLAS) |
 | **.dev/** | Tracking developpement, contexte, roadmap |
 
 ---
 
 ## 2. Applications Portfolio
 
+### ATLAS - AI OS (Systeme Central)
+
+ATLAS est le systeme d'exploitation intelligent qui orchestre tout AXIOM.
+
+| Composant | Status | Description |
+|:---|:---:|:---|
+| **CORTEX** | 🚧 Dev | Memory Engine - CAG/RAG hybride (HOT/WARM/COLD) |
+| **Agents** | ✅ Active | Framework Claude Code (18+ agents specialises) |
+| **ECHO** | 🚧 Dev | Voice → Transcription → Memory |
+| **Note_synch** | 🏗️ Started | TriliumNext → Memory |
+
+### Applications
+
 | App | Port | Description | Stack | Status |
 |:---|:---:|:---|:---|:---:|
-| **SYNAPSE** | 4000 | Plateforme MBSE - Automatisation EPCM | FastAPI + React 19 | MVP v0.2.5 |
-| **NEXUS** | 5173 | Graphe de connaissances, notes, wiki | FastAPI + React | Phase 1.5 |
-| **PRISM** | 6000 | Dashboard entreprise, metriques | TBD | Planning |
-| **ATLAS** | 7000 | Environnement collaboration AI | TBD | Planning |
+| **SYNAPSE** | 4000 | Plateforme MBSE - Automatisation EPCM | FastAPI + React 19 | ✅ MVP v0.2.5 |
+| **NEXUS** | 5173 | Knowledge Portal - Notes, wiki, graph 3D | FastAPI + React | 🏗️ Phase 2.0 |
+| **APEX** | 6000 | Enterprise Portal - Dashboard, launcher | TBD | 📋 Planning |
+| **CORTEX** | 7100 | Memory Engine API (dans ATLAS) | FastAPI | 🚧 Dev |
 
 ### SYNAPSE - Fonctionnalites MVP
 
@@ -253,7 +275,7 @@ Tier 6 (Frontend):  SYNAPSE frontend, NEXUS frontend
 │                        forge-network                             │
 │                                                                 │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
-│  │   SYNAPSE   │ │    NEXUS    │ │   PRISM     │               │
+│  │   SYNAPSE   │ │    NEXUS    │ │   APEX      │               │
 │  │   backend   │ │   backend   │ │  (future)   │               │
 │  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘               │
 │         │               │               │                       │
@@ -350,8 +372,8 @@ Port Range Allocation
 │ 3000-3999 │ FORGE        │ ████████░░ │ 9 alloues    │
 │ 4000-4999 │ SYNAPSE      │ ██░░░░░░░░ │ 2 alloues    │
 │ 5000-5999 │ NEXUS        │ ██░░░░░░░░ │ 2 alloues    │
-│ 6000-6999 │ PRISM        │ ░░░░░░░░░░ │ 0 alloues    │
-│ 7000-7999 │ ATLAS        │ ░░░░░░░░░░ │ 0 alloues    │
+│ 6000-6999 │ APEX         │ ░░░░░░░░░░ │ 0 alloues    │
+│ 7000-7999 │ CORTEX       │ ██░░░░░░░░ │ 2 alloues    │
 ─────────────────────────────────────────────────────────────
 ```
 
@@ -404,9 +426,10 @@ AXIOM/
 │   │   │   ├── public/
 │   │   │   └── package.json
 │   │   └── docker-compose.dev.yml
-│   ├── nexus/                   # Knowledge Graph
-│   ├── prism/                   # Dashboard
-│   └── atlas/                   # AI Collab
+│   ├── nexus/                   # Knowledge Portal
+│   ├── apex/                    # Enterprise Portal
+│   ├── atlas/                   # AI OS
+│   └── cortex/                  # Memory Engine (dans ATLAS)
 │
 ├── forge/
 │   ├── docker-compose.yml       # Infrastructure partagee
@@ -538,7 +561,7 @@ AXIOM/
 ### Next (Q1 2026)
 
 - [ ] NEXUS Phase 2 - Backend integration
-- [ ] PRISM initial release
+- [ ] APEX initial release
 - [ ] Multi-tenant improvements
 - [ ] CI/CD pipeline complete
 

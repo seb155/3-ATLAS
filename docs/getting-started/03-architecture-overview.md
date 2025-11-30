@@ -14,9 +14,9 @@
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   SYNAPSE   │ │    NEXUS    │ │    PRISM    │ │    ATLAS    │           │
-│  │  Port 4000  │ │  Port 5173  │ │  Port 6000  │ │  Port 7000  │           │
-│  │ MBSE Engine │ │Knowledge Mgmt│ │  Dashboard  │ │AI Collab Env│           │
+│  │   SYNAPSE   │ │    NEXUS    │ │    APEX     │ │    ATLAS    │           │
+│  │  Port 4000  │ │  Port 5173  │ │  Port 6000  │ │   (AI OS)   │           │
+│  │ MBSE Engine │ │Knowledge Mgmt│ │  Dashboard  │ │Contains CORTEX│         │
 │  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └──────┬──────┘           │
 │         │               │               │               │                   │
 │         └───────────────┴───────────────┴───────────────┘                   │
@@ -40,8 +40,8 @@
 |:---|:---:|:---|:---:|
 | **SYNAPSE** | 4000 | MBSE Platform - Engineering automation | MVP v0.2.5 |
 | **NEXUS** | 5173 | Knowledge Graph - Notes, Wiki, Tasks | Phase 1.5 |
-| **PRISM** | 6000 | Enterprise Dashboard | Planning |
-| **ATLAS** | 7000 | AI Collaboration Environment | Planning |
+| **APEX** | 6000 | Enterprise Portal - Dashboard & App Launcher | Planning |
+| **ATLAS** | - | AI OS (contains CORTEX, Agents, ECHO) | Active |
 
 ---
 
@@ -54,8 +54,9 @@ AXIOM/
 │   │   ├── backend/app/         #   FastAPI backend
 │   │   └── frontend/src/        #   React 19 frontend
 │   ├── nexus/                   # Knowledge Graph
-│   ├── prism/                   # Dashboard (planning)
-│   └── atlas/                   # AI Collab (planning)
+│   ├── apex/                    # Enterprise Portal (planning)
+│   ├── atlas/                   # AI OS
+│   └── cortex/                  # Memory Engine (in ATLAS)
 │
 ├── forge/                       # Shared Infrastructure
 │   └── docker-compose.yml       #   All shared services
@@ -150,8 +151,8 @@ Each application has a dedicated 1000-port range:
 | 3000-3999 | FORGE infrastructure |
 | 4000-4999 | SYNAPSE |
 | 5000-5999 | NEXUS |
-| 6000-6999 | PRISM |
-| 7000-7999 | ATLAS |
+| 6000-6999 | APEX |
+| 7000-7999 | CORTEX |
 
 **Source of truth:** `.dev/infra/registry.yml`
 

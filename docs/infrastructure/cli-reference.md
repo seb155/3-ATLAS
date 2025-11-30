@@ -69,7 +69,7 @@ Allocated Ports:
 Available Ports by Application:
   SYNAPSE    (4000-4999): 2 allocated, 998 available
   NEXUS      (5000-5999): 2 allocated, 998 available
-  PRISM      (6000-6999): 0 allocated, 1000 available
+  APEX       (6000-6999): 0 allocated, 1000 available
   ...
 ```
 

@@ -166,8 +166,8 @@ services:
 **Your Application's Range**:
 - SYNAPSE: 4000-4999
 - NEXUS: 5000-5999
-- PRISM: 6000-6999
-- ATLAS: 7000-7999
+- APEX: 6000-6999
+- CORTEX: 7000-7999
 
 **Check Available Ports**:
 ```powershell

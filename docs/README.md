@@ -28,8 +28,8 @@ Welcome to AXIOM! This documentation covers all applications and infrastructure.
 |:---|:---:|:---|:---:|
 | **SYNAPSE** | 4000 | MBSE Platform - Engineering automation | MVP v0.2.5 |
 | **NEXUS** | 5173 | Knowledge Graph - Notes, Wiki, Tasks | Phase 1.5 |
-| **PRISM** | 6000 | Enterprise Dashboard | Planning |
-| **ATLAS** | 7000 | AI Collaboration Environment | Planning |
+| **APEX** | 6000 | Enterprise Portal - Dashboard & App Launcher | Planning |
+| **ATLAS** | - | AI OS (contains CORTEX, Agents, ECHO) | Active |
 
 All applications share the **FORGE** infrastructure (PostgreSQL, Redis, Grafana, etc.)
 
@@ -84,8 +84,8 @@ Engineering data management with rule engines, impact analysis, and package gene
 | Application | Documentation |
 |:---|:---|
 | [NEXUS](./apps/nexus.md) | Knowledge Graph - Notes, Wiki |
-| [PRISM](./apps/prism.md) | Enterprise Dashboard |
-| [ATLAS](./apps/atlas.md) | AI Collaboration |
+| [APEX](./apps/apex.md) | Enterprise Portal |
+| [ATLAS](./apps/atlas.md) | AI OS |
 
 ### Infrastructure
 

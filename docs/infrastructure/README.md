@@ -24,8 +24,8 @@ AXIOM uses a **centralized Infrastructure as Code** system to manage all Docker 
 - **FORGE**: Shared infrastructure (PostgreSQL, Redis, Grafana, Loki, etc.)
 - **SYNAPSE**: MBSE Platform (MVP Dec 2025)
 - **NEXUS**: Knowledge Graph + Notes/Wiki
-- **PRISM**: Enterprise Dashboard (planned)
-- **ATLAS**: AI Collaboration Environment (planned)
+- **APEX**: Enterprise Portal - Dashboard & App Launcher (planned)
+- **ATLAS**: AI OS (contains CORTEX, Agents, ECHO)
 
 ---
 
@@ -71,8 +71,8 @@ Each application has a **dedicated 1000-port range**:
 | **FORGE** | 3000-3999 | 9 ports | 991 ports |
 | **SYNAPSE** | 4000-4999 | 2 ports | 998 ports |
 | **NEXUS** | 5000-5999 | 2 ports | 998 ports |
-| **PRISM** | 6000-6999 | 0 ports | 1000 ports |
-| **ATLAS** | 7000-7999 | 0 ports | 1000 ports |
+| **APEX** | 6000-6999 | 0 ports | 1000 ports |
+| **CORTEX** | 7000-7999 | 2 ports | 998 ports |
 
 **Rule**: No port can be allocated to multiple services. All allocations are tracked in the central registry.
 
@@ -85,7 +85,7 @@ All AXIOM applications and FORGE infrastructure services communicate via a share
 - Shared infrastructure access (database, cache, logs)
 - Network isolation from external traffic
 
-**Requirement**: All SYNAPSE, NEXUS, PRISM, and ATLAS services **MUST** be on `forge-network` to access shared infrastructure.
+**Requirement**: All SYNAPSE, NEXUS, APEX, and CORTEX services **MUST** be on `forge-network` to access shared infrastructure.
 
 ### 3. Central Registry
 

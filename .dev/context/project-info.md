@@ -19,8 +19,9 @@
 |-----|---------|------|--------|
 | **SYNAPSE** | MBSE Platform (FastAPI + React 19) | 4000 | MVP Dec 2025 |
 | **NEXUS** | Knowledge Graph + Notes/Wiki | 5173 | Phase 1.5 |
-| **PRISM** | Enterprise Dashboard | 5174 | Development |
-| **ATLAS** | AI Collaboration Environment | 5175 | Planning |
+| **APEX** | Enterprise Portal - Dashboard & App Launcher | 6000 | Planning |
+| **ATLAS** | AI OS (CORTEX, Agents, ECHO) | - | Active |
+| **CORTEX** | Memory Engine (CAG/RAG) | 7100 | Development |
 
 **FORGE** = Shared infrastructure (PostgreSQL 5433, Redis 6379, Grafana 3000)
 

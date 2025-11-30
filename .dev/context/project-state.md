@@ -44,8 +44,8 @@
 |:---|:---:|:---|:---:|
 | **SYNAPSE** | 4000 | MBSE Platform - Engineering automation | MVP v0.2.5 |
 | **NEXUS** | 5173 | Knowledge Graph - Notes, Wiki, Tasks | Phase 1.5 |
-| **PRISM** | 6000 | Enterprise Dashboard | Planning |
-| **ATLAS** | 7000 | AI Collaboration Environment | Planning |
+| **APEX** | 6000 | Enterprise Portal - Dashboard & App Launcher | Planning |
+| **ATLAS** | - | AI OS (contains CORTEX, Agents, ECHO) | Active |
 
 ### Infrastructure (FORGE)
 

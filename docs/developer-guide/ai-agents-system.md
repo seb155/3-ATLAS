@@ -27,11 +27,14 @@ AXIOM/                              # 🏠 Monorepo racine
 │   ├── nexus/                      # Knowledge Graph + Notes
 │   │   └── frontend/               # React 19 + TypeScript
 │   │
-│   ├── prism/                      # Enterprise Dashboard
+│   ├── apex/                       # Enterprise Portal
 │   │   └── frontend/               # React 19 + TypeScript
 │   │
-│   └── atlas/                      # AI Collaboration (Planning)
-│       └── (à créer)
+│   ├── atlas/                      # AI OS
+│   │   └── README.md               # Contains CORTEX, Agents, ECHO
+│   │
+│   └── cortex/                     # Memory Engine (part of ATLAS)
+│       └── backend/                # FastAPI + RAG/CAG
 │
 ├── forge/                          # ⚙️ Infrastructure partagée
 │   ├── docker-compose.yml          # PostgreSQL, Redis, Grafana, Loki
@@ -50,8 +53,9 @@ AXIOM/                              # 🏠 Monorepo racine
 |-----|---------|-------|------|--------|
 | **SYNAPSE** | MBSE Platform | FastAPI + React 19 | 4000 | MVP Dec 2025 |
 | **NEXUS** | Knowledge Graph | React 19 (backend planifié) | 5173 | Phase 1.5 |
-| **PRISM** | Enterprise Dashboard | React 19 | 5174 | Development |
-| **ATLAS** | AI Collaboration | TBD | 5175 | Planning |
+| **APEX** | Enterprise Portal | React 19 | 6000 | Planning |
+| **ATLAS** | AI OS | Claude Code agents | - | Active |
+| **CORTEX** | Memory Engine | FastAPI + RAG/CAG | 7100 | Development |
 | **FORGE** | Shared Infrastructure | Docker (PostgreSQL, Redis, Grafana) | - | Active |
 
 ### Conventions Partagées (Cross-App)
@@ -146,9 +150,9 @@ Adaptation des commandes:
 │         │    └─────────────┬───────────────────┘            │
 │         ▼                  ▼                                │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │   SYNAPSE   │    │    NEXUS    │    │    PRISM    │     │
+│  │   SYNAPSE   │    │    NEXUS    │    │    APEX     │     │
 │  │   Backend   │    │  Frontend   │    │  Frontend   │     │
-│  │    :8000    │    │    :5173    │    │    :5174    │     │
+│  │    :8000    │    │    :5173    │    │    :6000    │     │
 │  └─────────────┘    └─────────────┘    └─────────────┘     │
 │                                                              │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │

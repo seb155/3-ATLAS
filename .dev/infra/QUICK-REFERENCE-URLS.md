@@ -7,15 +7,22 @@
 
 ## 🚀 AXIOM Applications
 
+### AI OS (Central System)
+
+| Component | URL | Status | Description |
+|-----------|-----|--------|-------------|
+| **ATLAS** | - | ✅ Active | AI OS (Claude Code agents) |
+| **CORTEX** | https://cortex.axoiq.com | 🚧 Development | Memory Engine (in ATLAS) |
+
+### Applications
+
 | App | URL | Status |
 |-----|-----|--------|
 | **SYNAPSE** (Frontend) | https://synapse.axoiq.com | ✅ Active |
 | **SYNAPSE** (API) | https://api.axoiq.com | ✅ Active |
 | **NEXUS** (Frontend) | https://nexus.axoiq.com | ✅ Active |
 | **NEXUS** (API) | https://api-nexus.axoiq.com | ✅ Active |
-| **CORTEX** (API) | https://cortex.axoiq.com | 🚧 Development |
-| **PRISM** | https://prism.axoiq.com | 📋 Planned |
-| **ATLAS** | https://atlas.axoiq.com | 📋 Planned |
+| **APEX** | https://apex.axoiq.com | 📋 Planned |
 
 ---
 
@@ -63,8 +70,8 @@
 | **FORGE** | 3000-3999 | 9 ports allocated |
 | **SYNAPSE** | 4000-4999 | 2 ports allocated |
 | **NEXUS** | 5000-5999 | 2 ports allocated |
-| **PRISM** | 6000-6999 | Reserved |
-| **ATLAS** | 7000-7999 | Reserved |
+| **APEX** | 6000-6999 | Reserved |
+| **CORTEX** | 7000-7999 | 2 ports allocated |
 
 ---
 

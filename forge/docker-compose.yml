@@ -1,5 +1,5 @@
 # FORGE - AXIOM Shared Infrastructure
-# Shared services for all AXIOM applications (SYNAPSE, NEXUS, PRISM, ATLAS)
+# Shared services for all AXIOM applications (SYNAPSE, NEXUS, APEX, ATLAS)
 # Network: forge-network (services accessible by name: forge-postgres, forge-redis)
 
 services:

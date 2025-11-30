@@ -36,16 +36,16 @@ port_registry:
       description: "NEXUS knowledge graph + notes/wiki"
       owner: "NEXUS Team"
 
-    prism:
+    apex:
       start: 6000
       end: 6999
-      description: "PRISM enterprise dashboard"
-      owner: "PRISM Team"
+      description: "APEX enterprise portal - Dashboard & App Launcher"
+      owner: "APEX Team"
 
-    atlas:
+    cortex:
       start: 7000
       end: 7999
-      description: "ATLAS AI collaboration environment"
+      description: "CORTEX memory engine (part of ATLAS AI OS)"
       owner: "ATLAS Team"
 
   # Currently allocated ports
@@ -209,7 +209,7 @@ port_registry:
       networks: ["forge-network"]
 
     # ========================================================================
-    # PERSONAL PROJECTS (Range PRISM 6000-6999)
+    # PERSONAL PROJECTS (Range APEX 6000-6999)
     # ========================================================================
     6100:
       service: "pilote-patrimoine"
@@ -294,9 +294,8 @@ port_registry:
   available:
     synapse: "4002-4999"
     nexus: "5174-5999"
-    prism: "6402-6999 (personal projects: 6100-6401 allocated)"
-    atlas: "7102-7999"
-    cortex: "7102-7199 (reserved for CORTEX expansion)"
+    apex: "6402-6999 (personal projects: 6100-6401 allocated)"
+    cortex: "7102-7999"
 
 # ===========================
 # DOCKER NETWORKS
@@ -583,7 +582,7 @@ validation_rules:
       severity: "error"
       message: "Service {service} must be on 'forge-network' to access shared infrastructure (PostgreSQL, Redis, Loki, MeiliSearch)"
       applies_to:
-        apps: ["synapse", "nexus", "prism", "atlas"]
+        apps: ["synapse", "nexus", "apex", "cortex"]
       exemptions: ["nginx", "standalone"]
 
     - rule: "internal_isolation"

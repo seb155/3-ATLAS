@@ -57,25 +57,39 @@ axiom_applications:
     range: "5000-5999"
     notes: "Shares NEXUS port range - no frontend"
 
-  prism:
-    name: "PRISM"
-    description: "Enterprise Dashboard - Analytics & KPIs"
+  apex:
+    name: "APEX"
+    description: "Enterprise Portal - Dashboard & App Launcher (formerly PRISM)"
     frontend:
-      url: "https://prism.axoiq.com"
-      port: null
+      url: "https://apex.axoiq.com"
+      port: 6000
     status: "planned"
     traefik_enabled: false
     range: "6000-6999"
 
   atlas:
     name: "ATLAS"
-    description: "AI Collaboration Environment - Agent workspace"
+    description: "AI Operating System - Contains CORTEX, Agents, ECHO, Note_synch"
     frontend:
       url: "https://atlas.axoiq.com"
       port: null
-    status: "planned"
+    status: "active"
     traefik_enabled: false
     range: "7000-7999"
+    notes: "ATLAS is the AI OS, not just an app. Active via Claude Code agents."
+
+  cortex:
+    name: "CORTEX"
+    description: "Memory Engine (CAG/RAG hybrid) - Component of ATLAS"
+    backend:
+      url: "https://cortex.axoiq.com"
+      port: 7100
+    sandbox:
+      port: 7101
+    status: "development"
+    traefik_enabled: false
+    range: "7000-7999"
+    notes: "CORTEX is within ATLAS, uses ATLAS port range"
 
 # ============================================================================
 # FORGE INFRASTRUCTURE
@@ -243,14 +257,14 @@ allocation_policy:
     forge: "3000-3999"
     synapse: "4000-4999"
     nexus: "5000-5999"
-    prism: "6000-6999"
-    atlas: "7000-7999"
+    apex: "6000-6999"
+    cortex: "7000-7999"
 
   conventions:
     domain_format: "{app-name}.axoiq.com"
     valid_examples:
-      - "prism.axoiq.com"
-      - "atlas.axoiq.com"
+      - "apex.axoiq.com"
+      - "cortex.axoiq.com"
       - "findash.axoiq.com"
     invalid_examples:
       - "my-app.local"

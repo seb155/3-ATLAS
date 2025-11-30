@@ -20,14 +20,37 @@
 
 ## 🎯 Overview
 
-**Nexus** is a unified development portal that combines the best features of Notion, Linear, Obsidian, and InfraNodus into a single, self-hosted platform. Think of it as your **second brain** for development - but with superpowers.
+**Nexus** is the Knowledge Portal of the AXIOM platform. It combines the best features of Notion, Linear, Obsidian, and InfraNodus into a single, self-hosted platform. Think of it as your **second brain** for development - but with superpowers.
+
+### Relationship with CORTEX
+
+NEXUS serves as the **UI layer for CORTEX** (the memory engine in ATLAS):
+- NEXUS has its own data (notes, wiki, tasks)
+- NEXUS also visualizes CORTEX's knowledge graph in 3D
+- CORTEX provides AI context for NEXUS features
+
+```
+┌──────────────────────────────────────────┐
+│              NEXUS (UI)                  │
+│  ┌────────────────────────────────────┐ │
+│  │  Own Data: Notes, Wiki, Tasks      │ │
+│  └────────────────────────────────────┘ │
+│                  +                       │
+│  ┌────────────────────────────────────┐ │
+│  │  CORTEX Interface:                 │ │
+│  │  - 3D Graph Visualization          │ │
+│  │  - AI Chat                         │ │
+│  │  - Context Blocks                  │ │
+│  └────────────────────────────────────┘ │
+└──────────────────────────────────────────┘
+```
 
 ### Why Nexus?
 
 - 📝 **Notes & Wiki** - TipTap-powered rich text editor with hierarchical organization
 - ✅ **Task Management** - Kanban boards and Gantt charts for project planning
-- 🌐 **3D Graph Visualization** - Visualize your knowledge network in stunning 3D
-- 🤖 **AI Assistant** - Claude-powered chatbot with full project context
+- 🌐 **3D Graph Visualization** - Visualize CORTEX's knowledge network in stunning 3D
+- 🤖 **AI Assistant** - CORTEX-powered chatbot with full project context
 - 👥 **Real-time Collaboration** - Work together with multi-user editing
 - 🔒 **Self-Hosted** - Your data stays on your servers
 - 🎨 **Beautiful UI** - VSCode-inspired dark theme (light mode too!)

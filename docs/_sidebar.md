@@ -14,7 +14,7 @@
   * [SYNAPSE - MBSE Platform](apps/synapse.md)
   * [NEXUS - Knowledge Graph](apps/nexus.md)
     * [Excalidraw Integration](apps/nexus-excalidraw.md)
-  * [PRISM - Enterprise Portal](apps/prism.md)
+  * [APEX - Enterprise Portal](apps/apex.md)
   * [ATLAS - AI Collaboration](apps/atlas.md)
 
 * **🔧 Developer Guide**
