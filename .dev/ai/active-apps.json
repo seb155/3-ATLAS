@@ -76,19 +76,21 @@
     "atlas": {
       "name": "ATLAS",
       "description": "AI OS - Orchestration system",
-      "path": "apps/atlas",
-      "status": "active",
-      "phase": "v0.2.5",
-      "progress_percent": 70,
+      "path": ".atlas/",
+      "status": "development",
+      "phase": "Phase 1",
+      "progress_percent": 21,
       "target_date": "Ongoing",
-      "current_focus": "Agent system enhancement",
+      "current_focus": "Creating slash commands",
       "last_worked": "2025-11-30",
       "priority": 1,
       "stack": {
         "runtime": "Claude Code CLI",
-        "agents": "18+ specialized agents"
+        "implemented": "4 rules only",
+        "planned": "6 commands + 3 agents + 3 skills + 3 hooks"
       },
-      "quick_status": "Active - Agent system in use"
+      "quick_status": "21% - Rules done, commands/agents pending",
+      "dev_tracking": ".atlas/CURRENT-STATE.md"
     },
     "forge": {
       "name": "FORGE",
