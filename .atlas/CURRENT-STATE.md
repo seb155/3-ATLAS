@@ -1,7 +1,7 @@
 # ATLAS - État Actuel
 
 **Dernière mise à jour:** 2025-11-30
-**Session:** Phase 3 - Skills
+**Session:** Phase 4 - Hooks (COMPLETE)
 
 ---
 
@@ -13,8 +13,8 @@
 | Agents | 3 | 3 | 100% |
 | Slash commands | 6 | 6 | 100% |
 | Skills | 2 | 2 | 100% |
-| Hooks | 0 | 3 | 0% |
-| **TOTAL** | **15** | **18** | **83%** |
+| Hooks | 3 | 3 | 100% |
+| **TOTAL** | **18** | **18** | **100%** |
 
 ---
 
@@ -94,15 +94,24 @@ skill: "brainstorm"  # Active mode whiteboard
 
 ---
 
-### 5. Hooks ❌ À CRÉER
+### 5. Hooks ✅ COMPLET
 
-| Hook | Type | Status | Priorité | Description |
-|------|------|--------|----------|-------------|
-| Session start | PreToolUse | ❌ | BASSE | Charger contexte au démarrage |
-| Pre-commit | PreToolUse | ❌ | BASSE | Validation avant commit |
-| Context loader | PostToolUse | ❌ | BASSE | Mise à jour contexte |
+| Hook | Type | Status | Description |
+|------|------|--------|-------------|
+| Session start | PreToolUse | ✅ | Charger contexte au démarrage |
+| Pre-commit | PreToolUse | ✅ | Validation avant commit |
+| Context update | PostToolUse | ✅ | Mise à jour hot-files |
 
-**Localisation prévue:** `.claude/hooks/` (config dans settings.json)
+**Localisation:** `.claude/hooks/`
+
+**Fichiers:**
+```
+.claude/hooks/
+├── README.md           # Documentation hooks
+├── session-start.md    # Hook démarrage session
+├── pre-commit.md       # Hook validation commit
+└── context-update.md   # Hook mise à jour contexte
+```
 
 ---
 
@@ -129,6 +138,11 @@ skill: "brainstorm"  # Active mode whiteboard
 ├── skills/
 │   ├── infra.md                    # ✅
 │   └── brainstorm.md               # ✅
+├── hooks/
+│   ├── README.md                   # ✅
+│   ├── session-start.md            # ✅
+│   ├── pre-commit.md               # ✅
+│   └── context-update.md           # ✅
 ├── context/                        # ✅ Existe
 └── settings.local.json             # ✅ Existe
 ```
