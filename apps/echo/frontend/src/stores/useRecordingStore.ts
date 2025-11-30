@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 export type AudioSource = 'microphone' | 'system' | 'both';
 export type Folder = 'notes-perso' | 'meetings';
-export type Language = 'auto' | 'fr' | 'en';
+export type Language = 'auto' | 'fr' | 'en' | 'bilingual';
 
 interface RecordingState {
   // Recording state

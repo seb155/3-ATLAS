@@ -43,6 +43,9 @@ class NPUTranscriptionSegment:
     end: float
     text: str
     words: List[NPUWordTiming]
+    language_detected: Optional[str] = None  # 'fr', 'en', 'bilingual', or None
+    language_confidence: float = 0.0
+    is_code_switched: bool = False
 
 
 @dataclass
@@ -308,51 +311,113 @@ class NPUWhisperService:
                 skip_special_tokens=True
             )[0]
 
-            # Detect language (simplified - NPU may not provide this directly)
-            detected_language = language or "auto"
-            if detected_language == "auto":
-                # Basic language detection from text
-                detected_language = self._detect_language_from_text(transcription)
+            # Detect language with code-switching support
+            # If user specified a language (not "auto" or "bilingual"), use it
+            # Otherwise, detect from transcribed text
+            if language and language not in ("auto", "bilingual", None):
+                detected_language = language
+                language_confidence = 1.0
+                is_code_switched = False
+            else:
+                # Auto-detect from transcribed text (supports bilingual detection)
+                detected_language, language_confidence, is_code_switched = \
+                    self._detect_language_from_text(transcription)
+
+            # Create segment with language metadata
+            segment = NPUTranscriptionSegment(
+                start=0.0,
+                end=duration,
+                text=transcription.strip(),
+                words=[],
+                language_detected=detected_language,
+                language_confidence=language_confidence,
+                is_code_switched=is_code_switched
+            )
 
             result = NPUTranscriptionResult(
                 text=transcription.strip(),
-                segments=[NPUTranscriptionSegment(
-                    start=0.0,
-                    end=duration,
-                    text=transcription.strip(),
-                    words=[]
-                )],
+                segments=[segment],
                 language=detected_language,
-                language_probability=0.95,  # NPU doesn't provide this
+                language_probability=language_confidence,
                 duration=duration,
                 device="npu"
             )
 
-            logger.info(f"NPU transcription complete: {len(transcription)} chars")
+            logger.info(
+                f"NPU transcription complete: {len(transcription)} chars, "
+                f"language={detected_language} (confidence={language_confidence:.2f}, "
+                f"code_switched={is_code_switched})"
+            )
             return result
 
         except Exception as e:
             logger.error(f"NPU transcription failed: {e}")
             raise
 
-    def _detect_language_from_text(self, text: str) -> str:
-        """Simple language detection from transcribed text."""
-        # Basic heuristic - count French vs English indicators
-        french_indicators = ["le", "la", "les", "de", "du", "des", "et", "est", "en", "un", "une", "que", "qui"]
-        english_indicators = ["the", "a", "an", "is", "are", "and", "or", "to", "of", "in", "it", "that", "this"]
+    def _detect_language_from_text(self, text: str) -> tuple[str, float, bool]:
+        """
+        Detect language from transcribed text with code-switching support.
+
+        Returns:
+            Tuple of (language_code, confidence, is_code_switched)
+            - language_code: 'fr', 'en', 'bilingual', or 'auto'
+            - confidence: 0.0 to 1.0
+            - is_code_switched: True if both languages detected
+        """
+        # Extended indicators for better detection
+        french_indicators = {
+            "le", "la", "les", "de", "du", "des", "et", "est", "en", "un", "une",
+            "que", "qui", "je", "tu", "il", "elle", "nous", "vous", "ils", "elles",
+            "ce", "cette", "ces", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses",
+            "pour", "dans", "sur", "avec", "par", "mais", "ou", "donc", "car", "ni",
+            "pas", "ne", "plus", "moins", "très", "bien", "mal", "oui", "non",
+            "faire", "avoir", "être", "aller", "venir", "voir", "dire", "prendre",
+            "c'est", "qu'est-ce", "pourquoi", "comment", "quand", "où"
+        }
+        english_indicators = {
+            "the", "a", "an", "is", "are", "was", "were", "and", "or", "to", "of",
+            "in", "it", "that", "this", "i", "you", "he", "she", "we", "they",
+            "my", "your", "his", "her", "our", "their", "what", "which", "who",
+            "for", "on", "with", "by", "but", "so", "because", "if", "then",
+            "not", "no", "yes", "very", "well", "good", "bad", "much", "many",
+            "have", "has", "had", "do", "does", "did", "will", "would", "can", "could",
+            "it's", "don't", "doesn't", "didn't", "won't", "can't", "couldn't",
+            "what's", "that's", "there's", "here's", "let's"
+        }
 
         text_lower = text.lower()
-        words = text_lower.split()
+        # Handle contractions and punctuation
+        words = text_lower.replace("'", " ").replace("'", " ").split()
 
         french_count = sum(1 for w in words if w in french_indicators)
         english_count = sum(1 for w in words if w in english_indicators)
+        total_indicators = french_count + english_count
 
-        if french_count > english_count:
-            return "fr"
+        # Calculate confidence based on indicator density
+        total_words = len(words)
+        if total_words == 0:
+            return "auto", 0.0, False
+
+        # Detect code-switching: both languages have significant presence
+        fr_ratio = french_count / total_words if total_words > 0 else 0
+        en_ratio = english_count / total_words if total_words > 0 else 0
+
+        # Thresholds for code-switching detection
+        # If both languages have at least 10% indicator presence, it's bilingual
+        is_code_switched = fr_ratio >= 0.05 and en_ratio >= 0.05
+
+        if is_code_switched:
+            # Both languages detected significantly
+            confidence = min(fr_ratio + en_ratio, 1.0)
+            return "bilingual", confidence, True
+        elif french_count > english_count:
+            confidence = fr_ratio / (fr_ratio + en_ratio) if total_indicators > 0 else 0.5
+            return "fr", confidence, False
         elif english_count > french_count:
-            return "en"
+            confidence = en_ratio / (fr_ratio + en_ratio) if total_indicators > 0 else 0.5
+            return "en", confidence, False
         else:
-            return "auto"
+            return "auto", 0.5, False
 
     def unload_model(self):
         """Unload the model to free memory."""

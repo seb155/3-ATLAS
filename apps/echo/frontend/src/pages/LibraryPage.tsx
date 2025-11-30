@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Folder, Search, Play, FileText, Trash2, Clock, HardDrive } from 'lucide-react';
 import { recordingsApi, Recording } from '@/services/api';
@@ -7,6 +8,7 @@ import { cn, formatDuration, formatFileSize, formatDate } from '@/lib/utils';
 type FolderFilter = 'all' | 'notes-perso' | 'meetings';
 
 export function LibraryPage() {
+  const navigate = useNavigate();
   const [folder, setFolder] = useState<FolderFilter>('all');
   const [search, setSearch] = useState('');
 
@@ -86,7 +88,11 @@ export function LibraryPage() {
       ) : (
         <div className="space-y-2">
           {data?.items.map((recording) => (
-            <RecordingCard key={recording.id} recording={recording} />
+            <RecordingCard
+              key={recording.id}
+              recording={recording}
+              onClick={() => navigate(`/library/${recording.id}`)}
+            />
           ))}
         </div>
       )}
@@ -118,9 +124,10 @@ function FolderButton({ label, active, onClick }: FolderButtonProps) {
 
 interface RecordingCardProps {
   recording: Recording;
+  onClick: () => void;
 }
 
-function RecordingCard({ recording }: RecordingCardProps) {
+function RecordingCard({ recording, onClick }: RecordingCardProps) {
   const statusColors: Record<string, string> = {
     recording: 'bg-red-500',
     completed: 'bg-green-500',
@@ -130,10 +137,16 @@ function RecordingCard({ recording }: RecordingCardProps) {
   };
 
   return (
-    <div className="glass rounded-lg p-4 hover:bg-slate-700/50 transition-smooth">
+    <div
+      className="glass rounded-lg p-4 hover:bg-slate-700/50 transition-smooth cursor-pointer"
+      onClick={onClick}
+    >
       <div className="flex items-center gap-4">
         {/* Play Button */}
-        <button className="w-10 h-10 rounded-full bg-echo-500 hover:bg-echo-600 flex items-center justify-center transition-smooth">
+        <button
+          className="w-10 h-10 rounded-full bg-echo-500 hover:bg-echo-600 flex items-center justify-center transition-smooth"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Play className="w-5 h-5 text-white ml-0.5" />
         </button>
 
@@ -178,13 +191,18 @@ function RecordingCard({ recording }: RecordingCardProps) {
             <button
               className="p-2 rounded-lg hover:bg-slate-600 transition-smooth"
               title="View transcription"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
             >
-              <FileText className="w-4 h-4 text-slate-400" />
+              <FileText className="w-4 h-4 text-echo-400" />
             </button>
           )}
           <button
             className="p-2 rounded-lg hover:bg-red-500/20 transition-smooth"
             title="Delete"
+            onClick={(e) => e.stopPropagation()}
           >
             <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-400" />
           </button>

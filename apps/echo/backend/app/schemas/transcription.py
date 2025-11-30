@@ -20,6 +20,7 @@ class LanguageEnum(str, Enum):
     AUTO = "auto"
     FRENCH = "fr"
     ENGLISH = "en"
+    BILINGUAL = "bilingual"  # French + English code-switching
 
 
 # =============================================================================
@@ -58,6 +59,10 @@ class SegmentResponse(BaseModel):
     confidence: Optional[float]
     speaker_id: Optional[int]
     words: Optional[List[WordTiming]] = None
+    # Bilingual/code-switching fields
+    language_detected: Optional[str] = None  # 'fr', 'en', 'bilingual'
+    language_confidence: Optional[float] = None  # 0.0 to 1.0
+    is_code_switched: bool = False  # True if segment contains both FR and EN
 
     class Config:
         from_attributes = True

@@ -2,7 +2,7 @@
 Transcription models for speech-to-text.
 """
 
-from sqlalchemy import Column, String, Text, Float, Integer, DateTime, ForeignKey, Index, Computed
+from sqlalchemy import Column, String, Text, Float, Integer, DateTime, ForeignKey, Index, Computed, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, TSVECTOR, JSONB
 from sqlalchemy.sql import func
@@ -105,6 +105,11 @@ class TranscriptionSegment(Base):
 
     # Word-level data
     words = Column(JSONB, nullable=True)  # [{word: "hello", start: 0.5, end: 0.8, confidence: 0.95}, ...]
+
+    # Bilingual/code-switching support
+    language_detected = Column(String(10), nullable=True)  # 'fr', 'en', 'bilingual', or None
+    language_confidence = Column(Float, nullable=True)  # 0.0 to 1.0
+    is_code_switched = Column(Boolean, default=False)  # True if segment contains both languages
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

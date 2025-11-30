@@ -174,6 +174,48 @@ async def get_recording(
     return recording
 
 
+@router.get("/{recording_id}/transcription")
+async def get_recording_transcription(
+    recording_id: UUID,
+    db: Session = Depends(get_db),
+):
+    """Get the transcription for a recording."""
+    from ...models.transcription import Transcription
+
+    recording = db.query(Recording).filter(
+        Recording.id == recording_id,
+        Recording.user_id == DEMO_USER_ID,
+        Recording.deleted_at.is_(None),
+    ).first()
+
+    if not recording:
+        raise HTTPException(status_code=404, detail="Recording not found")
+
+    transcription = db.query(Transcription).filter(
+        Transcription.recording_id == recording_id
+    ).first()
+
+    if not transcription:
+        raise HTTPException(status_code=404, detail="Transcription not found")
+
+    return {
+        "id": str(transcription.id),
+        "recording_id": str(transcription.recording_id),
+        "full_text": transcription.full_text,
+        "language_code": transcription.language_code,
+        "detected_language": transcription.detected_language,
+        "model_used": transcription.model_used,
+        "processing_time_seconds": transcription.processing_time_seconds,
+        "word_count": transcription.word_count,
+        "status": transcription.status,
+        "error_message": transcription.error_message,
+        "started_at": transcription.started_at.isoformat() if transcription.started_at else None,
+        "completed_at": transcription.completed_at.isoformat() if transcription.completed_at else None,
+        "created_at": transcription.created_at.isoformat() if transcription.created_at else None,
+        "updated_at": transcription.updated_at.isoformat() if transcription.updated_at else None,
+    }
+
+
 # =============================================================================
 # CREATE & UPDATE
 # =============================================================================

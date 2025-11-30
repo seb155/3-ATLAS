@@ -1,95 +1,114 @@
 # ECHO - NPU Installation Plan
 
 **Date:** 2025-11-29
-**Status:** En cours - Redemarrage requis
+**Status:** ✅ COMPLETE - NPU fonctionnel!
 
 ---
 
-## Status Installation
+## Installation Status
 
-| Etape | Status | Notes |
+| Étape | Status | Notes |
 |-------|--------|-------|
 | Miniforge 25.9.1 | ✅ Complete | `C:\Users\sgagn\miniforge3` |
-| VS2022 Build Tools C++ | ✅ Complete | Redemarrage PC requis |
-| NPU Driver MCDM | ⏳ En attente | Telecharger depuis AMD |
-| Ryzen AI SDK 1.6.1 | ⏳ En attente | `D:\Downloads\ryzenai-lt-1.6.1.exe` |
+| VS2022 Build Tools C++ | ✅ Complete | Requis pour compilation |
+| NPU Driver MCDM | ✅ Complete | `NPU Compute Accelerator Device - OK` |
+| Ryzen AI SDK 1.6.1 | ✅ Complete | `C:\Program Files\RyzenAI\1.6.1` |
+| Quicktest Validation | ✅ Complete | 398 NPU operators, Test Passed |
 
 ---
 
-## Prochaines Etapes (apres redemarrage)
-
-### 1. Installer NPU Driver
-```powershell
-# Telecharger: NPU_RAI1.6_304_WHQL.zip
-# https://account.amd.com/en/forms/downloads/ryzenai-eula-public-xef.html?filename=NPU_RAI1.6_304_WHQL.zip
-
-# Extraire et executer en admin:
-.\npu_sw_installer.exe
-
-# Verifier dans Task Manager > Performance > NPU0
-```
-
-### 2. Installer Ryzen AI SDK
-```powershell
-# Executer l'installeur
-D:\Downloads\ryzenai-lt-1.6.1.exe
-
-# Activer l'environnement
-"C:\Users\sgagn\miniforge3\condabin\conda.bat" activate ryzenai-1.6.1
-
-# Tester
-cd "C:\Program Files\RyzenAI\1.6.1\quicktest"
-python quicktest.py
-# Attendu: "398 NPU operators" et "Actually running on NPU 1"
-```
-
----
-
-## Hardware Cible
+## Hardware Confirmé
 
 - **Laptop**: ASUS Zenbook S 16 UM5606WA
 - **CPU**: AMD Ryzen AI 9 HX 370 (12c/24t)
-- **GPU**: AMD Radeon 890M (gfx1150 - NON supporte ROCm)
-- **NPU**: AMD XDNA (50 TOPS) - Ryzen AI 300 series
+- **GPU**: AMD Radeon 890M (gfx1150 - NON supporté ROCm)
+- **NPU**: AMD XDNA (50 TOPS) - Ryzen AI 300 series (STX)
 
 ---
 
-## Strategie Transcription
+## Quicktest Results
 
 ```
-Priorite: NPU (Ryzen AI) > CPU (faster-whisper)
-GPU skip: Radeon 890M non supporte par ROCm
+[Vitis AI EP] No. of Operators :   NPU   398 VITIS_EP_CPU     2
+[Vitis AI EP] No. of Subgraphs :   NPU     1 Actually running on NPU      1
+Test Passed
 ```
 
-### Performance Attendue
+---
 
-| Modele | NPU (30s audio) | CPU (30s audio) |
-|--------|-----------------|-----------------|
+## Configuration
+
+### Conda Environment
+
+```powershell
+# Activer l'environnement
+conda activate ryzen-ai-1.6.1
+
+# Ou avec chemin complet
+C:\Users\sgagn\miniforge3\envs\ryzen-ai-1.6.1\python.exe
+```
+
+### Variables d'environnement requises
+
+```powershell
+$env:RYZEN_AI_INSTALLATION_PATH = "C:\Program Files\RyzenAI\1.6.1"
+```
+
+### Script de test NPU
+
+```powershell
+# Exécuter le quicktest
+powershell -ExecutionPolicy Bypass -File "D:\Projects\AXIOM\apps\echo\.dev\scripts\run-npu-quicktest.ps1"
+```
+
+---
+
+## Stratégie Transcription ECHO
+
+```
+Priorité: NPU (Ryzen AI XDNA) > CPU (faster-whisper)
+GPU skip: Radeon 890M non supporté par ROCm
+```
+
+### Performance Attendue (30s audio)
+
+| Modèle | NPU | CPU |
+|--------|-----|-----|
 | base | ~2s | ~5s |
 | medium | ~5s | ~15s |
 | large-v3 | ~10s | ~45s |
 
 ---
 
-## Fichiers Backend Deja Modifies
+## Fichiers Backend ECHO
 
-1. `backend/app/services/whisper_npu.py` - Service NPU ONNX Runtime
-2. `backend/app/services/transcription_service.py` - Auto-detection NPU/CPU
-3. `backend/app/config.py` - Variables WHISPER_*
-4. `backend/requirements.txt` - onnxruntime, transformers, librosa
-5. `docker-compose.dev.yml` - WHISPER_DEVICE=auto
-6. `backend/app/api/endpoints/health.py` - Device info dans health check
-
----
-
-## Pour Reprendre
-
-Dire: "on continue l'installation NPU"
+| Fichier | Purpose |
+|---------|---------|
+| `backend/app/services/whisper_npu.py` | Service NPU ONNX Runtime |
+| `backend/app/services/transcription_service.py` | Auto-detection NPU/CPU |
+| `backend/app/config.py` | Variables WHISPER_* |
+| `backend/requirements.txt` | onnxruntime, transformers, librosa |
+| `docker-compose.dev.yml` | WHISPER_DEVICE=auto |
+| `backend/app/api/endpoints/health.py` | Device info dans health check |
 
 ---
 
-## References
+## Prochaines Étapes (ECHO Development)
 
-- [AMD Ryzen AI SDK 1.6.1](https://ryzenai.docs.amd.com/en/latest/inst.html)
+1. [ ] Intégrer Whisper ONNX optimisé NPU dans `whisper_npu.py`
+2. [ ] Télécharger modèle Whisper quantifié pour NPU
+3. [ ] Tester transcription réelle avec audio FR-CA
+4. [ ] Benchmark NPU vs CPU
+5. [ ] Intégrer dans Docker (si possible) ou mode hybride
+
+---
+
+## Références
+
+- [AMD Ryzen AI SDK 1.6.1 Docs](https://ryzenai.docs.amd.com/en/latest/inst.html)
 - [AMD Whisper NPU Article](https://www.amd.com/en/developer/resources/technical-articles/2025/unlocking-on-device-asr-with-whisper-on-ryzen-ai-npus.html)
 - [ROCm gfx1150 Issue](https://github.com/ROCm/ROCm/issues/5108)
+
+---
+
+**Installation terminée:** 2025-11-29 22:43

@@ -46,6 +46,10 @@ class TranscriptionSegment:
     words: List[WordTiming]
     avg_logprob: Optional[float] = None
     no_speech_prob: Optional[float] = None
+    # Bilingual support fields
+    language_detected: Optional[str] = None  # 'fr', 'en', 'bilingual', or None
+    language_confidence: float = 0.0
+    is_code_switched: bool = False
 
 
 @dataclass
@@ -244,7 +248,11 @@ class TranscriptionService:
                 start=seg.start,
                 end=seg.end,
                 text=seg.text,
-                words=words
+                words=words,
+                # Bilingual support: pass language metadata from NPU service
+                language_detected=getattr(seg, 'language_detected', None),
+                language_confidence=getattr(seg, 'language_confidence', 0.0),
+                is_code_switched=getattr(seg, 'is_code_switched', False)
             ))
 
         return TranscriptionResult(
@@ -277,7 +285,12 @@ class TranscriptionService:
                 text=seg.text,
                 words=words,
                 avg_logprob=seg.avg_logprob,
-                no_speech_prob=seg.no_speech_prob
+                no_speech_prob=seg.no_speech_prob,
+                # For CPU: use global detected language for all segments
+                # faster-whisper detects language globally, not per-segment
+                language_detected=result.language,
+                language_confidence=result.language_probability,
+                is_code_switched=False  # CPU doesn't detect code-switching per segment
             ))
 
         return TranscriptionResult(

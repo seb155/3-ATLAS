@@ -121,6 +121,17 @@ export const audioApi = {
     return data;
   },
 
+  upload: async (recordingId: string, audioBlob: Blob) => {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'recording.webm');
+    const { data } = await api.post(`/audio/upload/${recordingId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
+
   getDevices: async () => {
     const { data } = await api.get('/audio/devices');
     return data;

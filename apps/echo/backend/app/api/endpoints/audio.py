@@ -2,7 +2,8 @@
 Audio capture endpoints.
 
 These endpoints interface with the Tauri desktop app for
-audio recording control.
+audio recording control. Also supports web browser recording
+via WebM upload with automatic conversion to WAV.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
@@ -13,8 +14,13 @@ from datetime import datetime
 import os
 import wave
 import struct
+import subprocess
+import tempfile
+import logging
 
 from ...database import get_db
+
+logger = logging.getLogger(__name__)
 from ...models.recording import Recording, RecordingStatus
 from ...schemas.recording import RecordingStart, AudioSourceTypeEnum
 from ...config import get_settings
@@ -24,6 +30,46 @@ settings = get_settings()
 
 # Placeholder user_id
 DEMO_USER_ID = UUID("00000000-0000-0000-0000-000000000001")
+
+
+def convert_webm_to_wav(input_path: str, output_path: str) -> bool:
+    """
+    Convert WebM/Opus audio to WAV using ffmpeg.
+
+    Returns True if conversion successful, False otherwise.
+    Whisper works best with 16kHz mono WAV.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",  # Overwrite output
+                "-i", input_path,
+                "-ar", "16000",  # 16kHz sample rate (Whisper optimal)
+                "-ac", "1",  # Mono
+                "-c:a", "pcm_s16le",  # 16-bit PCM
+                output_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,  # 60 second timeout
+        )
+
+        if result.returncode != 0:
+            logger.error(f"ffmpeg conversion failed: {result.stderr}")
+            return False
+
+        return True
+
+    except subprocess.TimeoutExpired:
+        logger.error("ffmpeg conversion timed out")
+        return False
+    except FileNotFoundError:
+        logger.error("ffmpeg not found. Please install ffmpeg.")
+        return False
+    except Exception as e:
+        logger.error(f"Conversion error: {e}")
+        return False
 
 
 # =============================================================================
@@ -195,8 +241,8 @@ async def upload_audio(
     """
     Upload audio file for a recording.
 
-    Alternative to Tauri direct file writing.
-    Useful for web-based recording or testing.
+    Supports both WAV (direct) and WebM/Opus (browser recording).
+    WebM files are automatically converted to WAV using ffmpeg.
     """
     recording = db.query(Recording).filter(
         Recording.id == recording_id,
@@ -210,27 +256,64 @@ async def upload_audio(
     full_dir = os.path.join(settings.audio_storage_path, recording.folder)
     os.makedirs(full_dir, exist_ok=True)
 
-    # Save file
-    full_path = os.path.join(settings.audio_storage_path, recording.file_path)
+    # Final WAV path
+    wav_path = os.path.join(settings.audio_storage_path, recording.file_path)
 
-    with open(full_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+    # Read uploaded content
+    content = await file.read()
 
-    # Update recording
-    recording.file_size_bytes = os.path.getsize(full_path)
+    # Check if this is WebM (browser recording) or WAV (direct)
+    is_webm = (
+        file.filename and file.filename.endswith(".webm")
+    ) or (
+        file.content_type and "webm" in file.content_type
+    ) or (
+        len(content) > 4 and content[:4] == b'\x1a\x45\xdf\xa3'  # WebM magic bytes
+    )
+
+    if is_webm:
+        logger.info(f"Converting WebM to WAV for recording {recording_id}")
+
+        # Save WebM to temp file
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
+            tmp.write(content)
+            tmp_webm_path = tmp.name
+
+        try:
+            # Convert WebM to WAV
+            if not convert_webm_to_wav(tmp_webm_path, wav_path):
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to convert audio format. Is ffmpeg installed?"
+                )
+        finally:
+            # Clean up temp file
+            if os.path.exists(tmp_webm_path):
+                os.unlink(tmp_webm_path)
+    else:
+        # Save directly as WAV
+        with open(wav_path, "wb") as f:
+            f.write(content)
+
+    # Update recording metadata
+    recording.file_size_bytes = os.path.getsize(wav_path)
     recording.status = RecordingStatus.COMPLETED.value
+    recording.format = "wav"
 
-    # Try to read WAV info
+    # Read WAV info
     try:
-        with wave.open(full_path, 'rb') as wav:
+        with wave.open(wav_path, 'rb') as wav:
             frames = wav.getnframes()
             rate = wav.getframerate()
             recording.duration_seconds = frames / float(rate)
             recording.sample_rate = rate
             recording.channels = wav.getnchannels()
-    except Exception:
-        pass
+            logger.info(
+                f"Recording {recording_id}: {recording.duration_seconds:.1f}s, "
+                f"{rate}Hz, {wav.getnchannels()}ch"
+            )
+    except Exception as e:
+        logger.warning(f"Could not read WAV metadata: {e}")
 
     db.commit()
     db.refresh(recording)
@@ -240,4 +323,5 @@ async def upload_audio(
         "status": recording.status,
         "file_size_bytes": recording.file_size_bytes,
         "duration_seconds": recording.duration_seconds,
+        "converted_from_webm": is_webm,
     }

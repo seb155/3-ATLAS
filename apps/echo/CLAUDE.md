@@ -13,9 +13,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Audio Recording**: Microphone + System Audio (WASAPI loopback)
 - **Transcription**: Hardware auto-detection (NPU > CPU)
-- **Languages**: French Canadian (FR-CA) + English (auto-detect)
+- **Languages**: French Canadian (FR-CA) + English (auto-detect) + **Bilingual code-switching**
 - **Organization**: Hybrid (folders + metadata DB)
 - **Interfaces**: Web + Desktop (Tauri)
+
+## Bilingual Support (NEW)
+
+ECHO supports **bilingual transcription** (French + English) with code-switching detection.
+This is ideal for Quebec French where speakers mix both languages.
+
+### Language Options
+| Option | Code | Description |
+|--------|------|-------------|
+| Auto-detect | `auto` | Whisper detects the primary language |
+| Francais | `fr` | Force French recognition |
+| English | `en` | Force English recognition |
+| **Bilingue** | `bilingual` | Enable code-switching detection (FR + EN mixed) |
+
+### UI Color Coding
+Transcription segments are color-coded by detected language:
+- **Blue**: French (fr)
+- **Red**: English (en)
+- **Purple**: Bilingual/Code-switched (both languages in same segment)
+- **Gray**: Unknown/Auto-detected
+
+### Technical Implementation
+- NPU and CPU both support bilingual mode via `language=None`
+- Code-switching detection uses linguistic indicators (articles, pronouns, etc.)
+- Per-segment language metadata stored in database
+- React component: `components/transcription/TranscriptionSegment.tsx`
 
 ## Hardware Acceleration
 
@@ -261,6 +287,9 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 | end_time | FLOAT | Segment end (seconds) |
 | text | TEXT | Segment text |
 | words | JSONB | Word-level timing |
+| language_detected | VARCHAR(10) | 'fr', 'en', 'bilingual', or NULL |
+| language_confidence | FLOAT | 0.0 to 1.0 |
+| is_code_switched | BOOLEAN | True if segment contains both languages |
 
 ## Whisper Configuration
 
@@ -326,6 +355,7 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 
 ## Next Steps (Phase 2)
 
+- [x] **Bilingual transcription (FR + EN code-switching)** - DONE
 - [ ] Complete WASAPI loopback implementation
 - [ ] Tags system
 - [ ] Full-text search
@@ -337,4 +367,4 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 ---
 
 **Repository:** https://github.com/seb155/AXIOM
-**Last Updated:** 2025-11-29
+**Last Updated:** 2025-11-30

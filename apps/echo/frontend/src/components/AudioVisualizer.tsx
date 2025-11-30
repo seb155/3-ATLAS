@@ -1,11 +1,10 @@
 /**
- * AudioVisualizer - Neon Oscilloscope Style
+ * AudioVisualizer - Spotify-Style Bars
  *
- * A modern audio visualizer combining:
- * - Oscilloscope wave line (main visual)
- * - Neon glow effects
- * - Mirror bars at bottom
- * - Auto-gain for sensitivity
+ * Simple, clean audio visualization:
+ * - Vertical bars (no complex oscilloscope)
+ * - Professional auto-gain (RMS-based)
+ * - Smooth animations
  */
 
 import { useEffect, useRef, useCallback } from 'react';
@@ -16,43 +15,68 @@ interface AudioVisualizerProps {
   isActive: boolean;
   isPaused?: boolean;
   className?: string;
-  sensitivity?: number; // 1-10, default 5
+  barCount?: number;
 }
 
-// Color scheme
-const COLORS = {
-  primary: '#00ffff',      // Cyan
-  secondary: '#0ea5e9',    // Echo blue
-  glow: 'rgba(0, 255, 255, 0.4)',
-  grid: 'rgba(255, 255, 255, 0.05)',
-  peak: '#ff3366',
-  background: 'transparent',
-};
+// Colors
+const BAR_COLOR = '#0ea5e9';      // echo-500
+const BAR_ACTIVE = '#38bdf8';     // echo-400 (louder)
 
 export function AudioVisualizer({
   getWaveformData,
   isActive,
   isPaused = false,
   className,
-  sensitivity = 6,
+  barCount = 24,
 }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
-  const previousDataRef = useRef<number[]>([]);
-  const peakLevelRef = useRef<number>(0);
-  const avgLevelRef = useRef<number>(0.1);
+  const previousBarsRef = useRef<number[]>([]);
 
-  // Amplify weak signals with logarithmic scaling
-  const amplify = useCallback((value: number): number => {
-    const normalized = Math.abs(value - 128) / 128;
-    const gain = sensitivity / 5;
-    // Square root for logarithmic feel (boosts quiet sounds)
-    const amplified = Math.pow(normalized, 0.4) * gain;
-    return Math.min(1, amplified);
-  }, [sensitivity]);
+  // Auto-gain state
+  const gainRef = useRef<number>(1);
+  const rmsHistoryRef = useRef<number[]>([]);
 
   // Linear interpolation for smooth animations
   const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+
+  // Calculate RMS (Root Mean Square) for auto-gain
+  const calculateRMS = useCallback((data: Uint8Array): number => {
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      const normalized = (data[i] - 128) / 128;
+      sum += normalized * normalized;
+    }
+    return Math.sqrt(sum / data.length);
+  }, []);
+
+  // Professional auto-gain algorithm
+  const updateAutoGain = useCallback((rms: number): number => {
+    const history = rmsHistoryRef.current;
+    history.push(rms);
+    if (history.length > 30) history.shift(); // Keep ~0.5s history at 60fps
+
+    // Target level with headroom
+    const targetLevel = 0.35;
+
+    // Use average RMS for stability
+    const avgRms = history.reduce((a, b) => a + b, 0) / history.length;
+
+    if (avgRms < 0.01) return gainRef.current; // Silence, keep current gain
+
+    // Calculate desired gain
+    const desiredGain = targetLevel / avgRms;
+
+    // Clamp gain to reasonable range (0.5x - 4x)
+    const clampedGain = Math.min(Math.max(desiredGain, 0.5), 4.0);
+
+    // Smooth transition (attack faster than release)
+    const isAttack = clampedGain > gainRef.current;
+    const smoothing = isAttack ? 0.15 : 0.05;
+
+    gainRef.current = lerp(gainRef.current, clampedGain, smoothing);
+    return gainRef.current;
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -63,45 +87,31 @@ export function AudioVisualizer({
 
     const width = canvas.width;
     const height = canvas.height;
-    const centerY = height * 0.45; // Slightly above center for wave
-    const barAreaY = height * 0.75; // Bottom area for bars
 
-    // Clear with slight fade for trailing effect
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.3)'; // slate-900 with alpha
-    ctx.fillRect(0, 0, width, height);
-
-    // Draw grid
-    ctx.strokeStyle = COLORS.grid;
-    ctx.lineWidth = 1;
-    const gridLines = 5;
-    for (let i = 0; i <= gridLines; i++) {
-      const y = (height * 0.9 / gridLines) * i;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-
-    // Center line
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    ctx.lineTo(width, centerY);
-    ctx.stroke();
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
 
     if (!isActive || isPaused) {
-      // Draw flat line when inactive
-      ctx.strokeStyle = COLORS.secondary;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = COLORS.glow;
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(width, centerY);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      // Draw idle state - flat bars at minimum height
+      const barWidth = (width / barCount) * 0.7;
+      const gap = (width / barCount) * 0.3;
+      const minHeight = 4;
 
-      // Reset animation
+      ctx.fillStyle = BAR_COLOR;
+      ctx.globalAlpha = 0.3;
+
+      for (let i = 0; i < barCount; i++) {
+        const x = i * (barWidth + gap) + gap / 2;
+        const barHeight = minHeight;
+        const y = (height - barHeight) / 2;
+        const radius = barWidth / 2;
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, radius);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
       animationRef.current = requestAnimationFrame(draw);
       return;
     }
@@ -115,150 +125,69 @@ export function AudioVisualizer({
       return;
     }
 
-    // Calculate current level for auto-gain
-    let sum = 0;
-    let peak = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      const amplitude = Math.abs(dataArray[i] - 128);
-      sum += amplitude;
-      if (amplitude > peak) peak = amplitude;
+    // Calculate RMS and update auto-gain
+    const rms = calculateRMS(dataArray);
+    const gain = updateAutoGain(rms);
+
+    // Calculate bar values
+    const samplesPerBar = Math.floor(bufferLength / barCount);
+    const barWidth = (width / barCount) * 0.7;
+    const gap = (width / barCount) * 0.3;
+    const maxBarHeight = height * 0.85;
+    const minBarHeight = 4;
+
+    // Initialize previous bars if needed
+    if (previousBarsRef.current.length !== barCount) {
+      previousBarsRef.current = new Array(barCount).fill(0);
     }
-    const currentLevel = sum / bufferLength / 128;
-
-    // Smooth auto-gain adjustment
-    avgLevelRef.current = lerp(avgLevelRef.current, Math.max(0.05, currentLevel), 0.05);
-    peakLevelRef.current = lerp(peakLevelRef.current, peak / 128, 0.1);
-
-    // Prepare smooth data with interpolation from previous frame
-    const smoothData: number[] = [];
-    const sliceWidth = width / bufferLength;
-
-    for (let i = 0; i < bufferLength; i++) {
-      const raw = amplify(dataArray[i]);
-      // Apply auto-gain normalization
-      const normalized = raw / Math.max(avgLevelRef.current * 2, 0.1);
-      const clamped = Math.min(1, normalized);
-
-      // Smooth with previous frame
-      const previous = previousDataRef.current[i] ?? clamped;
-      const smoothed = lerp(previous, clamped, 0.4);
-      smoothData.push(smoothed);
-    }
-    previousDataRef.current = smoothData;
-
-    // Draw glow layer (blur effect)
-    ctx.save();
-    ctx.filter = 'blur(8px)';
-    ctx.strokeStyle = COLORS.glow;
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-
-    for (let i = 0; i < bufferLength; i++) {
-      const x = i * sliceWidth;
-      const amplitude = smoothData[i];
-      const y = centerY + (amplitude * height * 0.35 * (i % 2 === 0 ? 1 : -1));
-
-      if (i === 0) {
-        ctx.moveTo(x, centerY);
-      }
-      // Create smooth wave
-      const prevY = i > 0 ? centerY + (smoothData[i-1] * height * 0.35 * ((i-1) % 2 === 0 ? 1 : -1)) : centerY;
-      const cpX = x - sliceWidth / 2;
-      ctx.quadraticCurveTo(cpX, prevY, x, y);
-    }
-    ctx.stroke();
-    ctx.restore();
-
-    // Draw main oscilloscope line
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, COLORS.secondary);
-    gradient.addColorStop(0.5, COLORS.primary);
-    gradient.addColorStop(1, COLORS.secondary);
-
-    ctx.strokeStyle = gradient;
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = COLORS.primary;
-    ctx.shadowBlur = 15;
-
-    ctx.beginPath();
-
-    let x = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      const amplitude = smoothData[i];
-      // Create oscillating wave
-      const offset = (dataArray[i] - 128) / 128;
-      const y = centerY + (offset * amplitude * height * 0.35);
-
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        // Smooth curve
-        const prevX = (i - 1) * sliceWidth;
-        const prevOffset = (dataArray[i-1] - 128) / 128;
-        const prevY = centerY + (prevOffset * smoothData[i-1] * height * 0.35);
-        const cpX = (prevX + x) / 2;
-        ctx.quadraticCurveTo(prevX, prevY, cpX, (prevY + y) / 2);
-      }
-      x += sliceWidth;
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Draw mirror bars at bottom
-    const barCount = 32;
-    const barWidth = (width / barCount) - 2;
-    const barStep = Math.floor(bufferLength / barCount);
 
     for (let i = 0; i < barCount; i++) {
-      // Average data for this bar
-      let barSum = 0;
-      const start = i * barStep;
-      for (let j = start; j < start + barStep && j < bufferLength; j++) {
-        barSum += smoothData[j];
-      }
-      const barHeight = (barSum / barStep) * height * 0.2;
+      // Calculate amplitude for this bar (use max in range for more visual punch)
+      let maxAmplitude = 0;
+      const startSample = i * samplesPerBar;
 
-      const barX = i * (barWidth + 2) + 1;
-      const barY = barAreaY;
+      for (let j = 0; j < samplesPerBar; j++) {
+        const sampleIndex = startSample + j;
+        if (sampleIndex < bufferLength) {
+          const amplitude = Math.abs(dataArray[sampleIndex] - 128) / 128;
+          maxAmplitude = Math.max(maxAmplitude, amplitude);
+        }
+      }
+
+      // Apply auto-gain
+      const amplified = Math.min(maxAmplitude * gain, 1);
+
+      // Smooth with previous frame (decay slower than attack)
+      const previous = previousBarsRef.current[i];
+      const isRising = amplified > previous;
+      const smoothing = isRising ? 0.4 : 0.15;
+      const smoothed = lerp(previous, amplified, smoothing);
+      previousBarsRef.current[i] = smoothed;
+
+      // Calculate bar dimensions
+      const barHeight = Math.max(minBarHeight, smoothed * maxBarHeight);
+      const x = i * (barWidth + gap) + gap / 2;
+      const y = (height - barHeight) / 2;
+      const radius = Math.min(barWidth / 2, barHeight / 2);
 
       // Color based on intensity
-      const intensity = barSum / barStep;
-      if (intensity > 0.8) {
-        ctx.fillStyle = COLORS.peak;
+      if (smoothed > 0.7) {
+        ctx.fillStyle = BAR_ACTIVE;
+        ctx.globalAlpha = 0.9 + smoothed * 0.1;
       } else {
-        const alpha = 0.3 + intensity * 0.5;
-        ctx.fillStyle = `rgba(14, 165, 233, ${alpha})`; // echo-500
+        ctx.fillStyle = BAR_COLOR;
+        ctx.globalAlpha = 0.5 + smoothed * 0.4;
       }
 
       // Draw rounded bar
-      const radius = barWidth / 2;
       ctx.beginPath();
-      ctx.roundRect(barX, barY - barHeight, barWidth, barHeight, [radius, radius, 0, 0]);
-      ctx.fill();
-
-      // Reflection (inverted, faded)
-      ctx.fillStyle = `rgba(14, 165, 233, ${0.1 + intensity * 0.1})`;
-      ctx.beginPath();
-      ctx.roundRect(barX, barY + 2, barWidth, barHeight * 0.3, [0, 0, radius, radius]);
+      ctx.roundRect(x, y, barWidth, barHeight, radius);
       ctx.fill();
     }
 
-    // Draw peak indicator
-    if (peakLevelRef.current > 0.7) {
-      ctx.fillStyle = COLORS.peak;
-      ctx.shadowColor = COLORS.peak;
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(width - 15, 15, 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // Continue animation
+    ctx.globalAlpha = 1;
     animationRef.current = requestAnimationFrame(draw);
-  }, [getWaveformData, isActive, isPaused, amplify]);
+  }, [getWaveformData, isActive, isPaused, barCount, calculateRMS, updateAutoGain]);
 
   // Handle canvas resize
   useEffect(() => {
@@ -293,13 +222,19 @@ export function AudioVisualizer({
     };
   }, [draw]);
 
+  // Reset gain when recording starts
+  useEffect(() => {
+    if (isActive && !isPaused) {
+      gainRef.current = 1;
+      rmsHistoryRef.current = [];
+      previousBarsRef.current = [];
+    }
+  }, [isActive, isPaused]);
+
   return (
     <canvas
       ref={canvasRef}
-      className={cn('w-full h-full rounded-lg', className)}
-      style={{
-        background: 'linear-gradient(180deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%)',
-      }}
+      className={cn('w-full h-full', className)}
     />
   );
 }

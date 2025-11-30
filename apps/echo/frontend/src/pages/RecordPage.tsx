@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Square, Pause, Play, Monitor, Volume2, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mic, Square, Pause, Play, Monitor, Volume2, Loader2, FileText } from 'lucide-react';
 import { useRecordingStore, Folder, Language } from '@/stores/useRecordingStore';
 import { audioApi, recordingsApi } from '@/services/api';
 import { cn, formatDuration } from '@/lib/utils';
@@ -9,6 +10,7 @@ import { AudioVisualizer } from '@/components/AudioVisualizer';
 type RecordingPhase = 'idle' | 'recording' | 'uploading' | 'transcribing' | 'done' | 'error';
 
 export function RecordPage() {
+  const navigate = useNavigate();
   const {
     source,
     folder,
@@ -26,6 +28,7 @@ export function RecordPage() {
   const [phase, setPhase] = useState<RecordingPhase>('idle');
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
+  const [completedRecordingId, setCompletedRecordingId] = useState<string | null>(null);
 
   // Use the audio recorder hook
   const {
@@ -109,14 +112,7 @@ export function RecordPage() {
       // Done!
       setPhase('done');
       setStatusMessage('Transcription complete!');
-
-      // Reset after 3 seconds
-      setTimeout(() => {
-        storeStopRecording();
-        clearRecording();
-        setPhase('idle');
-        setStatusMessage('');
-      }, 3000);
+      setCompletedRecordingId(currentRecordingId);
 
     } catch (err) {
       console.error('Upload/transcription failed:', err);
@@ -131,7 +127,14 @@ export function RecordPage() {
     setPhase('idle');
     setError(null);
     setStatusMessage('');
+    setCompletedRecordingId(null);
   }, [storeStopRecording, clearRecording]);
+
+  const handleViewTranscript = useCallback(() => {
+    if (completedRecordingId) {
+      navigate(`/library/${completedRecordingId}`);
+    }
+  }, [completedRecordingId, navigate]);
 
   const isDisabled = phase !== 'idle' && phase !== 'recording';
 
@@ -172,7 +175,6 @@ export function RecordPage() {
             getWaveformData={getWaveformData}
             isActive={isRecording}
             isPaused={isPaused}
-            sensitivity={7}
             className="w-full h-full"
           />
         )}
@@ -238,15 +240,31 @@ export function RecordPage() {
             <Loader2 className="w-8 h-8 text-echo-400 animate-spin" />
           </div>
         ) : phase === 'done' ? (
-          <button
-            onClick={handleReset}
-            className={cn(
-              'w-20 h-20 rounded-full flex items-center justify-center',
-              'bg-green-500 hover:bg-green-600 transition-smooth'
-            )}
-          >
-            <Mic className="w-8 h-8 text-white" />
-          </button>
+          <>
+            {/* View Transcript */}
+            <button
+              onClick={handleViewTranscript}
+              className={cn(
+                'flex items-center gap-2 px-6 py-3 rounded-full',
+                'bg-echo-500 hover:bg-echo-600 transition-smooth'
+              )}
+            >
+              <FileText className="w-5 h-5 text-white" />
+              <span className="text-white font-medium">Voir transcript</span>
+            </button>
+
+            {/* New Recording */}
+            <button
+              onClick={handleReset}
+              className={cn(
+                'w-14 h-14 rounded-full flex items-center justify-center',
+                'bg-slate-700 hover:bg-slate-600 transition-smooth'
+              )}
+              title="Nouvel enregistrement"
+            >
+              <Mic className="w-6 h-6 text-white" />
+            </button>
+          </>
         ) : phase === 'error' ? (
           <button
             onClick={handleReset}
