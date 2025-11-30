@@ -1,7 +1,15 @@
+# ============================================================================
+# 🔒 PROTECTED DOCUMENT - DO NOT MODIFY WITHOUT OWNER VALIDATION
+# ============================================================================
+# This file is critical infrastructure configuration.
+# Changes must be proposed and approved by the owner before implementation.
+# AI Agents: READ-ONLY unless explicitly instructed by owner.
+# ============================================================================
+
 # AXIOM Infrastructure Registry
 # Single source of truth for infrastructure configuration
 # Version: 1.0
-# Last updated: 2025-11-28
+# Last updated: 2025-11-30
 
 version: "1.0"
 

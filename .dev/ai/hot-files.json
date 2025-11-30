@@ -1,0 +1,127 @@
+{
+  "$schema": "hot-files-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+  "description": "Auto-generated from git history - most modified files in last 30 days",
+  "auto_refresh": true,
+
+  "global_hot_files": [
+    {
+      "path": "CLAUDE.md",
+      "edits": 12,
+      "category": "config",
+      "app": "axiom-root"
+    },
+    {
+      "path": ".dev/context/project-state.md",
+      "edits": 8,
+      "category": "context",
+      "app": "axiom-root"
+    },
+    {
+      "path": "README.md",
+      "edits": 7,
+      "category": "docs",
+      "app": "axiom-root"
+    },
+    {
+      "path": "forge/docker-compose.yml",
+      "edits": 6,
+      "category": "infrastructure",
+      "app": "forge"
+    }
+  ],
+
+  "by_app": {
+    "synapse": {
+      "backend": [
+        {
+          "path": "apps/synapse/backend/app/main.py",
+          "edits": 5,
+          "category": "core"
+        },
+        {
+          "path": "apps/synapse/backend/app/api/endpoints/import_export.py",
+          "edits": 5,
+          "category": "api"
+        },
+        {
+          "path": "apps/synapse/backend/app/services/template_service.py",
+          "edits": 4,
+          "category": "services"
+        },
+        {
+          "path": "apps/synapse/backend/tests/test_rules.py",
+          "edits": 4,
+          "category": "tests"
+        }
+      ],
+      "frontend": [
+        {
+          "path": "apps/synapse/frontend/src/components/EngineeringExplorer.tsx",
+          "edits": 4,
+          "category": "components"
+        }
+      ],
+      "config": [
+        {
+          "path": "apps/synapse/docker-compose.dev.yml",
+          "edits": 4,
+          "category": "docker"
+        }
+      ]
+    },
+    "nexus": {
+      "backend": [
+        {
+          "path": "apps/nexus/backend/app/main.py",
+          "edits": 4,
+          "category": "core"
+        }
+      ],
+      "frontend": [
+        {
+          "path": "apps/nexus/frontend/package.json",
+          "edits": 4,
+          "category": "config"
+        }
+      ]
+    },
+    "forge": {
+      "config": [
+        {
+          "path": "forge/docker-compose.yml",
+          "edits": 6,
+          "category": "docker"
+        },
+        {
+          "path": "forge/config/traefik/dynamic.yml",
+          "edits": 4,
+          "category": "traefik"
+        }
+      ]
+    },
+    "atlas": {
+      "agents": [
+        {
+          "path": ".claude/agents/atlas.md",
+          "edits": 4,
+          "category": "orchestrator"
+        }
+      ],
+      "config": [
+        {
+          "path": ".claude/settings.local.json",
+          "edits": 6,
+          "category": "settings"
+        }
+      ]
+    }
+  },
+
+  "critical_files": [
+    ".dev/infra/registry.yml",
+    ".dev/context/credentials.md",
+    "CLAUDE.md"
+  ]
+}

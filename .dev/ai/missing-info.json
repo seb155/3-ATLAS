@@ -1,0 +1,41 @@
+{
+  "$schema": "missing-info-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+  "description": "Information gaps detected by AI that need owner input",
+
+  "missing_items": [
+    {
+      "id": "info-001",
+      "category": "hardware",
+      "priority": "low",
+      "question": "What are your laptop specifications?",
+      "context": "Needed for hardware-config.md documentation",
+      "suggested_format": "Model, OS, CPU, RAM, Storage",
+      "status": "pending",
+      "asked_on": "2025-11-30"
+    },
+    {
+      "id": "info-002",
+      "category": "demo",
+      "priority": "high",
+      "question": "Do you have access to a Plant 3D SQL database for testing?",
+      "context": "Needed for Plant 3D POC connector development",
+      "suggested_format": "Yes/No + connection details if available",
+      "status": "pending",
+      "asked_on": "2025-11-30"
+    },
+    {
+      "id": "info-003",
+      "category": "demo",
+      "priority": "medium",
+      "question": "Do you have sample CSV data (mock) for demo?",
+      "context": "Needed for import workflow demonstration",
+      "suggested_format": "File path or need to generate mock data",
+      "status": "pending",
+      "asked_on": "2025-11-30"
+    }
+  ],
+
+  "resolved_items": []
+}

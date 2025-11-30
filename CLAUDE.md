@@ -372,39 +372,55 @@ At EVERY session start, load context:
 
 ## AI Agents System
 
-### Orchestrators (Opus)
+### Implemented Agents
 
-| Agent | Command | Purpose |
-|-------|---------|---------|
-| **ATLAS** | - | Main orchestrator, routes tasks to specialists |
-| **BRAINSTORM** | `/brainstorm` | Creative sessions for specs |
-| **SYSTEM-ARCHITECT** | `/system` | AI system governance (bypass) |
-| **GENESIS** | `/genesis` | AI evolution & agent creation (bypass) |
-| **DEVOPS-MANAGER** | Task tool | Infrastructure orchestration & troubleshooting |
+| Agent | File | Purpose |
+|-------|------|---------|
+| **ATLAS** | `.claude/agents/atlas.md` | Main orchestrator, routes tasks, manages context |
+| **DevOps Manager** | `.claude/agents/devops-manager.md` | Infrastructure, Docker, ports, networks |
+| **Brainstorm** | `.claude/agents/brainstorm.md` | Creative sessions, whiteboard mode |
 
-### Specialist Agents
+### Slash Commands
 
-| Agent | Invocation | Purpose |
-|-------|------------|---------|
-| **DevOps Manager** | `subagent_type="devops-manager"` | Port allocation, network config, infrastructure diagnosis |
+| Command | Mode | Purpose |
+|---------|------|---------|
+| `/0-new-session` | FULL | Start new day with app review |
+| `/0-next` | QUICK | Continue quickly without review |
+| `/0-resume` | RECOVERY | Resume after interruption |
+| `/0-ship` | - | Git workflow (test + commit + push) |
+| `/0-progress` | - | View all apps progression |
+| `/0-dashboard` | - | Current session status |
 
-### GENESIS - Meta-Agent
+### Skills
 
-GENESIS est le meta-agent d'evolution du systeme. Il fonctionne en **bypass** (parallele a tous les autres agents).
+| Skill | File | Purpose |
+|-------|------|---------|
+| `infra` | `.claude/skills/infra.md` | Quick infrastructure status |
+| `brainstorm` | `.claude/skills/brainstorm.md` | Activate whiteboard mode |
 
-```text
-/genesis analyze    # Analyse sessions, identifie patterns
-/genesis recommend  # Affiche recommandations en attente
-/genesis create     # Cree drafts d'agents/skills/commands
-/genesis benchmark  # Compare performances des agents
-/genesis watch      # Veille technologique (web)
-/genesis self       # Auto-amelioration
-```
+### Hooks
 
-**Fichiers GENESIS:**
-- `.claude/context/genesis-observations.md` - Recommandations
-- `.claude/context/agent-metrics.md` - Metriques des agents
-- `.claude/agents/drafts/` - Drafts en attente de validation
+| Hook | Type | Purpose |
+|------|------|---------|
+| Session Start | PreToolUse | Load context at startup |
+| Pre-Commit | PreToolUse | Validate before commit |
+| Context Update | PostToolUse | Update hot-files after edits |
+
+### Agent Rules
+
+| Rule | File | Purpose |
+|------|------|---------|
+| 10 | `10-traefik-routing.md` | Traefik routing rules |
+| 11 | `11-url-registry.md` | URL management |
+| 12 | `12-docker-networking.md` | Docker network config |
+| 20 | `20-protected-docs.md` | Protected documents policy |
+
+### ATLAS Development
+
+For developing/improving ATLAS itself:
+- `.atlas/CURRENT-STATE.md` - Current implementation state
+- `.atlas/ROADMAP.md` - Development plan
+- `.atlas/sessions/` - Session logs
 
 ---
 

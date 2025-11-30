@@ -1,0 +1,36 @@
+{
+  "$schema": "app-state-schema",
+  "version": "1.0",
+  "app": "apex",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "status": {
+    "phase": "Planning",
+    "version": null,
+    "progress_percent": 5,
+    "target_date": "2026-Q2",
+    "days_remaining": null
+  },
+
+  "current_focus": {
+    "sprint": null,
+    "primary_task": "Requirements gathering",
+    "blockers": []
+  },
+
+  "description": "Enterprise Portal - Central dashboard and application launcher",
+
+  "planned_features": [
+    "Unified dashboard",
+    "Application launcher (SYNAPSE, NEXUS, etc.)",
+    "Cross-app notifications",
+    "Global search",
+    "User management",
+    "Analytics overview"
+  ],
+
+  "tech_stack": {
+    "frontend": "React + TypeScript",
+    "notes": "Primarily frontend app, uses APIs from other apps"
+  }
+}

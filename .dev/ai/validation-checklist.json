@@ -1,0 +1,68 @@
+{
+  "$schema": "validation-checklist-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+  "description": "Features awaiting owner validation",
+
+  "pending_validations": [],
+
+  "recent_validations": [
+    {
+      "id": "val-001",
+      "date": "2025-11-30",
+      "feature": "Migration plan structure",
+      "app": "axiom-root",
+      "status": "validated",
+      "owner_feedback": "Approved with monorepo structure adjustment"
+    }
+  ],
+
+  "demo_checklist": {
+    "target_date": "2025-12-20",
+    "app": "synapse",
+    "items": [
+      {
+        "id": "demo-001",
+        "feature": "CSV Import workflow",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-002",
+        "feature": "Rule Engine execution",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-003",
+        "feature": "Excel template export (IN-P040)",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-004",
+        "feature": "Excel template export (CA-P040)",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-005",
+        "feature": "DevConsole real-time logs",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-006",
+        "feature": "Asset history & versioning",
+        "status": "pending",
+        "validated_by_owner": false
+      },
+      {
+        "id": "demo-007",
+        "feature": "Plant 3D POC connector",
+        "status": "pending",
+        "validated_by_owner": false
+      }
+    ]
+  }
+}

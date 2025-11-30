@@ -1,0 +1,30 @@
+{
+  "$schema": "agent-tasks-log-schema",
+  "version": "1.0",
+  "description": "Detailed task log - loaded on demand only to save tokens",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "retention_policy": {
+    "keep_days": 30,
+    "max_entries": 500
+  },
+
+  "tasks": [
+    {
+      "id": "task-001",
+      "session_id": "2025-11-30-brainstorm",
+      "timestamp": "2025-11-30T00:00:00Z",
+      "agent": "atlas",
+      "app": "axiom-root",
+      "action": "documentation",
+      "description": "Created OWNER-PROFILE.md with project context",
+      "status": "completed",
+      "duration_seconds": null,
+      "files_modified": [
+        "docs/context/OWNER-PROFILE.md"
+      ],
+      "tokens_used": null,
+      "notes": "Initial brainstorm session - owner profile and project context"
+    }
+  ]
+}

@@ -1,3 +1,11 @@
+<!-- ============================================================================
+🔒 PROTECTED DOCUMENT - DO NOT MODIFY WITHOUT OWNER VALIDATION
+============================================================================
+This file contains sensitive credentials and access information.
+Changes must be proposed and approved by the owner before implementation.
+AI Agents: READ-ONLY. NEVER expose or log these credentials.
+============================================================================ -->
+
 # Development Credentials
 
 **Single source of truth for local development access.**

@@ -1,7 +1,9 @@
+<!-- 🔒 PROTECTED: Infrastructure rule - DO NOT MODIFY WITHOUT OWNER VALIDATION -->
+
 # Règle 10: Routage Traefik Obligatoire
 
 **Status:** OBLIGATOIRE
-**Dernière mise à jour:** 2025-11-29
+**Dernière mise à jour:** 2025-11-30
 
 ---
 

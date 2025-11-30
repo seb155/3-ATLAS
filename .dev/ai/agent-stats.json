@@ -1,0 +1,76 @@
+{
+  "$schema": "agent-stats-schema",
+  "version": "1.0",
+  "last_updated": "2025-11-30T00:00:00Z",
+  "description": "Lightweight counters for agent performance tracking",
+
+  "global_stats": {
+    "total_sessions": 1,
+    "total_tasks_completed": 0,
+    "total_tasks_failed": 0,
+    "estimated_tokens_used": 0,
+    "estimated_cost_usd": 0.0
+  },
+
+  "agents": {
+    "atlas": {
+      "name": "ATLAS",
+      "model": "opus",
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "avg_duration_seconds": 0,
+      "last_used": null
+    },
+    "backend-builder": {
+      "name": "Backend Builder",
+      "model": "sonnet",
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "avg_duration_seconds": 0,
+      "last_used": null
+    },
+    "frontend-builder": {
+      "name": "Frontend Builder",
+      "model": "sonnet",
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "avg_duration_seconds": 0,
+      "last_used": null
+    },
+    "devops-builder": {
+      "name": "DevOps Builder",
+      "model": "haiku",
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "avg_duration_seconds": 0,
+      "last_used": null
+    },
+    "qa-tester": {
+      "name": "QA Tester",
+      "model": "haiku",
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "avg_duration_seconds": 0,
+      "last_used": null
+    }
+  },
+
+  "by_app": {
+    "synapse": {
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "primary_agents": []
+    },
+    "nexus": {
+      "tasks_completed": 0,
+      "tasks_failed": 0,
+      "primary_agents": []
+    }
+  },
+
+  "trends": {
+    "sessions_this_week": 0,
+    "tasks_this_week": 0,
+    "success_rate_percent": 0
+  }
+}
