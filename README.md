@@ -6,6 +6,10 @@
 
 *Streamline your engineering workflows, centralize knowledge, and collaborate with AI*
 
+[![CI](https://github.com/seb155/AXIOM/actions/workflows/ci.yml/badge.svg)](https://github.com/seb155/AXIOM/actions/workflows/ci.yml)
+[![Release](https://github.com/seb155/AXIOM/actions/workflows/release.yml/badge.svg)](https://github.com/seb155/AXIOM/actions/workflows/release.yml)
+[![codecov](https://codecov.io/gh/seb155/AXIOM/branch/master/graph/badge.svg)](https://codecov.io/gh/seb155/AXIOM)
+
 [![Platform](https://img.shields.io/badge/Platform-AXIOM-blue?style=for-the-badge)](https://github.com/seb155/AXIOM)
 [![Version](https://img.shields.io/badge/Version-0.2.5-green?style=for-the-badge)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)

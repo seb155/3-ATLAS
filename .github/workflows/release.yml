@@ -1,0 +1,193 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual release)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # Check if release is needed
+  # ============================================
+  check-release:
+    name: Check Release
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for releasable commits
+        id: check
+        run: |
+          # Check if there are commits since last tag that warrant a release
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tag found, will create initial release"
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          else
+            # Check for feat:, fix:, or BREAKING CHANGE commits since last tag
+            COMMITS=$(git log $LAST_TAG..HEAD --oneline | grep -E "^[a-f0-9]+ (feat|fix|perf|refactor)(\(.+\))?:" || true)
+            if [ -n "$COMMITS" ]; then
+              echo "Found releasable commits:"
+              echo "$COMMITS"
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            else
+              echo "No releasable commits found since $LAST_TAG"
+              echo "should_release=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  # ============================================
+  # Run CI before release
+  # ============================================
+  ci:
+    name: CI Validation
+    needs: check-release
+    if: needs.check-release.outputs.should_release == 'true'
+    uses: ./.github/workflows/ci.yml
+
+  # ============================================
+  # Create Release
+  # ============================================
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [check-release, ci]
+    if: needs.check-release.outputs.should_release == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release \
+            @semantic-release/changelog \
+            @semantic-release/git \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            npx semantic-release --dry-run
+          else
+            npx semantic-release
+          fi
+
+  # ============================================
+  # Build and Upload Release Artifacts
+  # ============================================
+  build-artifacts:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: release
+
+    defaults:
+      run:
+        working-directory: apps/synapse/frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          cd ${{ github.workspace }}
+          TAG=$(git describe --tags --abbrev=0)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/synapse/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Create release archive
+        run: |
+          cd dist
+          tar -czvf ../synapse-frontend-${{ steps.get_tag.outputs.tag }}.tar.gz .
+          cd ..
+          zip -r synapse-frontend-${{ steps.get_tag.outputs.tag }}.zip dist/
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          files: |
+            apps/synapse/frontend/synapse-frontend-${{ steps.get_tag.outputs.tag }}.tar.gz
+            apps/synapse/frontend/synapse-frontend-${{ steps.get_tag.outputs.tag }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # Notify on Release
+  # ============================================
+  notify:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [release, build-artifacts]
+    if: always() && needs.release.result == 'success'
+
+    steps:
+      - name: Get release info
+        id: release_info
+        run: |
+          echo "Release completed successfully!"
+          echo "Check the Releases page for details."
+
+      - name: Create summary
+        run: |
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A new release has been created and published." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review the [Releases](../../releases) page" >> $GITHUB_STEP_SUMMARY
+          echo "- Update deployment if needed" >> $GITHUB_STEP_SUMMARY

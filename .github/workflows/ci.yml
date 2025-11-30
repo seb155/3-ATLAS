@@ -13,13 +13,51 @@ on:
       - '.github/workflows/ci.yml'
 
 env:
-  PYTHON_VERSION: '3.10'
+  PYTHON_VERSION: '3.11'
   NODE_VERSION: '20'
+  COVERAGE_THRESHOLD: 65  # Target: 70%, current: 66%
 
 jobs:
+  # ============================================
+  # Backend Linting (Fast - runs first)
+  # ============================================
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/synapse/backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: apps/synapse/backend/requirements.txt
+
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.1.9
+
+      - name: Run Ruff linter
+        run: ruff check . --output-format=github
+
+      - name: Run Ruff formatter check
+        run: ruff format --check .
+
+  # ============================================
+  # Backend Tests (with PostgreSQL)
+  # ============================================
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
+    needs: backend-lint  # Run after lint passes
 
     services:
       postgres:
@@ -32,6 +70,16 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -55,16 +103,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install -r requirements-dev.txt
 
       - name: Run tests with coverage
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/synapse_test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/synapse_test
+          REDIS_URL: redis://localhost:6379
           SECRET_KEY: test-secret-key-for-ci
           ENVIRONMENT: test
         run: |
-          pytest tests/ --cov=app --cov-report=xml --cov-report=term-missing -v
+          pytest tests/ \
+            --cov=app \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            -v \
+            --tb=short
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -72,10 +127,21 @@ jobs:
           file: apps/synapse/backend/coverage.xml
           flags: backend
           name: backend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
         continue-on-error: true
 
-  frontend-tests:
-    name: Frontend Tests
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: apps/synapse/backend/coverage.xml
+          retention-days: 7
+
+  # ============================================
+  # Frontend Lint & Type Check (Fast)
+  # ============================================
+  frontend-lint:
+    name: Frontend Lint
     runs-on: ubuntu-latest
 
     defaults:
@@ -96,21 +162,59 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linting
+      - name: Run ESLint
         run: npm run lint
-        continue-on-error: true
 
-      - name: Run type check
+      - name: Run TypeScript type check
         run: npm run type-check
-        continue-on-error: true
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
+  # ============================================
+  # Frontend Tests
+  # ============================================
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: frontend-lint  # Run after lint passes
+
+    defaults:
+      run:
+        working-directory: apps/synapse/frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/synapse/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run tests
         run: npm run test -- --run
 
       - name: Run tests with coverage
         run: npm run test:coverage -- --run
+        continue-on-error: true  # Coverage reporting optional
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: apps/synapse/frontend/coverage/
+          retention-days: 7
         continue-on-error: true
 
+  # ============================================
+  # Build Check (Final validation)
+  # ============================================
   build:
     name: Build Check
     runs-on: ubuntu-latest
@@ -138,3 +242,32 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: apps/synapse/frontend/dist/
+          retention-days: 7
+
+  # ============================================
+  # CI Summary (Status check for branch protection)
+  # ============================================
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    needs: [backend-lint, backend-tests, frontend-lint, frontend-tests, build]
+    if: always()
+
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.backend-lint.result }}" != "success" ]] || \
+             [[ "${{ needs.backend-tests.result }}" != "success" ]] || \
+             [[ "${{ needs.frontend-lint.result }}" != "success" ]] || \
+             [[ "${{ needs.frontend-tests.result }}" != "success" ]] || \
+             [[ "${{ needs.build.result }}" != "success" ]]; then
+            echo "❌ One or more jobs failed"
+            exit 1
+          fi
+          echo "✅ All CI checks passed!"
