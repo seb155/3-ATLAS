@@ -200,13 +200,13 @@ skill: "infra"
 - [x] Implémenter `0-dashboard.md`
 - [ ] Tester chaque commande
 
-### Phase 2 - Agents ← PROCHAINE
-- [ ] Implémenter `atlas.md`
-- [ ] Implémenter `devops-manager.md`
-- [ ] Implémenter `brainstorm.md`
+### Phase 2 - Agents ✅ COMPLET
+- [x] Implémenter `atlas.md`
+- [x] Implémenter `devops-manager.md`
+- [x] Implémenter `brainstorm.md`
 - [ ] Intégrer avec agent-stats.json
 
-### Phase 3 - Skills
+### Phase 3 - Skills ← PROCHAINE
 - [ ] Implémenter `infra.md`
 - [ ] Implémenter `brainstorm.md`
 
@@ -232,7 +232,12 @@ skill: "infra"
 ### 2025-11-30 - Phase 1 Complétée
 - 6 slash commands créés dans `.claude/commands/`
 - Progression: 21% → 53%
-- Prochaine étape: Phase 2 (agents)
+
+### 2025-11-30 - Phase 2 Complétée
+- 3 agents créés dans `.claude/agents/`
+- atlas.md, devops-manager.md, brainstorm.md
+- Progression: 53% → 68%
+- Prochaine étape: Phase 3 (skills)
 
 ---
 

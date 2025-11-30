@@ -1,7 +1,7 @@
 # ATLAS - État Actuel
 
 **Dernière mise à jour:** 2025-11-30
-**Session:** Phase 1 - Slash Commands
+**Session:** Phase 2 - Agents
 
 ---
 
@@ -10,11 +10,11 @@
 | Composant | Implémenté | Planifié | Progression |
 |-----------|------------|----------|-------------|
 | Règles agents | 4 | 4 | 100% |
-| Agents | 0 | 3 | 0% |
+| Agents | 3 | 3 | 100% |
 | Slash commands | 6 | 6 | 100% |
 | Skills | 0 | 3 | 0% |
 | Hooks | 0 | 3 | 0% |
-| **TOTAL** | **10** | **19** | **53%** |
+| **TOTAL** | **13** | **19** | **68%** |
 
 ---
 
@@ -33,21 +33,22 @@
 
 ---
 
-### 2. Agents ❌ À CRÉER
+### 2. Agents ✅ COMPLET
 
-| Agent | Fichier | Status | Priorité | Description |
-|-------|---------|--------|----------|-------------|
-| ATLAS | `atlas.md` | ❌ | HAUTE | Orchestrateur principal |
-| DevOps Manager | `devops-manager.md` | ❌ | MOYENNE | Gestion infrastructure |
-| Brainstorm | `brainstorm.md` | ❌ | MOYENNE | Sessions whiteboard |
+| Agent | Fichier | Status | Description |
+|-------|---------|--------|-------------|
+| ATLAS | `atlas.md` | ✅ | Orchestrateur principal |
+| DevOps Manager | `devops-manager.md` | ✅ | Gestion infrastructure |
+| Brainstorm | `brainstorm.md` | ✅ | Sessions whiteboard |
 
-**Localisation prévue:** `.claude/agents/`
+**Localisation:** `.claude/agents/`
 
-**Specs ATLAS:**
+**Capacités ATLAS:**
 - Orchestrateur de tous les autres agents
 - Gère le routage des tâches
 - Charge le contexte approprié selon l'app
 - Propose les prochaines actions
+- Économie de tokens (chargement progressif)
 
 ---
 
