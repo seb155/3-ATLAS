@@ -71,9 +71,9 @@ class TestLogsWebSocket:
         """Test WebSocket clear command."""
         from app.services.websocket_manager import WebSocketLogger
 
-        # Clear first, then add a log
+        # Clear first, then add a log using sync method (not async)
         WebSocketLogger.clear()
-        WebSocketLogger.log("info", "Log to clear", {})
+        WebSocketLogger.log_sync("info", "Log to clear")
 
         # Verify log was added
         logs_before = WebSocketLogger.get_logs()
@@ -86,3 +86,28 @@ class TestLogsWebSocket:
         # Verify logs were cleared
         logs_after = WebSocketLogger.get_logs()
         assert len(logs_after) == 0
+
+    def test_websocket_ping_command(self, client):
+        """Test WebSocket ping/pong."""
+        with client.websocket_connect("/ws/logs") as websocket:
+            # Send ping command
+            websocket.send_text("ping")
+            # Should receive pong
+            response = websocket.receive_text()
+            assert response == "pong"
+
+    def test_websocket_receives_recent_logs(self, client):
+        """Test WebSocket receives recent logs on connect."""
+        from app.services.websocket_manager import WebSocketLogger
+
+        # Clear and add some logs
+        WebSocketLogger.clear()
+        WebSocketLogger.log_sync("info", "Test log 1")
+        WebSocketLogger.log_sync("info", "Test log 2")
+
+        with client.websocket_connect("/ws/logs") as websocket:
+            # Should receive the recent logs
+            log1 = websocket.receive_json()
+            assert log1["message"] == "Test log 1"
+            log2 = websocket.receive_json()
+            assert log2["message"] == "Test log 2"

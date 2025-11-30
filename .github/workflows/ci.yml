@@ -15,7 +15,7 @@ on:
 env:
   PYTHON_VERSION: '3.11'
   NODE_VERSION: '20'
-  COVERAGE_THRESHOLD: 65  # Target: 70%, current: 66%
+  COVERAGE_THRESHOLD: 68  # Target: 70%, current: 68.83%
 
 jobs:
   # ============================================
