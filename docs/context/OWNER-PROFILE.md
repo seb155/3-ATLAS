@@ -52,6 +52,55 @@ La firme exécute l'ensemble du cycle de projet en interne, en mode **fast-track
 
 ---
 
+## Propriété Intellectuelle & Modèle Business
+
+### Statut IP
+
+| Aspect | Détail |
+|:-------|:-------|
+| **Propriétaire** | Owner (développeur individuel) |
+| **Repository** | Privé (GitHub) |
+| **Licence actuelle** | Propriétaire |
+
+### Stratégie de Monétisation
+
+**AXIOM reste la propriété du développeur.** Options envisagées avec l'employeur:
+
+#### Option 1: Vente de Parts
+- L'employeur acquiert des parts dans le projet
+- Participation au développement et tests
+- Partage des bénéfices futurs
+
+#### Option 2: Licence Avantageuse
+- Licence d'utilisation pour l'employeur
+- Tarification préférentielle (early adopter)
+- L'employeur aide au développement/testing
+- Owner conserve 100% de la propriété
+
+#### Option 3: Modèle Hybride
+- Licence + participation au développement
+- Co-développement de features spécifiques
+- Owner garde le contrôle de la roadmap
+
+### Avantages pour l'Employeur
+
+| Avantage | Description |
+|:---------|:------------|
+| **Coût réduit** | Pas de développement from scratch |
+| **Influence** | Participer à façonner l'outil |
+| **Support** | Développeur interne dédié |
+| **Flexibilité** | Customisation possible |
+| **Self-hosted** | Données on-premise, pas de cloud |
+
+### Protection IP
+
+- Code source privé
+- Documentation technique protégée
+- Démo = proof of concept, pas le code complet
+- NDA si discussion approfondie
+
+---
+
 ## Environnement Existant (Chez l'Employeur)
 
 ### Outils Actuels
@@ -236,13 +285,89 @@ Permet aux AI de "se souvenir" du contexte projet, des décisions passées, et d
 > "Voici ce que je suis capable de faire. C'est self-hosted, plus performant,
 > et plus flexible pour qu'on développe à l'interne."
 
-#### Scénario de Démo
+#### Scénario de Démo - Workflow Complet
 
-1. **Import:** Charger une liste d'instruments (ex: 100 instruments d'une zone)
-2. **Automatisation:** Exécuter les règles (création moteurs, câbles)
-3. **Traçabilité:** Montrer les logs en temps réel dans DevConsole
-4. **Export:** Générer un package livrable (IN-P040, CA-P040)
-5. **Comparaison implicite:** UI moderne vs AG-Grid basique, règles flexibles vs Lambda figées
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        DÉMO WORKFLOW END-TO-END                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  1. IMPORT                    2. RULES                    3. EXPORT        │
+│  ┌─────────────────┐         ┌─────────────────┐         ┌──────────────┐  │
+│  │  Plant 3D SQL   │────────▶│  Rule Engine    │────────▶│ Excel Pro    │  │
+│  │  (POC)          │         │  Auto-generate  │         │ IN-P040      │  │
+│  │                 │         │                 │         │ CA-P040      │  │
+│  │  CSV/Excel      │         │  • Motors       │         │ IO-List      │  │
+│  │  (Backup)       │         │  • Cables       │         │              │  │
+│  └─────────────────┘         │  • Packages     │         └──────────────┘  │
+│         │                    └────────┬────────┘                │          │
+│         │                             │                         │          │
+│         ▼                             ▼                         ▼          │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        FEATURES TRANSVERSES                          │   │
+│  │  • Traçabilité complète (qui/quoi/quand/pourquoi)                   │   │
+│  │  • Historique de versions (diff, rollback)                          │   │
+│  │  • Structures: FBS / LBS / CBS / WBS                                │   │
+│  │  • Logs temps réel (DevConsole)                                     │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 1. Import - Proof of Concept
+
+| Source | Status | Description |
+|:-------|:-------|:------------|
+| **Plant 3D SQL** | POC | Lecture directe de la DB SQL (démo principale) |
+| **CSV/Excel** | Ready | Import manuel (backup, autres sources) |
+| **Autres logiciels** | Future | Architecture extensible pour d'autres sources |
+
+**Architecture d'import extensible:**
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Plant 3D      │     │   CSV/Excel     │     │   Future        │
+│   Connector     │     │   Connector     │     │   Connectors    │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │   Import Service        │
+                    │   (Unified Interface)   │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │   Asset Database        │
+                    └─────────────────────────┘
+```
+
+#### 2. Rules - Automatisation
+
+| Rule | Action | Exemple |
+|:-----|:-------|:--------|
+| **CREATE_CHILD** | Crée asset enfant | Pompe → Moteur automatique |
+| **CREATE_CABLE** | Crée câble + sizing | Motor → Cable avec calcul AWG |
+| **CREATE_PACKAGE** | Groupe en package | Zone 210 → Package IN-P040 |
+
+#### 3. Export - Livrables Professionnels
+
+| Template | Description | Format |
+|:---------|:------------|:-------|
+| **IN-P040** | Instrument Index | Excel formaté |
+| **CA-P040** | Cable Schedule | Excel formaté |
+| **IO-List** | Liste I/O | Excel formaté |
+
+**Qualité attendue:** Format professionnel, prêt pour soumission client.
+
+#### 4. Features Transverses
+
+| Feature | Description |
+|:--------|:------------|
+| **Traçabilité** | Event sourcing - chaque action loggée |
+| **Versions** | Historique complet, diff entre versions, rollback |
+| **Structures** | FBS (Functional), LBS (Location), CBS (Cost), WBS (Work) |
+| **DevConsole** | Logs temps réel pendant les opérations |
+| **Search** | Full-text search (MeiliSearch) |
 
 #### Différenciateurs à Mettre en Avant
 
@@ -253,6 +378,9 @@ Permet aux AI de "se souvenir" du contexte projet, des décisions passées, et d
 | UI | AG-Grid plat | VSCode-like, hiérarchique |
 | Rules | Lambda (rigide) | Rule Engine configurable |
 | Évolution | Limité par AWS | Développement libre |
+| Import | SQL read only | Multi-source extensible |
+| Export | Basique | Excel professionnel formaté |
+| Structures | Flat | FBS/LBS/CBS/WBS hiérarchiques |
 
 ### Moyen Terme (Q1 2026)
 
