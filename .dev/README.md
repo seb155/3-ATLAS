@@ -65,6 +65,8 @@
 │   ├── current-sprint.md    # Sprint actuel
 │   ├── next-sprint.md       # Prochain sprint
 │   ├── mvp-week-2-sprint.md # Sprint semaine 2
+│   ├── nexus-development-plan.md  # NEXUS full plan + TriliumNext
+│   ├── nexus-phase-2-sprint.md    # NEXUS Phase 2 sprint (4 weeks)
 │   └── backlog/             # Backlog detaille
 │       ├── ai-strategy.md
 │       ├── rule-engine-event-sourcing.md
@@ -120,6 +122,8 @@
 | Status tests | `testing/test-status.md` |
 | Decisions architecture | `decisions/` |
 | Historique infra | `infra/CHANGELOG.md` |
+| **NEXUS Plan** | `roadmap/nexus-development-plan.md` |
+| **NEXUS Sprint** | `roadmap/nexus-phase-2-sprint.md` |
 
 ---
 

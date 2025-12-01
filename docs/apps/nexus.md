@@ -1,12 +1,19 @@
 # NEXUS - Knowledge Graph
 
-> **Personal Knowledge Management & Graph Visualization**
+> **Personal Knowledge Management & 3D Graph Visualization**
 
 ## Overview
 
-NEXUS is a knowledge graph application for managing personal and organizational knowledge. It provides powerful graph visualization and semantic search capabilities.
+NEXUS is a knowledge graph application for managing personal and organizational knowledge. It provides powerful 3D graph visualization ("FRED") and semantic search capabilities, with sync from TriliumNext.
 
 ## Key Features
+
+### FRED - 3D Memory Graph
+- **TriliumNext Sync** - Automatic import from personal notes
+- **3D Visualization** - Interactive force-directed graph (Three.js)
+- **Click-to-View** - Open notes as Markdown in side panel
+- **Community Detection** - Auto-clustering related notes
+- **Link Analysis** - Visual relationship mapping
 
 ### Knowledge Management
 - Create and link knowledge nodes
@@ -15,9 +22,9 @@ NEXUS is a knowledge graph application for managing personal and organizational 
 - Full-text search
 
 ### Graph Visualization
-- Interactive node-link diagrams
+- Interactive 3D node-link diagrams
 - Relationship mapping
-- Clustering and grouping
+- Clustering and grouping (Louvain algorithm)
 - Force-directed layouts
 
 ### Personal Portal
@@ -31,6 +38,12 @@ NEXUS is a knowledge graph application for managing personal and organizational 
 - Semantic search
 - Faceted filtering
 - Related content suggestions
+
+### TriliumNext Integration
+- ETAPI sync (real-time or scheduled)
+- HTML to Markdown conversion
+- Link extraction and graph building
+- Bidirectional sync (planned)
 
 ---
 
@@ -89,9 +102,59 @@ npm run dev
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Python, FastAPI, SQLAlchemy |
-| Frontend | React 19, TypeScript, TailwindCSS |
-| Database | PostgreSQL (via FORGE) |
-| Cache | Redis (via FORGE) |
+| Backend | Python 3.11, FastAPI, SQLAlchemy |
+| Frontend | React 19, TypeScript 5.9, Vite 7, TailwindCSS 4 |
+| Database | PostgreSQL 15 (via FORGE) |
+| Cache | Redis 7 (via FORGE) |
 | Search | MeiliSearch (via FORGE) |
-| Graph | D3.js, Force Graph |
+| Graph 3D | react-force-graph-3d, Three.js |
+| Graph Analytics | NetworkX, python-louvain |
+| Sync | trilium-py, html2text |
+| State | Zustand |
+
+---
+
+## Development Status
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ Complete | UI Foundation (13 themes) |
+| Phase 1.5 | ✅ Complete | Visual Polish |
+| Phase 2 | 📋 Planned | Notes/Wiki + TriliumNext Sync |
+| Phase 3 | 📋 Planned | Graph Analytics + FRED 3D |
+| Phase 4 | 📋 Planned | Search + MeiliSearch |
+| Phase 5 | 📋 Planned | Integration + Polish |
+
+**Planning docs:**
+- [NEXUS Development Plan](../../.dev/roadmap/nexus-development-plan.md)
+- [Phase 2 Sprint](../../.dev/roadmap/nexus-phase-2-sprint.md)
+
+---
+
+## TriliumNext Sync Architecture
+
+```
+┌──────────────────┐     ETAPI      ┌──────────────────┐
+│   TriliumNext    │ ────────────→  │  TriliumSync     │
+│ notes.s-gagnon.com│               │    Service       │
+└──────────────────┘                └────────┬─────────┘
+                                             │
+                    ┌────────────────────────┼────────────────────────┐
+                    │                        ↓                        │
+              ┌─────┴─────┐          ┌──────────────┐         ┌──────┴──────┐
+              │   notes   │          │  note_links  │         │  sync_log   │
+              │  (table)  │          │   (table)    │         │   (table)   │
+              └─────┬─────┘          └──────────────┘         └─────────────┘
+                    │
+                    ↓
+           ┌────────────────┐        ┌──────────────┐
+           │  GraphService  │ ─────→ │    FRED      │
+           │   (NetworkX)   │        │ (3D Graph)   │
+           └────────────────┘        └──────┬───────┘
+                                            │ click
+                                            ↓
+                                    ┌──────────────┐
+                                    │ NoteViewer   │
+                                    │ (Markdown)   │
+                                    └──────────────┘
+```
