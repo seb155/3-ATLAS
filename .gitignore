@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 node_modules/
 .pnpm-store/
-package-lock.json
+# Note: package-lock.json should be committed for reproducible builds
 pnpm-lock.yaml
 yarn.lock
 
