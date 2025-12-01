@@ -60,6 +60,64 @@ AXIOM provides **an integrated ecosystem** with an AI OS at its core:
 
 ---
 
+## Sub-Projects
+
+| App | Path | Description | Status | README |
+|-----|------|-------------|--------|--------|
+| **SYNAPSE** | `apps/synapse/` | MBSE Platform - Engineering automation | MVP Dec 2025 | [View](./apps/synapse/README.md) |
+| **NEXUS** | `apps/nexus/` | Knowledge Portal - Notes, wiki, graph 3D | Phase 2.0 | [View](./apps/nexus/README.md) |
+| **ATLAS** | `apps/atlas/` | AI OS - Central nervous system | Active | [View](./apps/atlas/README.md) |
+| **APEX** | `apps/apex/` | Enterprise Portal - Dashboard & launcher | Planning | - |
+| **CORTEX** | `apps/cortex/` | Memory Engine - CAG/RAG hybrid | Dev | - |
+| **ECHO** | `apps/echo/` | Voice Assistant - Tauri Desktop | Dev | - |
+| **FORGE** | `forge/` | Shared Infrastructure - Docker services | Stable | [View](./forge/README.md) |
+
+### SYNAPSE - MBSE Platform
+
+> **Model-Based Systems Engineering for EPCM Projects**
+
+Transform engineering data into deliverables automatically.
+
+**Key Features:**
+- Smart CSV/Excel import with validation
+- Rule Engine (CREATE_CHILD, CREATE_CABLE, CREATE_PACKAGE)
+- Full workflow audit trail
+- Template export (IN-P040, CA-P040)
+
+**Tech:** FastAPI + React 19 + TypeScript + PostgreSQL + Zustand
+
+[Full Documentation](./apps/synapse/README.md)
+
+### NEXUS - Knowledge Portal
+
+> **Your Second Brain**
+
+Notes, wiki, tasks, and 3D knowledge graph visualization.
+
+**Key Features:**
+- Rich notes with TipTap editor
+- Wiki with [[backlinks]]
+- 3D graph visualization (powered by CORTEX)
+- 13 themes
+
+[Full Documentation](./apps/nexus/README.md)
+
+### FORGE - Infrastructure
+
+Shared Docker services for all applications.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| PostgreSQL | 5433 | Primary database |
+| Redis | 6379 | Cache & sessions |
+| Traefik | 80/443 | Reverse proxy + SSL |
+| Grafana | 3000 | Monitoring |
+| MeiliSearch | 7700 | Full-text search |
+
+[Full Documentation](./forge/README.md)
+
+---
+
 ## Architecture
 
 ```
