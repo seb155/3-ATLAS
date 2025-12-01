@@ -17,6 +17,7 @@ interface RightSidebarProps {
     defaultWidth?: number;
     minWidth?: number;
     maxWidth?: number;
+    defaultExpanded?: boolean;
 }
 
 export function RightSidebar({
@@ -26,9 +27,10 @@ export function RightSidebar({
     defaultTab = 'columns',
     defaultWidth = 350,
     minWidth = 280,
-    maxWidth = 600
+    maxWidth = 600,
+    defaultExpanded = false
 }: RightSidebarProps) {
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
     const [activeTab, setActiveTab] = useState<TabId>(defaultTab);
     const [width, setWidth] = useState(defaultWidth);
     const [isResizing, setIsResizing] = useState(false);

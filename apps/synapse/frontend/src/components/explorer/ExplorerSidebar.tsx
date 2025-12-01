@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, MapPin, Building, LayoutGrid, Server, Database, Layers, Box, GripVertical, ChevronDown, ChevronRight, Factory, Cpu, ShoppingBag, Settings, Activity, Zap } from 'lucide-react';
+import { Search, MapPin, Building, LayoutGrid, Server, Database, Layers, Box, GripVertical, ChevronDown, ChevronRight, ChevronLeft, Factory, Cpu, ShoppingBag, Settings, Activity, Zap, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { Asset, PhysicalLocation, LocationType, AssetType } from '../../../types';
 import { CabinetPlanner as Engine } from '../../services/engineeringEngine';
 
@@ -145,6 +145,7 @@ export const ExplorerSidebar: React.FC<ExplorerSidebarProps> = ({
     const safeLocations = Array.isArray(locations) ? locations : [];
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const fbsTree = useMemo(() => Engine.getFBSTree(safeInstruments), [safeInstruments]);
     const wbsTree = wbsTreeProp || useMemo(() => Engine.getWBSTree(safeInstruments), [safeInstruments]);
@@ -231,13 +232,74 @@ export const ExplorerSidebar: React.FC<ExplorerSidebarProps> = ({
         }
     };
 
+    // COLLAPSED STATE - Vertical icons only
+    if (isCollapsed) {
+        return (
+            <div className="w-12 flex flex-col border-r border-slate-800 bg-slate-950/50 items-center py-2 transition-all duration-200">
+                {/* Expand button */}
+                <button
+                    onClick={() => setIsCollapsed(false)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg mb-4 transition-colors"
+                    title="Expand sidebar"
+                >
+                    <PanelLeft size={18} />
+                </button>
+
+                {/* Vertical LBS/FBS/WBS toggles */}
+                <div className="flex flex-col gap-1">
+                    <button
+                        onClick={() => setViewMode('LBS')}
+                        className={`p-2 rounded-lg transition-colors ${viewMode === 'LBS' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                        title="Location Based Structure"
+                    >
+                        <MapPin size={18} />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('FBS')}
+                        className={`p-2 rounded-lg transition-colors ${viewMode === 'FBS' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                        title="Functional Based Structure"
+                    >
+                        <Factory size={18} />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('WBS')}
+                        className={`p-2 rounded-lg transition-colors ${viewMode === 'WBS' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                        title="Work Breakdown Structure"
+                    >
+                        <ShoppingBag size={18} />
+                    </button>
+                </div>
+
+                {/* Collapsed search icon */}
+                <button
+                    onClick={() => setIsCollapsed(false)}
+                    className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg mt-4 transition-colors"
+                    title="Search"
+                >
+                    <Search size={18} />
+                </button>
+            </div>
+        );
+    }
+
+    // EXPANDED STATE
     return (
-        <div className="w-80 flex flex-col border-r border-slate-800 bg-slate-950/50">
+        <div className="w-80 flex flex-col border-r border-slate-800 bg-slate-950/50 transition-all duration-200">
             <div className="p-4 border-b border-slate-800">
-                <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800 mb-4">
-                    <ViewToggle label="LBS" mode="LBS" current={viewMode} set={setViewMode} />
-                    <ViewToggle label="FBS" mode="FBS" current={viewMode} set={setViewMode} />
-                    <ViewToggle label="WBS" mode="WBS" current={viewMode} set={setViewMode} />
+                {/* Header with collapse button */}
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800 flex-1 mr-2">
+                        <ViewToggle label="LBS" mode="LBS" current={viewMode} set={setViewMode} />
+                        <ViewToggle label="FBS" mode="FBS" current={viewMode} set={setViewMode} />
+                        <ViewToggle label="WBS" mode="WBS" current={viewMode} set={setViewMode} />
+                    </div>
+                    <button
+                        onClick={() => setIsCollapsed(true)}
+                        className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                        title="Collapse sidebar"
+                    >
+                        <PanelLeftClose size={16} />
+                    </button>
                 </div>
                 <div className="relative">
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
