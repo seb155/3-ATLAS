@@ -226,10 +226,11 @@ export const useDevConsoleStore = create<DevConsoleState>((set, get) => ({
                     case 'LAST_HOUR':
                         if (now - logTime > 60 * 60 * 1000) return false
                         break
-                    case 'TODAY':
+                    case 'TODAY': {
                         const today = new Date().setHours(0, 0, 0, 0)
                         if (logTime < today) return false
                         break
+                    }
                 }
             }
 
@@ -272,10 +273,11 @@ export const useDevConsoleStore = create<DevConsoleState>((set, get) => ({
                     case 'LAST_HOUR':
                         if (now - workflowTime > 60 * 60 * 1000) return false
                         break
-                    case 'TODAY':
-                        const today = new Date().setHours(0, 0, 0, 0)
-                        if (workflowTime < today) return false
+                    case 'TODAY': {
+                        const todayStart = new Date().setHours(0, 0, 0, 0)
+                        if (workflowTime < todayStart) return false
                         break
+                    }
                 }
             }
 

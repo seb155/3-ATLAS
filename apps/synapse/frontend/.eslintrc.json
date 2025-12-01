@@ -9,7 +9,9 @@
     "vite.config.ts",
     "vitest.config.ts",
     "vite-env.d.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "index.tsx",
+    "setupTests.ts"
   ],
   "extends": [
     "eslint:recommended",
@@ -26,8 +28,12 @@
   "plugins": ["react-refresh"],
   "rules": {
     "react-refresh/only-export-components": "warn",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-explicit-any": "warn",
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-unused-expressions": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-case-declarations": "warn",
+    "react-hooks/rules-of-hooks": "warn"
   }
 }

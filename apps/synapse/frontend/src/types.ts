@@ -9,7 +9,7 @@ export enum LocationType {
     MCC = 'MCC',
     PLC = 'PLC',
     PANEL = 'PANEL',
-    JB = 'JUNCTION_BOX',
+    JB = 'JB',  // Alias display name for JUNCTION_BOX
     RIO = 'RIO'
 }
 
