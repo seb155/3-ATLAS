@@ -1,0 +1,86 @@
+# OpenTelemetry Collector Configuration
+# Receives telemetry from Claude Code and exports to Prometheus/Loki
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  resource:
+    attributes:
+      - key: service.name
+        value: claude-code
+        action: upsert
+      - key: deployment.environment
+        value: development
+        action: upsert
+
+  # Transform attributes for better Prometheus compatibility
+  transform:
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["model"], attributes["model"]) where attributes["model"] != nil
+          - set(attributes["type"], attributes["type"]) where attributes["type"] != nil
+
+exporters:
+  # Prometheus Remote Write for metrics
+  prometheusremotewrite:
+    endpoint: "http://prometheus:9090/api/v1/write"
+    tls:
+      insecure: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Loki for logs/events
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+    labels:
+      attributes:
+        session.id: "session_id"
+        model: "model"
+        organization.id: "org_id"
+      resource:
+        service.name: "service_name"
+
+  # Debug logging (development only)
+  debug:
+    verbosity: basic
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, zpages]
+
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource, transform]
+      exporters: [prometheusremotewrite]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [loki]
+
+  telemetry:
+    logs:
+      level: info

@@ -1,0 +1,85 @@
+# FORGE - Claude Code Observability Stack
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+#
+# Services:
+#   - Prometheus: Time-series metrics storage (port 3090)
+#   - OpenTelemetry Collector: Receives telemetry from Claude Code (ports 3200/3201)
+#   - ccusage-exporter: Parses local JSONL files for historical data (port 3202)
+
+services:
+  # Prometheus - Time-series metrics storage
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: forge-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "3090:9090"
+    networks:
+      - forge-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # OpenTelemetry Collector - Receives telemetry from Claude Code
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.0
+    container_name: forge-otel-collector
+    command: ["--config=/etc/otel/collector-config.yaml"]
+    volumes:
+      - ./config/otel/collector-config.yaml:/etc/otel/collector-config.yaml:ro
+    ports:
+      - "3200:4317"   # OTLP gRPC
+      - "3201:4318"   # OTLP HTTP
+    networks:
+      - forge-network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ccusage-exporter - Parses local JSONL files for Prometheus metrics
+  ccusage-exporter:
+    build: ./services/ccusage-exporter
+    container_name: forge-ccusage-exporter
+    volumes:
+      - ${HOME}/.claude/projects:/data/claude-projects:ro
+    environment:
+      - CLAUDE_PROJECTS_DIR=/data/claude-projects
+      - SCRAPE_INTERVAL=60
+      - METRICS_PORT=9091
+    ports:
+      - "3202:9091"
+    networks:
+      - forge-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9091/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+
+networks:
+  forge-network:
+    external: true

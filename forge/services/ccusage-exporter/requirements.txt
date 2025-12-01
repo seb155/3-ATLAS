@@ -1,0 +1,3 @@
+# ccusage-exporter dependencies
+# Minimal - uses only Python stdlib for metrics
+# No external dependencies required for basic operation

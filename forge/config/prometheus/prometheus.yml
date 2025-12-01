@@ -1,0 +1,39 @@
+# Prometheus Configuration for Claude Code Observability
+# Part of FORGE infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: development
+    project: axiom
+
+alerting:
+  alertmanagers: []
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ccusage-exporter - Historical JSONL data
+  - job_name: 'ccusage-exporter'
+    static_configs:
+      - targets: ['ccusage-exporter:9091']
+    scrape_interval: 60s
+    metrics_path: /metrics
+
+  # OpenTelemetry Collector internal metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+
+  # Traefik metrics (already enabled in docker-compose.traefik.yml)
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+    metrics_path: /metrics

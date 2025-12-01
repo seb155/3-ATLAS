@@ -1,0 +1,107 @@
+# Prometheus Alerting Rules for Claude Code
+# Cost, token usage, and productivity alerts
+
+groups:
+  - name: claude_code_cost
+    interval: 1m
+    rules:
+      # High burn rate alert - spending more than $50/day
+      - alert: ClaudeCodeHighBurnRate
+        expr: rate(claude_code_cost_usd[1h]) * 24 > 50
+        for: 5m
+        labels:
+          severity: warning
+          team: development
+        annotations:
+          summary: "High Claude Code cost burn rate detected"
+          description: "Current burn rate: ${{ $value | printf \"%.2f\" }}/day. Review usage patterns."
+
+      # Daily budget exceeded ($20)
+      - alert: ClaudeCodeDailyBudgetExceeded
+        expr: sum(increase(claude_code_cost_usd[24h])) > 20
+        for: 5m
+        labels:
+          severity: warning
+          team: development
+        annotations:
+          summary: "Daily Claude Code budget exceeded"
+          description: "Spent ${{ $value | printf \"%.2f\" }} in the last 24 hours (budget: $20)."
+
+      # Weekly cost spike
+      - alert: ClaudeCodeWeeklyCostSpike
+        expr: sum(increase(claude_code_cost_usd[7d])) > 100
+        for: 10m
+        labels:
+          severity: info
+          team: development
+        annotations:
+          summary: "Weekly Claude Code cost exceeds $100"
+          description: "Total weekly cost: ${{ $value | printf \"%.2f\" }}."
+
+  - name: claude_code_tokens
+    interval: 1m
+    rules:
+      # High token usage (approaching typical limits)
+      - alert: ClaudeCodeHighTokenUsage
+        expr: sum(increase(claude_code_tokens_total[24h])) > 800000
+        for: 5m
+        labels:
+          severity: warning
+          team: development
+        annotations:
+          summary: "High daily token usage"
+          description: "Used {{ $value | humanize }} tokens in last 24h."
+
+      # Low cache efficiency (< 30% cache hits)
+      - alert: ClaudeCodeLowCacheEfficiency
+        expr: |
+          sum(rate(claude_code_tokens_total{type="cache_read"}[1h]))
+          / sum(rate(claude_code_tokens_total[1h])) < 0.3
+        for: 30m
+        labels:
+          severity: info
+          team: development
+        annotations:
+          summary: "Low cache efficiency detected"
+          description: "Cache hit rate: {{ $value | printf \"%.1f\" }}%. Consider optimizing prompts for better caching."
+
+  - name: claude_code_activity
+    interval: 5m
+    rules:
+      # No activity for extended period (during work hours)
+      - alert: ClaudeCodeNoActivity
+        expr: absent(increase(claude_code_sessions_total[2h])) == 1
+        for: 2h
+        labels:
+          severity: info
+          team: development
+        annotations:
+          summary: "No Claude Code activity detected"
+          description: "No sessions in the last 2 hours."
+
+      # High session count (potential automation issue)
+      - alert: ClaudeCodeHighSessionCount
+        expr: increase(claude_code_sessions_total[1h]) > 20
+        for: 5m
+        labels:
+          severity: warning
+          team: development
+        annotations:
+          summary: "Unusually high session count"
+          description: "{{ $value }} sessions in the last hour. Check for runaway automation."
+
+  - name: claude_code_productivity
+    interval: 5m
+    rules:
+      # High output to input ratio (good productivity)
+      - alert: ClaudeCodeHighProductivity
+        expr: |
+          sum(rate(claude_code_tokens_total{type="output"}[1h]))
+          / sum(rate(claude_code_tokens_total{type="input"}[1h])) > 3
+        for: 30m
+        labels:
+          severity: info
+          team: development
+        annotations:
+          summary: "High Claude Code productivity"
+          description: "Output/input ratio: {{ $value | printf \"%.1f\" }}. Excellent session productivity!"

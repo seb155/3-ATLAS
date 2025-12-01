@@ -4,6 +4,13 @@
     "es2022": true,
     "node": true
   },
+  "ignorePatterns": [
+    "e2e/**",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vite-env.d.ts",
+    "playwright.config.ts"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
