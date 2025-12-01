@@ -107,9 +107,7 @@ def get_package(
 ):
     """Get package by ID."""
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
 
     if not package:
@@ -133,9 +131,7 @@ def update_package(
 ):
     """Update package."""
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
 
     if not package:
@@ -169,9 +165,7 @@ def delete_package(
 ):
     """Delete package (only if empty)."""
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
 
     if not package:
@@ -209,17 +203,13 @@ def get_package_assets(
 ):
     """Get all assets in a package."""
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
 
     if not package:
         raise HTTPException(status_code=404, detail="Package not found")
 
-    assets = (
-        db.query(Asset).filter(Asset.package_id == package_id).order_by(Asset.tag).all()
-    )
+    assets = db.query(Asset).filter(Asset.package_id == package_id).order_by(Asset.tag).all()
 
     return {
         "package_id": package_id,
@@ -253,9 +243,7 @@ def add_asset_to_package(
     """Add an asset to a package."""
     # Verify package exists
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
     if not package:
         raise HTTPException(status_code=404, detail="Package not found")
@@ -326,9 +314,7 @@ def export_package(
     """
     # Verify package exists
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
     if not package:
         raise HTTPException(status_code=404, detail="Package not found")
@@ -369,16 +355,12 @@ def preview_export_data(
 ):
     """Preview export data without generating file."""
     package = (
-        db.query(Package)
-        .filter(Package.id == package_id, Package.project_id == project_id)
-        .first()
+        db.query(Package).filter(Package.id == package_id, Package.project_id == project_id).first()
     )
     if not package:
         raise HTTPException(status_code=404, detail="Package not found")
 
-    assets = (
-        db.query(Asset).filter(Asset.package_id == package_id).order_by(Asset.tag).all()
-    )
+    assets = db.query(Asset).filter(Asset.package_id == package_id).order_by(Asset.tag).all()
 
     preview_data = {
         "package": {

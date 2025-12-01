@@ -90,7 +90,6 @@ class RuleConflictResolver:
             loser_enforced = conflict["overridden_rule"]["is_enforced"]
             winner_id = conflict["winning_rule"]["id"]
 
-
             if loser_enforced:
                 # Enforced rule cannot be overridden - block the winner instead!
                 blocked_rule_ids.add(winner_id)

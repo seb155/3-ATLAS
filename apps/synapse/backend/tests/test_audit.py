@@ -9,8 +9,10 @@ from app.models.auth import Project
 MOCK_USER_ID = "test-user-id"
 MOCK_USER_EMAIL = "audit@test.com"
 
+
 def mock_get_current_active_user():
     return User(id=MOCK_USER_ID, email=MOCK_USER_EMAIL, is_active=True)
+
 
 @pytest.fixture
 def test_audit_project(db_session):
@@ -21,10 +23,7 @@ def test_audit_project(db_session):
     mock_user = db_session.query(User).filter(User.id == MOCK_USER_ID).first()
     if not mock_user:
         mock_user = User(
-            id=MOCK_USER_ID,
-            email=MOCK_USER_EMAIL,
-            hashed_password="test",
-            is_active=True
+            id=MOCK_USER_ID, email=MOCK_USER_EMAIL, hashed_password="test", is_active=True
         )
         db_session.add(mock_user)
         db_session.flush()
@@ -32,10 +31,7 @@ def test_audit_project(db_session):
     # Check if client exists, create if not
     client = db_session.query(Client).filter(Client.id == "test-client-audit").first()
     if not client:
-        client = Client(
-            id="test-client-audit",
-            name="Test Audit Client"
-        )
+        client = Client(id="test-client-audit", name="Test Audit Client")
         db_session.add(client)
         db_session.flush()
 
@@ -52,10 +48,12 @@ def test_audit_project(db_session):
     db_session.commit()
     return project
 
+
 def test_audit_logging(client, db_session, test_audit_project):
     # Override auth for this test
     from app.api.deps import get_current_active_user
     from app.main import app
+
     app.dependency_overrides[get_current_active_user] = mock_get_current_active_user
 
     db = db_session
@@ -75,15 +73,21 @@ def test_audit_logging(client, db_session, test_audit_project):
             "tag": unique_tag,
             "description": "Audit Test Asset",
             "type": "MOTOR",
-            "electrical": {"voltage": "480V"}
-        }
+            "electrical": {"voltage": "480V"},
+        },
     )
     # API returns 201 Created for successful asset creation
-    assert response.status_code == 201, f"Expected 201, got {response.status_code}: {response.json()}"
+    assert (
+        response.status_code == 201
+    ), f"Expected 201, got {response.status_code}: {response.json()}"
     asset_id = response.json()["id"]
 
     # Verify Log
-    log = db.query(AuditLog).filter(AuditLog.target_id == asset_id, AuditLog.action == "CREATE").first()
+    log = (
+        db.query(AuditLog)
+        .filter(AuditLog.target_id == asset_id, AuditLog.action == "CREATE")
+        .first()
+    )
     assert log is not None
     assert log.user_id == MOCK_USER_ID
     assert log.target_type == "ASSET"
@@ -95,14 +99,17 @@ def test_audit_logging(client, db_session, test_audit_project):
     response = client.put(
         f"/api/v1/assets/{asset_id}",
         headers={"X-Project-ID": "audit-project"},
-        json={
-            "description": "Updated Description"
-        }
+        json={"description": "Updated Description"},
     )
     assert response.status_code == 200
 
     # Verify Log
-    log = db.query(AuditLog).filter(AuditLog.target_id == asset_id, AuditLog.action == "UPDATE").order_by(AuditLog.timestamp.desc()).first()
+    log = (
+        db.query(AuditLog)
+        .filter(AuditLog.target_id == asset_id, AuditLog.action == "UPDATE")
+        .order_by(AuditLog.timestamp.desc())
+        .first()
+    )
     assert log is not None
     assert log.details["changes"]["description"] == "Updated Description"
 

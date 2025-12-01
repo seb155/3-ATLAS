@@ -8,24 +8,18 @@ Tests cover:
 - Rollback operations (asset, property, batch)
 """
 
-import pytest
-from datetime import datetime
-from unittest.mock import patch, MagicMock
 
-from app.models.models import Asset, AssetDataStatus, IOType
+import pytest
+
 from app.models.auth import Client, Project
+from app.models.models import Asset, AssetDataStatus, IOType
 from app.models.workflow import (
-    AssetVersion,
     BatchOperation,
     BatchOperationType,
     ChangeSource,
-    PropertyChange,
 )
 from app.services.versioning_service import (
     VersioningService,
-    RollbackResult,
-    BatchRollbackResult,
-    VersionDiff,
 )
 
 
@@ -222,21 +216,15 @@ class TestPropertyHistory:
         db_session.commit()
         versioning_service.create_version(test_asset, ChangeSource.USER)
 
-        v1_desc = versioning_service.get_property_at_version(
-            test_asset.id, "description", 1
-        )
-        v2_desc = versioning_service.get_property_at_version(
-            test_asset.id, "description", 2
-        )
+        v1_desc = versioning_service.get_property_at_version(test_asset.id, "description", 1)
+        v2_desc = versioning_service.get_property_at_version(test_asset.id, "description", 2)
 
         assert v1_desc == "Test Asset"
         assert v2_desc == "Updated"
 
     def test_get_property_at_version_not_found(self, versioning_service, test_asset):
         """Test getting property from non-existent version."""
-        result = versioning_service.get_property_at_version(
-            test_asset.id, "description", 999
-        )
+        result = versioning_service.get_property_at_version(test_asset.id, "description", 999)
         assert result is None
 
     def test_get_nested_property_at_version(self, versioning_service, test_asset, db_session):
@@ -246,9 +234,7 @@ class TestPropertyHistory:
         versioning_service.create_initial_version(test_asset)
 
         # The snapshot stores properties directly
-        value = versioning_service.get_property_at_version(
-            test_asset.id, "properties", 1
-        )
+        value = versioning_service.get_property_at_version(test_asset.id, "properties", 1)
         assert value == {"nested": {"field": "value"}}
 
 

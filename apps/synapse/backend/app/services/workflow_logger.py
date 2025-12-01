@@ -395,7 +395,9 @@ class WorkflowLogger:
         try:
             payload = {
                 "id": event.id,
-                "timestamp": event.timestamp.isoformat() if event.timestamp else datetime.utcnow().isoformat(),
+                "timestamp": event.timestamp.isoformat()
+                if event.timestamp
+                else datetime.utcnow().isoformat(),
                 "level": event.level.value,
                 "source": event.source.value,
                 "actionType": event.action_type.value,

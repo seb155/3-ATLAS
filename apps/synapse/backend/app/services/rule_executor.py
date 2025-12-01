@@ -28,7 +28,7 @@ class RuleExecutor:
     @staticmethod
     def _get_asset_tag(asset) -> str:
         """Get tag from Asset or name from MetamodelNode"""
-        return getattr(asset, 'tag', None) or getattr(asset, 'name', 'UNKNOWN')
+        return getattr(asset, "tag", None) or getattr(asset, "name", "UNKNOWN")
 
     def execute_rule(self, rule: RuleDefinition, asset: Asset) -> RuleExecution:
         """
@@ -86,9 +86,10 @@ class RuleExecutor:
         except Exception as e:
             # Capture IDs before rollback (objects may be detached after rollback)
             import traceback
-            rule_id = str(rule.id) if hasattr(rule, 'id') else "unknown"
-            asset_id = str(asset.id) if hasattr(asset, 'id') else "unknown"
-            asset_tag = self._get_asset_tag(asset) if asset else "unknown"
+
+            rule_id = str(rule.id) if hasattr(rule, "id") else "unknown"
+            asset_id = str(asset.id) if hasattr(asset, "id") else "unknown"
+            self._get_asset_tag(asset) if asset else "unknown"
             error_msg = str(e)
             stack = traceback.format_exc()
             exec_time = int((time.time() - start_time) * 1000)
@@ -187,7 +188,7 @@ class RuleExecutor:
 
         # Generate child name
         # Support both Asset (tag) and MetamodelNode (name)
-        parent_tag = getattr(asset, 'tag', None) or getattr(asset, 'name', 'UNKNOWN')
+        parent_tag = getattr(asset, "tag", None) or getattr(asset, "name", "UNKNOWN")
         child_name = naming.replace("{parent_tag}", parent_tag).replace("{type}", child_type[:1])
 
         # Check if child already exists (idempotency)
@@ -232,7 +233,9 @@ class RuleExecutor:
         # Get discipline (handle both string and enum)
         discipline_value = action.get("discipline")
         if not discipline_value and rule.discipline:
-            discipline_value = rule.discipline.value if hasattr(rule.discipline, 'value') else rule.discipline
+            discipline_value = (
+                rule.discipline.value if hasattr(rule.discipline, "value") else rule.discipline
+            )
 
         child = Asset(
             tag=child_name,

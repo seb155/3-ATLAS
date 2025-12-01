@@ -1,20 +1,22 @@
 """
 Pydantic schemas for CSV import/export operations.
 """
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 
 class CSVRowError(BaseModel):
     """Error information for a failed CSV row"""
+
     row: int = Field(..., description="Row number (0-indexed)")
-    tag: Optional[str] = Field(None, description="Asset tag if available")
+    tag: str | None = Field(None, description="Asset tag if available")
     error: str = Field(..., description="Error message")
 
 
 class ImportSummaryResponse(BaseModel):
     """Response schema for CSV import operations"""
+
     success: bool = Field(..., description="Overall operation success")
     total_rows: int = Field(..., description="Total rows processed")
     created: int = Field(default=0, description="Number of assets created")
@@ -23,29 +25,38 @@ class ImportSummaryResponse(BaseModel):
     errors: list[CSVRowError] = Field(default_factory=list, description="List of errors")
 
     # Rule execution results (optional)
-    rules_executed: Optional[int] = Field(None, description="Number of rules executed")
-    child_assets_created: Optional[int] = Field(None, description="Child assets created by rules")
-    rule_execution_time_ms: Optional[int] = Field(None, description="Rule execution time in milliseconds")
-    rule_execution_error: Optional[str] = Field(None, description="Rule execution error message")
+    rules_executed: int | None = Field(None, description="Number of rules executed")
+    child_assets_created: int | None = Field(None, description="Child assets created by rules")
+    rule_execution_time_ms: int | None = Field(
+        None, description="Rule execution time in milliseconds"
+    )
+    rule_execution_error: str | None = Field(None, description="Rule execution error message")
 
     model_config = {"from_attributes": True}
 
 
 class CSVRowSchema(BaseModel):
     """Schema for validating individual CSV row data"""
+
     tag: str = Field(..., min_length=1, max_length=100, description="Asset tag (required)")
     type: str = Field(..., min_length=1, description="Asset type (required for new assets)")
-    description: Optional[str] = Field(None, max_length=500, description="Asset description")
-    area: Optional[str] = Field(None, max_length=100, description="Functional breakdown area")
-    system: Optional[str] = Field(None, max_length=100, description="System identifier")
-    io_type: Optional[str] = Field(None, description="IO type (AI, AO, DI, DO, etc.)")
-    manufacturer_part_id: Optional[str] = Field(None, max_length=100, description="Manufacturer part number")
-    location_id: Optional[str] = Field(None, description="Location ID (LBS)")
+    description: str | None = Field(None, max_length=500, description="Asset description")
+    area: str | None = Field(None, max_length=100, description="Functional breakdown area")
+    system: str | None = Field(None, max_length=100, description="System identifier")
+    io_type: str | None = Field(None, description="IO type (AI, AO, DI, DO, etc.)")
+    manufacturer_part_id: str | None = Field(
+        None, max_length=100, description="Manufacturer part number"
+    )
+    location_id: str | None = Field(None, description="Location ID (LBS)")
 
     # Nested fields
-    electrical: Optional[dict[str, Any]] = Field(default_factory=dict, description="Electrical properties")
-    process: Optional[dict[str, Any]] = Field(default_factory=dict, description="Process properties")
-    purchasing: Optional[dict[str, Any]] = Field(default_factory=dict, description="Purchasing properties")
+    electrical: dict[str, Any] | None = Field(
+        default_factory=dict, description="Electrical properties"
+    )
+    process: dict[str, Any] | None = Field(default_factory=dict, description="Process properties")
+    purchasing: dict[str, Any] | None = Field(
+        default_factory=dict, description="Purchasing properties"
+    )
 
     @field_validator("tag")
     @classmethod
@@ -58,15 +69,16 @@ class CSVRowSchema(BaseModel):
 
     @field_validator("electrical")
     @classmethod
-    def validate_electrical(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    def validate_electrical(cls, v: dict[str, Any] | None) -> dict[str, Any] | None:
         """Validate electrical properties"""
         if v and "voltage" in v:
             voltage = str(v["voltage"]).lower().replace(" ", "")
             # List of common voltages (can be extended)
-            allowed_voltages = ["120v", "240v", "480v", "600v", "4160v", "24vdc", "120vac", "240vac", "480vac"]
             # Allow any voltage that ends with V, VDC, or VAC
             if not (voltage.endswith("v") or voltage.endswith("vdc") or voltage.endswith("vac")):
-                raise ValueError(f"Invalid voltage format: {v['voltage']}. Must end with V, VDC, or VAC")
+                raise ValueError(
+                    f"Invalid voltage format: {v['voltage']}. Must end with V, VDC, or VAC"
+                )
 
         if v and "powerKW" in v:
             try:
@@ -80,7 +92,7 @@ class CSVRowSchema(BaseModel):
 
     @field_validator("process")
     @classmethod
-    def validate_process(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    def validate_process(cls, v: dict[str, Any] | None) -> dict[str, Any] | None:
         """Validate process properties"""
         if v:
             min_range = v.get("minRange")
@@ -96,7 +108,9 @@ class CSVRowSchema(BaseModel):
                     if "minRange must be less than maxRange" in str(e):
                         raise
                     # Invalid number format
-                    raise ValueError(f"Invalid range values: minRange={min_range}, maxRange={max_range}")
+                    raise ValueError(
+                        f"Invalid range values: minRange={min_range}, maxRange={max_range}"
+                    )
 
         return v
 

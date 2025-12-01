@@ -26,9 +26,7 @@ def test_validation_service():
         db.flush()
 
         project = Project(
-            name="TEST Validation Project",
-            description="Testing validation",
-            client_id=client.id
+            name="TEST Validation Project", description="Testing validation", client_id=client.id
         )
         db.add(project)
         db.flush()
@@ -40,8 +38,8 @@ def test_validation_service():
             project_id=project.id,
             properties={
                 "efficiency": "75",  # Below minimum
-                "pump_type": "centrifugal"
-            }
+                "pump_type": "centrifugal",
+            },
         )
         db.add(pump)
         db.commit()
@@ -63,10 +61,10 @@ def test_validation_service():
                     "assertion": "property_in_range",
                     "property": "efficiency",
                     "min": 80,
-                    "max": 95
+                    "max": 95,
                 }
             },
-            is_active=True
+            is_active=True,
         )
 
         db.add(rule_efficiency)
@@ -100,10 +98,10 @@ def test_validation_service():
                 "validate": {
                     "assertion": "property_equals",
                     "property": "pump_type",
-                    "value": "centrifugal"
+                    "value": "centrifugal",
                 }
             },
-            is_active=True
+            is_active=True,
         )
 
         db.add(rule_type)
@@ -132,8 +130,8 @@ def test_validation_service():
             project_id=project.id,
             properties={
                 "efficiency": "92",  # Good
-                "pump_type": "centrifugal"
-            }
+                "pump_type": "centrifugal",
+            },
         )
         db.add(pump2)
         db.commit()
@@ -145,7 +143,7 @@ def test_validation_service():
         print(f"Total validations: {summary['total']}")
         print(f"Pass: {summary['pass']}, Warning: {summary['warning']}, Error: {summary['error']}")
 
-        if summary['assets_validated'] == 2:
+        if summary["assets_validated"] == 2:
             print("✅ PASS: Project-wide validation working")
         else:
             print("❌ FAIL: Expected 2 assets validated")
@@ -166,6 +164,7 @@ def test_validation_service():
     except Exception as e:
         print(f"\n❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         db.rollback()
     finally:

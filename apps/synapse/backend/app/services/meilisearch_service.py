@@ -37,6 +37,7 @@ ALL_INDEXES = [INDEX_ASSETS, INDEX_RULES, INDEX_CABLES, INDEX_LOCATIONS]
 
 class SearchHit(TypedDict):
     """Search result hit from MeiliSearch"""
+
     id: str
     type: Literal["asset", "rule", "cable", "location"]
     title: str
@@ -80,78 +81,86 @@ class MeiliSearchService:
         try:
             # Assets index
             self.client.create_index(INDEX_ASSETS, {"primaryKey": "id"})
-            self.client.index(INDEX_ASSETS).update_settings({
-                "searchableAttributes": [
-                    "tag",
-                    "description",
-                    "system",
-                    "area",
-                    "io_type",
-                    "discipline"
-                ],
-                "filterableAttributes": [
-                    "project_id",
-                    "discipline",
-                    "system",
-                    "area",
-                    "io_type",
-                    "type"
-                ],
-                "sortableAttributes": ["tag", "created_at"],
-                "rankingRules": [
-                    "words",
-                    "typo",
-                    "proximity",
-                    "attribute",
-                    "sort",
-                    "exactness"
-                ],
-                "typoTolerance": {
-                    "enabled": True,
-                    "minWordSizeForTypos": {"oneTypo": 3, "twoTypos": 6}
+            self.client.index(INDEX_ASSETS).update_settings(
+                {
+                    "searchableAttributes": [
+                        "tag",
+                        "description",
+                        "system",
+                        "area",
+                        "io_type",
+                        "discipline",
+                    ],
+                    "filterableAttributes": [
+                        "project_id",
+                        "discipline",
+                        "system",
+                        "area",
+                        "io_type",
+                        "type",
+                    ],
+                    "sortableAttributes": ["tag", "created_at"],
+                    "rankingRules": [
+                        "words",
+                        "typo",
+                        "proximity",
+                        "attribute",
+                        "sort",
+                        "exactness",
+                    ],
+                    "typoTolerance": {
+                        "enabled": True,
+                        "minWordSizeForTypos": {"oneTypo": 3, "twoTypos": 6},
+                    },
                 }
-            })
+            )
             results[INDEX_ASSETS] = "configured"
 
             # Rules index
             self.client.create_index(INDEX_RULES, {"primaryKey": "id"})
-            self.client.index(INDEX_RULES).update_settings({
-                "searchableAttributes": ["name", "description", "trigger_type"],
-                "filterableAttributes": ["project_id", "enabled", "priority", "trigger_type"],
-                "sortableAttributes": ["name", "priority", "created_at"],
-                "typoTolerance": {"enabled": True}
-            })
+            self.client.index(INDEX_RULES).update_settings(
+                {
+                    "searchableAttributes": ["name", "description", "trigger_type"],
+                    "filterableAttributes": ["project_id", "enabled", "priority", "trigger_type"],
+                    "sortableAttributes": ["name", "priority", "created_at"],
+                    "typoTolerance": {"enabled": True},
+                }
+            )
             results[INDEX_RULES] = "configured"
 
             # Cables index
             self.client.create_index(INDEX_CABLES, {"primaryKey": "id"})
-            self.client.index(INDEX_CABLES).update_settings({
-                "searchableAttributes": [
-                    "tag",
-                    "description",
-                    "from_location",
-                    "to_location",
-                    "cable_type"
-                ],
-                "filterableAttributes": [
-                    "project_id",
-                    "cable_type",
-                    "from_location",
-                    "to_location"
-                ],
-                "sortableAttributes": ["tag", "created_at"],
-                "typoTolerance": {"enabled": True}
-            })
+            self.client.index(INDEX_CABLES).update_settings(
+                {
+                    "searchableAttributes": [
+                        "tag",
+                        "description",
+                        "from_location",
+                        "to_location",
+                        "cable_type",
+                    ],
+                    "filterableAttributes": [
+                        "project_id",
+                        "cable_type",
+                        "from_location",
+                        "to_location",
+                    ],
+                    "sortableAttributes": ["tag", "created_at"],
+                    "typoTolerance": {"enabled": True},
+                }
+            )
             results[INDEX_CABLES] = "configured"
 
             # Locations index
             self.client.create_index(INDEX_LOCATIONS, {"primaryKey": "id"})
-            self.client.index(INDEX_LOCATIONS).update_settings({
-                "searchableAttributes": ["name", "code", "description"],
-                "filterableAttributes": ["project_id", "type", "parent_id"],
-                "sortableAttributes": ["name", "code"],
-                "typoTolerance": {"enabled": True}
-            })
+            self.client.index(INDEX_LOCATIONS).update_settings(
+                {
+                    "searchableAttributes": ["name", "code", "description"],
+                    "filterableAttributes": ["project_id", "type", "parent_id"],
+                    "sortableAttributes": ["name", "code"],
+                    "typoTolerance": {"enabled": True},
+                }
+            )
             results[INDEX_LOCATIONS] = "configured"
 
             self._initialized = True
@@ -180,7 +189,7 @@ class MeiliSearchService:
             "discipline": asset.get("discipline", ""),
             "project_id": asset.get("project_id", ""),
             "created_at": asset.get("created_at", datetime.utcnow().isoformat()),
-            "_entity_type": "asset"
+            "_entity_type": "asset",
         }
         return self.client.index(INDEX_ASSETS).add_documents([doc])
 
@@ -188,19 +197,21 @@ class MeiliSearchService:
         """Index multiple assets in batch (more efficient)"""
         docs = []
         for asset in assets:
-            docs.append({
-                "id": asset["id"],
-                "type": "asset",
-                "tag": asset.get("tag", ""),
-                "description": asset.get("description", ""),
-                "system": asset.get("system", ""),
-                "area": asset.get("area", ""),
-                "io_type": asset.get("io_type", ""),
-                "discipline": asset.get("discipline", ""),
-                "project_id": asset.get("project_id", ""),
-                "created_at": str(asset.get("created_at", "")),
-                "_entity_type": "asset"
-            })
+            docs.append(
+                {
+                    "id": asset["id"],
+                    "type": "asset",
+                    "tag": asset.get("tag", ""),
+                    "description": asset.get("description", ""),
+                    "system": asset.get("system", ""),
+                    "area": asset.get("area", ""),
+                    "io_type": asset.get("io_type", ""),
+                    "discipline": asset.get("discipline", ""),
+                    "project_id": asset.get("project_id", ""),
+                    "created_at": str(asset.get("created_at", "")),
+                    "_entity_type": "asset",
+                }
+            )
         return self.client.index(INDEX_ASSETS).add_documents(docs)
 
     def index_rule(self, rule: dict) -> dict:
@@ -215,7 +226,7 @@ class MeiliSearchService:
             "priority": rule.get("priority", 0),
             "project_id": rule.get("project_id", ""),
             "created_at": str(rule.get("created_at", "")),
-            "_entity_type": "rule"
+            "_entity_type": "rule",
         }
         return self.client.index(INDEX_RULES).add_documents([doc])
 
@@ -223,18 +234,20 @@ class MeiliSearchService:
         """Index multiple rules in batch"""
         docs = []
         for rule in rules:
-            docs.append({
-                "id": rule["id"],
-                "type": "rule",
-                "name": rule.get("name", ""),
-                "description": rule.get("description", ""),
-                "trigger_type": rule.get("trigger_type", ""),
-                "enabled": rule.get("enabled", False),
-                "priority": rule.get("priority", 0),
-                "project_id": rule.get("project_id", ""),
-                "created_at": str(rule.get("created_at", "")),
-                "_entity_type": "rule"
-            })
+            docs.append(
+                {
+                    "id": rule["id"],
+                    "type": "rule",
+                    "name": rule.get("name", ""),
+                    "description": rule.get("description", ""),
+                    "trigger_type": rule.get("trigger_type", ""),
+                    "enabled": rule.get("enabled", False),
+                    "priority": rule.get("priority", 0),
+                    "project_id": rule.get("project_id", ""),
+                    "created_at": str(rule.get("created_at", "")),
+                    "_entity_type": "rule",
+                }
+            )
         return self.client.index(INDEX_RULES).add_documents(docs)
 
     def index_cable(self, cable: dict) -> dict:
@@ -250,7 +263,7 @@ class MeiliSearchService:
             "length": cable.get("length"),
             "project_id": cable.get("project_id", ""),
             "created_at": str(cable.get("created_at", "")),
-            "_entity_type": "cable"
+            "_entity_type": "cable",
         }
         return self.client.index(INDEX_CABLES).add_documents([doc])
 
@@ -258,19 +271,21 @@ class MeiliSearchService:
         """Index multiple cables in batch"""
         docs = []
         for cable in cables:
-            docs.append({
-                "id": cable["id"],
-                "type": "cable",
-                "tag": cable.get("tag", ""),
-                "description": cable.get("description", ""),
-                "from_location": cable.get("from_location", ""),
-                "to_location": cable.get("to_location", ""),
-                "cable_type": cable.get("cable_type", ""),
-                "length": cable.get("length"),
-                "project_id": cable.get("project_id", ""),
-                "created_at": str(cable.get("created_at", "")),
-                "_entity_type": "cable"
-            })
+            docs.append(
+                {
+                    "id": cable["id"],
+                    "type": "cable",
+                    "tag": cable.get("tag", ""),
+                    "description": cable.get("description", ""),
+                    "from_location": cable.get("from_location", ""),
+                    "to_location": cable.get("to_location", ""),
+                    "cable_type": cable.get("cable_type", ""),
+                    "length": cable.get("length"),
+                    "project_id": cable.get("project_id", ""),
+                    "created_at": str(cable.get("created_at", "")),
+                    "_entity_type": "cable",
+                }
+            )
         return self.client.index(INDEX_CABLES).add_documents(docs)
 
     def index_location(self, location: dict) -> dict:
@@ -283,7 +298,7 @@ class MeiliSearchService:
             "description": location.get("description", ""),
             "parent_id": location.get("parent_id"),
             "project_id": location.get("project_id", ""),
-            "_entity_type": "location"
+            "_entity_type": "location",
         }
         return self.client.index(INDEX_LOCATIONS).add_documents([doc])
 
@@ -294,7 +309,7 @@ class MeiliSearchService:
         project_id: str | None = None,
         filters: dict | None = None,
         limit: int = 20,
-        offset: int = 0
+        offset: int = 0,
     ) -> dict:
         """
         Multi-index search across all entity types.
@@ -330,7 +345,7 @@ class MeiliSearchService:
                 "offset": offset,
                 "attributesToHighlight": ["*"],
                 "highlightPreTag": "<mark>",
-                "highlightPostTag": "</mark>"
+                "highlightPostTag": "</mark>",
             }
             if filter_str:
                 search_params["filter"] = filter_str
@@ -350,17 +365,19 @@ class MeiliSearchService:
 
             for hit in hits:
                 entity_type = self._get_entity_type(index_uid)
-                all_hits.append({
-                    "id": hit.get("id"),
-                    "type": entity_type,
-                    "title": self._get_title(hit, entity_type),
-                    "subtitle": self._get_subtitle(hit, entity_type),
-                    "path": self._get_path(hit, entity_type),
-                    "score": hit.get("_rankingScore", 0),
-                    "project_id": hit.get("project_id"),
-                    "metadata": self._get_metadata(hit, entity_type),
-                    "_formatted": hit.get("_formatted", {})
-                })
+                all_hits.append(
+                    {
+                        "id": hit.get("id"),
+                        "type": entity_type,
+                        "title": self._get_title(hit, entity_type),
+                        "subtitle": self._get_subtitle(hit, entity_type),
+                        "path": self._get_path(hit, entity_type),
+                        "score": hit.get("_rankingScore", 0),
+                        "project_id": hit.get("project_id"),
+                        "metadata": self._get_metadata(hit, entity_type),
+                        "_formatted": hit.get("_formatted", {}),
+                    }
+                )
 
         # Sort by ranking score
         all_hits.sort(key=lambda x: x.get("score", 0), reverse=True)
@@ -372,7 +389,7 @@ class MeiliSearchService:
             "categories": categories,
             "processingTimeMs": sum(
                 r.get("processingTimeMs", 0) for r in results.get("results", [])
-            )
+            ),
         }
 
     def _get_entity_type(self, index_uid: str) -> str:
@@ -381,7 +398,7 @@ class MeiliSearchService:
             INDEX_ASSETS: "asset",
             INDEX_RULES: "rule",
             INDEX_CABLES: "cable",
-            INDEX_LOCATIONS: "location"
+            INDEX_LOCATIONS: "location",
         }
         return mapping.get(index_uid, "unknown")
 
@@ -429,26 +446,23 @@ class MeiliSearchService:
                 "area": hit.get("area"),
                 "system": hit.get("system"),
                 "discipline": hit.get("discipline"),
-                "io_type": hit.get("io_type")
+                "io_type": hit.get("io_type"),
             }
         elif entity_type == "rule":
             return {
                 "enabled": hit.get("enabled"),
                 "priority": hit.get("priority"),
-                "trigger_type": hit.get("trigger_type")
+                "trigger_type": hit.get("trigger_type"),
             }
         elif entity_type == "cable":
             return {
                 "cable_type": hit.get("cable_type"),
                 "length": hit.get("length"),
                 "from_location": hit.get("from_location"),
-                "to_location": hit.get("to_location")
+                "to_location": hit.get("to_location"),
             }
         elif entity_type == "location":
-            return {
-                "code": hit.get("code"),
-                "type": hit.get("type")
-            }
+            return {"code": hit.get("code"), "type": hit.get("type")}
         return {}
 
     def delete_document(self, index_name: str, doc_id: str) -> dict:

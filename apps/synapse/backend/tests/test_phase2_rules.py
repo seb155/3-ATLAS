@@ -14,6 +14,7 @@ from app.services.validation_service import ValidationService
 
 # Use db_session from conftest.py instead of custom db fixture
 
+
 @pytest.fixture
 def test_client(db_session: Session):
     """Create test client"""
@@ -24,6 +25,7 @@ def test_client(db_session: Session):
         db_session.add(client)
         db_session.commit()
     return client
+
 
 @pytest.fixture
 def test_project(db_session: Session, test_client):
@@ -40,10 +42,15 @@ def test_project(db_session: Session, test_client):
         db_session.commit()
     return project
 
+
 @pytest.fixture
 def pump_asset(db_session: Session, test_project):
     """Create test pump asset"""
-    pump = db_session.query(Asset).filter(Asset.tag == "310-PP-001", Asset.project_id == test_project.id).first()
+    pump = (
+        db_session.query(Asset)
+        .filter(Asset.tag == "310-PP-001", Asset.project_id == test_project.id)
+        .first()
+    )
     if not pump:
         pump = Asset(
             tag="310-PP-001",
@@ -56,10 +63,15 @@ def pump_asset(db_session: Session, test_project):
         db_session.refresh(pump)
     return pump
 
+
 @pytest.fixture
 def vfd_asset(db_session: Session, test_project):
     """Create test VFD asset"""
-    vfd = db_session.query(Asset).filter(Asset.tag == "310-PP-001-VFD", Asset.project_id == test_project.id).first()
+    vfd = (
+        db_session.query(Asset)
+        .filter(Asset.tag == "310-PP-001-VFD", Asset.project_id == test_project.id)
+        .first()
+    )
     if not vfd:
         vfd = Asset(
             tag="310-PP-001-VFD",
@@ -71,6 +83,7 @@ def vfd_asset(db_session: Session, test_project):
         db_session.commit()
         db_session.refresh(vfd)
     return vfd
+
 
 import uuid
 
@@ -90,7 +103,7 @@ def relationship_rule(db_session: Session):
             "create_relationship": {
                 "target_tag": "{tag}-VFD",
                 "relation": "controlled_by",
-                "direction": "incoming" # VFD -> Pump
+                "direction": "incoming",  # VFD -> Pump
             }
         },
         is_active=True,
@@ -101,6 +114,7 @@ def relationship_rule(db_session: Session):
     # Cleanup
     db_session.delete(rule)
     db_session.commit()
+
 
 @pytest.fixture
 def validate_rule(db_session: Session):
@@ -114,14 +128,12 @@ def validate_rule(db_session: Session):
         action_type=RuleActionType.VALIDATE,
         condition={
             "asset_type": "PUMP",
-            "property_filters": [
-                 {"key": "efficiency", "op": "<", "value": 80}
-            ]
+            "property_filters": [{"key": "efficiency", "op": "<", "value": 80}],
         },
         action={
             "validate": {
                 "severity": "WARNING",
-                "message": "Pump {tag} efficiency {efficiency}% is too low"
+                "message": "Pump {tag} efficiency {efficiency}% is too low",
             }
         },
         is_active=True,
@@ -133,19 +145,26 @@ def validate_rule(db_session: Session):
     db_session.delete(rule)
     db_session.commit()
 
-def test_create_relationship_rule(db_session: Session, test_project, pump_asset, vfd_asset, relationship_rule):
+
+def test_create_relationship_rule(
+    db_session: Session, test_project, pump_asset, vfd_asset, relationship_rule
+):
     """Test CREATE_RELATIONSHIP action"""
     # Cleanup existing edge if any
-    existing_edge = db_session.query(MetamodelEdge).filter(
-        MetamodelEdge.source_node_id == vfd_asset.id,
-        MetamodelEdge.target_node_id == pump_asset.id,
-        MetamodelEdge.relation_type == "controlled_by"
-    ).first()
+    existing_edge = (
+        db_session.query(MetamodelEdge)
+        .filter(
+            MetamodelEdge.source_node_id == vfd_asset.id,
+            MetamodelEdge.target_node_id == pump_asset.id,
+            MetamodelEdge.relation_type == "controlled_by",
+        )
+        .first()
+    )
     if existing_edge:
         db_session.delete(existing_edge)
         db_session.commit()
 
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
     execution = executor.execute_rule(relationship_rule, pump_asset)
 
     if execution.action_type != "CREATE":
@@ -158,12 +177,17 @@ def test_create_relationship_rule(db_session: Session, test_project, pump_asset,
     assert "Created relationship controlled_by" in execution.action_taken
 
     # Verify edge creation
-    edge = db_session.query(MetamodelEdge).filter(
-        MetamodelEdge.source_node_id == vfd_asset.id,
-        MetamodelEdge.target_node_id == pump_asset.id,
-        MetamodelEdge.relation_type == "controlled_by"
-    ).first()
+    edge = (
+        db_session.query(MetamodelEdge)
+        .filter(
+            MetamodelEdge.source_node_id == vfd_asset.id,
+            MetamodelEdge.target_node_id == pump_asset.id,
+            MetamodelEdge.relation_type == "controlled_by",
+        )
+        .first()
+    )
     assert edge is not None
+
 
 def test_validate_rule_warning(db_session: Session, test_project, pump_asset, validate_rule):
     """Test VALIDATE action (Warning)"""
@@ -180,7 +204,7 @@ def test_validate_rule_warning(db_session: Session, test_project, pump_asset, va
     # Verify the property was set
     assert pump_asset.properties.get("efficiency") == 75
 
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
     execution = executor.execute_rule(validate_rule, pump_asset)
 
     if execution.action_type != "VALIDATION_WARN":
@@ -190,6 +214,7 @@ def test_validate_rule_warning(db_session: Session, test_project, pump_asset, va
 
     assert execution.action_type == "VALIDATION_WARN"
     assert "efficiency 75% is too low" in execution.action_taken
+
 
 def test_validation_service(db_session: Session, test_project, pump_asset):
     """Test ValidationService aggregation"""
@@ -206,7 +231,7 @@ def test_validation_service(db_session: Session, test_project, pump_asset):
         action_type=RuleActionType.VALIDATE,
         condition={"asset_type": "PUMP"},
         action={"validate": {"severity": "ERROR", "message": "Test"}},
-        is_active=True
+        is_active=True,
     )
     rule2 = RuleDefinition(
         id="rule-validation-2",
@@ -216,7 +241,7 @@ def test_validation_service(db_session: Session, test_project, pump_asset):
         action_type=RuleActionType.VALIDATE,
         condition={"asset_type": "PUMP"},
         action={"validate": {"severity": "WARNING", "message": "Test"}},
-        is_active=True
+        is_active=True,
     )
     db_session.add(rule1)
     db_session.add(rule2)
@@ -229,7 +254,7 @@ def test_validation_service(db_session: Session, test_project, pump_asset):
         asset_id=pump_asset.id,
         action_type="VALIDATION_FAIL",
         action_taken="Error 1",
-        error_message="Error 1"
+        error_message="Error 1",
     )
     exec2 = RuleExecution(
         rule_id=rule2.id,
@@ -237,20 +262,20 @@ def test_validation_service(db_session: Session, test_project, pump_asset):
         asset_id=pump_asset.id,
         action_type="VALIDATION_WARN",
         action_taken="Warn 1",
-        error_message="Warn 1"
+        error_message="Warn 1",
     )
     db_session.add(exec1)
     db_session.add(exec2)
     db_session.commit()
 
     # Test Summary
-    summary = ValidationService.get_validation_summary(db_session,test_project.id)
+    summary = ValidationService.get_validation_summary(db_session, test_project.id)
     assert summary["errors"] >= 1
     assert summary["warnings"] >= 1
     assert summary["total_issues"] >= 2
 
     # Test Details
-    details = ValidationService.get_validation_details(db_session,test_project.id)
+    details = ValidationService.get_validation_details(db_session, test_project.id)
     assert len(details) >= 2
 
     # Check if our created logs are in the details

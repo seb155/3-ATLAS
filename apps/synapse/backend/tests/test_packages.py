@@ -9,14 +9,13 @@ Tests:
 """
 
 import io
-from datetime import datetime
 
 import pytest
 from openpyxl import load_workbook
 
 from app.models.auth import Client, Project
 from app.models.cables import Cable
-from app.models.models import Asset, AssetType
+from app.models.models import Asset
 from app.models.packages import Package
 from app.services.template_service import TemplateService
 
@@ -158,9 +157,7 @@ class TestPackageCRUD:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         response = client.post(
             "/api/v1/packages",
@@ -184,13 +181,9 @@ class TestPackageCRUD:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
-        response = client.get(
-            "/api/v1/packages", headers={"X-Project-ID": "test-project-pkg"}
-        )
+        response = client.get("/api/v1/packages", headers={"X-Project-ID": "test-project-pkg"})
 
         assert response.status_code == 200
         data = response.json()
@@ -204,9 +197,7 @@ class TestPackageCRUD:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         response = client.get(
             f"/api/v1/packages/{test_package.id}",
@@ -336,9 +327,7 @@ class TestTemplateExport:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         response = client.get(
             f"/api/v1/packages/{test_package.id}/export",
@@ -363,9 +352,7 @@ class TestTemplateExport:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         response = client.get(
             f"/api/v1/packages/{test_package.id}/export/preview",
@@ -388,9 +375,7 @@ class TestPackageAssets:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         # Create a new asset
         new_asset = Asset(
@@ -415,9 +400,7 @@ class TestPackageAssets:
         from app.api.deps import get_current_active_user
         from app.main import app
 
-        app.dependency_overrides[get_current_active_user] = lambda: {
-            "username": "testuser"
-        }
+        app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
         response = client.get(
             f"/api/v1/packages/{test_package.id}/assets",

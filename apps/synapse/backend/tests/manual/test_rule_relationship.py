@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Add backend to path
 # We are in /app/tests/manual, we need /app in path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from app.models.auth import Client, Project
 from app.models.metamodel import MetamodelEdge
@@ -21,6 +21,7 @@ SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@forge-postgres:5432/sy
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 db = SessionLocal()
+
 
 def test_create_relationship():
     print("🧪 Starting Test: CREATE_RELATIONSHIP")
@@ -42,18 +43,8 @@ def test_create_relationship():
     print(f"✅ Created Project: {project_id}")
 
     # 2. Create Assets (Pump and Motor)
-    pump = Asset(
-        tag="P-101",
-        type="PUMP",
-        project_id=project_id,
-        properties={"area": "100"}
-    )
-    motor = Asset(
-        tag="M-101",
-        type="MOTOR",
-        project_id=project_id,
-        properties={"area": "100"}
-    )
+    pump = Asset(tag="P-101", type="PUMP", project_id=project_id, properties={"area": "100"})
+    motor = Asset(tag="M-101", type="MOTOR", project_id=project_id, properties={"area": "100"})
     db.add(pump)
     db.add(motor)
     db.commit()
@@ -68,11 +59,11 @@ def test_create_relationship():
         action={
             "create_relationship": {
                 "relation": "powered_by",
-                "target_tag": "M-101", # Hardcoded for this test, usually {tag}-M
-                "direction": "outgoing" # Pump -> Motor
+                "target_tag": "M-101",  # Hardcoded for this test, usually {tag}-M
+                "direction": "outgoing",  # Pump -> Motor
             }
         },
-        source_id=project_id
+        source_id=project_id,
     )
     db.add(rule)
     db.commit()
@@ -86,11 +77,15 @@ def test_create_relationship():
     print(f"   Details: {execution.action_taken}")
 
     # 5. Verify Edge
-    edge = db.query(MetamodelEdge).filter(
-        MetamodelEdge.source_node_id == pump.id,
-        MetamodelEdge.target_node_id == motor.id,
-        MetamodelEdge.relation_type == "powered_by"
-    ).first()
+    edge = (
+        db.query(MetamodelEdge)
+        .filter(
+            MetamodelEdge.source_node_id == pump.id,
+            MetamodelEdge.target_node_id == motor.id,
+            MetamodelEdge.relation_type == "powered_by",
+        )
+        .first()
+    )
 
     if edge:
         print("✅ SUCCESS: Edge created (P-101 -> M-101)")
@@ -104,6 +99,7 @@ def test_create_relationship():
     # db.delete(motor)
     # db.delete(project)
     # db.commit()
+
 
 if __name__ == "__main__":
     try:

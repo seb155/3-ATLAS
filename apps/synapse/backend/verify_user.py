@@ -24,5 +24,6 @@ def verify_user():
     finally:
         db.close()
 
+
 if __name__ == "__main__":
     verify_user()

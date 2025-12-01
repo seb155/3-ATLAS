@@ -400,10 +400,14 @@ def seed_packages(db: Session, project_id: str, assets: list) -> list:
     print("\n[6/6] Seeding packages...")
 
     # Package 1: Instrumentation (IN-P040)
-    pkg_inst = db.query(Package).filter(
-        Package.name == "PKG-IN-001 - Area 310 Instrumentation",
-        Package.project_id == project_id
-    ).first()
+    pkg_inst = (
+        db.query(Package)
+        .filter(
+            Package.name == "PKG-IN-001 - Area 310 Instrumentation",
+            Package.project_id == project_id,
+        )
+        .first()
+    )
 
     if not pkg_inst:
         pkg_inst = Package(
@@ -414,10 +418,10 @@ def seed_packages(db: Session, project_id: str, assets: list) -> list:
                 "discipline": "Instrumentation",
                 "area": "310",
                 "revision": "A",
-                "engineer": "J. Smith"
+                "engineer": "J. Smith",
             },
             project_id=project_id,
-            status=PackageStatus.OPEN
+            status=PackageStatus.OPEN,
         )
         db.add(pkg_inst)
         db.commit()
@@ -427,10 +431,13 @@ def seed_packages(db: Session, project_id: str, assets: list) -> list:
         print(f"  ✓ Package '{pkg_inst.name}' already exists")
 
     # Package 2: Electrical (CA-P040)
-    pkg_elec = db.query(Package).filter(
-        Package.name == "PKG-EL-001 - Area 310 Electrical",
-        Package.project_id == project_id
-    ).first()
+    pkg_elec = (
+        db.query(Package)
+        .filter(
+            Package.name == "PKG-EL-001 - Area 310 Electrical", Package.project_id == project_id
+        )
+        .first()
+    )
 
     if not pkg_elec:
         pkg_elec = Package(
@@ -441,10 +448,10 @@ def seed_packages(db: Session, project_id: str, assets: list) -> list:
                 "discipline": "Electrical",
                 "area": "310",
                 "revision": "B",
-                "engineer": "M. Johnson"
+                "engineer": "M. Johnson",
             },
             project_id=project_id,
-            status=PackageStatus.OPEN
+            status=PackageStatus.OPEN,
         )
         db.add(pkg_elec)
         db.commit()
@@ -455,13 +462,18 @@ def seed_packages(db: Session, project_id: str, assets: list) -> list:
 
     # Assign assets to packages based on type
     # Instrumentation: transmitters, control instruments
-    inst_types = ['LEVEL_TRANSMITTER', 'INSTRUMENT', 'CONTROL_SYSTEM']
+    inst_types = ["LEVEL_TRANSMITTER", "INSTRUMENT", "CONTROL_SYSTEM"]
     inst_assets = [a for a in assets if a.type in inst_types]
 
     # Electrical: motors, pumps, conveyors, agitators, mills
-    elec_types = ['MOTOR', 'PUMP', 'AGITATOR', 'BALL_MILL']
-    elec_tags = ['CV-', 'M-', 'P-']  # Conveyors, Motors, Pumps by tag
-    elec_assets = [a for a in assets if (a.type in elec_types or any(tag in a.tag.upper() for tag in elec_tags)) and a not in inst_assets]
+    elec_types = ["MOTOR", "PUMP", "AGITATOR", "BALL_MILL"]
+    elec_tags = ["CV-", "M-", "P-"]  # Conveyors, Motors, Pumps by tag
+    elec_assets = [
+        a
+        for a in assets
+        if (a.type in elec_types or any(tag in a.tag.upper() for tag in elec_tags))
+        and a not in inst_assets
+    ]
 
     assigned_inst = 0
     for asset in inst_assets:
@@ -512,21 +524,21 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.IMPORT,
                 "reason": "Initial import from CSV",
                 "days_offset": 0,
-                "changes": {"status": "DRAFT", "flow_rate": "80 m3/h"}
+                "changes": {"status": "DRAFT", "flow_rate": "80 m3/h"},
             },
             {
                 "version": 2,
                 "source": ChangeSource.RULE,
                 "reason": "Rule 'FIRM: Pumps require Motors' executed",
                 "days_offset": 1,
-                "changes": {"status": "ACTIVE", "has_motor": True}
+                "changes": {"status": "ACTIVE", "has_motor": True},
             },
             {
                 "version": 3,
                 "source": ChangeSource.USER,
                 "reason": "Manual update: increased flow capacity",
                 "days_offset": 3,
-                "changes": {"flow_rate": "100 m3/h", "head": "55m"}
+                "changes": {"flow_rate": "100 m3/h", "head": "55m"},
             },
         ],
         "MOTOR": [
@@ -535,21 +547,21 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.RULE,
                 "reason": "Created by rule 'FIRM: Pumps require Motors'",
                 "days_offset": 1,
-                "changes": {"power": "50 HP", "voltage": "480V"}
+                "changes": {"power": "50 HP", "voltage": "480V"},
             },
             {
                 "version": 2,
                 "source": ChangeSource.RULE,
                 "reason": "Rule 'COUNTRY-CA: 600V Motor Standard' applied",
                 "days_offset": 2,
-                "changes": {"voltage": "600V", "frequency": "60Hz"}
+                "changes": {"voltage": "600V", "frequency": "60Hz"},
             },
             {
                 "version": 3,
                 "source": ChangeSource.USER,
                 "reason": "Engineering review: upgraded motor size",
                 "days_offset": 4,
-                "changes": {"power": "75 HP"}
+                "changes": {"power": "75 HP"},
             },
         ],
         "TANK": [
@@ -558,21 +570,21 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.IMPORT,
                 "reason": "Initial import from CSV",
                 "days_offset": 0,
-                "changes": {"capacity": "40 m3", "material": "Carbon Steel"}
+                "changes": {"capacity": "40 m3", "material": "Carbon Steel"},
             },
             {
                 "version": 2,
                 "source": ChangeSource.RULE,
                 "reason": "Rule 'FIRM: Tanks require Level Transmitters' executed",
                 "days_offset": 1,
-                "changes": {"has_level_tx": True}
+                "changes": {"has_level_tx": True},
             },
             {
                 "version": 3,
                 "source": ChangeSource.USER,
                 "reason": "Design change: increased tank capacity",
                 "days_offset": 5,
-                "changes": {"capacity": "50 m3"}
+                "changes": {"capacity": "50 m3"},
             },
         ],
         "LEVEL_TRANSMITTER": [
@@ -581,14 +593,14 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.RULE,
                 "reason": "Created by rule 'FIRM: Tanks require Level Transmitters'",
                 "days_offset": 1,
-                "changes": {"range": "0-8m", "signal": "4-20mA"}
+                "changes": {"range": "0-8m", "signal": "4-20mA"},
             },
             {
                 "version": 2,
                 "source": ChangeSource.USER,
                 "reason": "Calibration update: adjusted range",
                 "days_offset": 4,
-                "changes": {"range": "0-10m", "manufacturer": "Endress+Hauser"}
+                "changes": {"range": "0-10m", "manufacturer": "Endress+Hauser"},
             },
         ],
         "CABLE": [
@@ -597,14 +609,14 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.RULE,
                 "reason": "Created by rule 'FIRM: Motors require Power Cables'",
                 "days_offset": 2,
-                "changes": {"size": "3C 35mm2", "cable_type": "POWER"}
+                "changes": {"size": "3C 35mm2", "cable_type": "POWER"},
             },
             {
                 "version": 2,
                 "source": ChangeSource.USER,
                 "reason": "Cable sizing calculation: upgraded size",
                 "days_offset": 5,
-                "changes": {"size": "3C 50mm2", "length": "45m"}
+                "changes": {"size": "3C 50mm2", "length": "45m"},
             },
         ],
         "VALVE": [
@@ -613,14 +625,14 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.IMPORT,
                 "reason": "Initial import from CSV",
                 "days_offset": 0,
-                "changes": {"size": "4 inch", "actuated": False}
+                "changes": {"size": "4 inch", "actuated": False},
             },
             {
                 "version": 2,
                 "source": ChangeSource.RULE,
                 "reason": "Rule 'PROJECT: Valve Automation' applied",
                 "days_offset": 3,
-                "changes": {"actuated": True, "control_type": "pneumatic"}
+                "changes": {"actuated": True, "control_type": "pneumatic"},
             },
         ],
         "DEFAULT": [
@@ -629,14 +641,14 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "source": ChangeSource.IMPORT,
                 "reason": "Initial import",
                 "days_offset": 0,
-                "changes": {}
+                "changes": {},
             },
             {
                 "version": 2,
                 "source": ChangeSource.SYSTEM,
                 "reason": "System validation passed",
                 "days_offset": 2,
-                "changes": {"validated": True}
+                "changes": {"validated": True},
             },
         ],
     }
@@ -655,7 +667,7 @@ def seed_asset_versions(db: Session, assets: list, user: User) -> int:
                 "area": asset.area,
                 "system": asset.system,
                 "discipline": asset.discipline,
-                "properties": {**(asset.properties or {}), **scenario["changes"]}
+                "properties": {**(asset.properties or {}), **scenario["changes"]},
             }
 
             version = AssetVersion(

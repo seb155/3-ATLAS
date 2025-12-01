@@ -22,6 +22,7 @@ from app.services.workflow_engine import workflow_engine
 # Mock storage for logs
 mock_logs = []
 
+
 def mock_websocket_log(log_dict):
     """Mock function that captures all log calls"""
     # Add timestamp if missing
@@ -29,8 +30,10 @@ def mock_websocket_log(log_dict):
         log_dict["timestamp"] = datetime.now().isoformat()
     mock_logs.append(log_dict)
 
+
 class MockWebSocketLogger:
     log = staticmethod(mock_websocket_log)
+
 
 @pytest.fixture(autouse=True)
 def setup_mocks():
@@ -59,13 +62,11 @@ def setup_mocks():
 # ActionLogger Tests - CRITICAL FEATURES
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_start_action_creates_unique_id():
     """VERIFY: start_action() creates unique action_id"""
-    action_id = action_logger.start_action(
-        action_type="TEST",
-        summary="Test Action"
-    )
+    action_id = action_logger.start_action(action_type="TEST", summary="Test Action")
 
     assert action_id is not None
     assert isinstance(action_id, str)
@@ -150,16 +151,14 @@ async def test_update_progress_changes_percentage():
 # Entity Navigation Tests - CRITICAL FOR DEVCON SOLE
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_entity_tag_included_in_log():
     """VERIFY: Entity tags (P-101) are included for navigation"""
     action_id = action_logger.start_action("TEST", "Test")
 
     action_logger.log_step(
-        action_id,
-        "Created pump",
-        entity_tag="P-101",
-        entity_route="/assets/123"
+        action_id, "Created pump", entity_tag="P-101", entity_route="/assets/123"
     )
 
     # Find log with entity
@@ -174,11 +173,7 @@ async def test_entity_type_tracking():
     action_id = action_logger.start_action("TEST", "Test")
 
     action_logger.log_step(
-        action_id,
-        "Created asset",
-        entity_tag="P-101",
-        entity_type="Asset",
-        entity_id="asset-123"
+        action_id, "Created asset", entity_tag="P-101", entity_type="Asset", entity_id="asset-123"
     )
 
     entity_logs = [log for log in mock_logs if log.get("entityType")]
@@ -191,14 +186,12 @@ async def test_entity_type_tracking():
 # User Context Tests - FOR FILTERING
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_user_id_and_name_tracking():
     """VERIFY: User ID and name are tracked for filtering"""
     action_id = action_logger.start_action(
-        "TEST",
-        "Test",
-        user_id="user123",
-        user_name="admin@aurumax.com"
+        "TEST", "Test", user_id="user123", user_name="admin@aurumax.com"
     )
 
     # Find start log
@@ -212,14 +205,11 @@ async def test_user_id_and_name_tracking():
 # Topic & Discipline Tests - FOR FILTERING
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_topic_tagging():
     """VERIFY: Topics (ASSETS, RULES, CABLES) are tagged"""
-    action_id = action_logger.start_action(
-        "IMPORT",
-        "Import Assets",
-        topic="ASSETS"
-    )
+    action_id = action_logger.start_action("IMPORT", "Import Assets", topic="ASSETS")
 
     start_logs = [log for log in mock_logs if log.get("actionStatus") == "RUNNING"]
     assert len(start_logs) == 1
@@ -230,9 +220,7 @@ async def test_topic_tagging():
 async def test_discipline_tagging():
     """VERIFY: Disciplines (PROCESS, ELECTRICAL) are tagged"""
     action_id = action_logger.start_action(
-        "RULE_EXECUTION",
-        "Run Electrical Rules",
-        discipline="ELECTRICAL"
+        "RULE_EXECUTION", "Run Electrical Rules", discipline="ELECTRICAL"
     )
 
     start_logs = [log for log in mock_logs if log.get("actionStatus") == "RUNNING"]
@@ -243,6 +231,7 @@ async def test_discipline_tagging():
 # ============================================================================
 # WorkflowEngine Tests - MULTI-JOB WORKFLOWS
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_workflow_sequential_execution():
@@ -258,10 +247,9 @@ async def test_workflow_sequential_execution():
         execution_order.append(2)
         return {"items": 3}
 
-    workflow_engine.register_template("TEST_SEQ", [
-        {"name": "Job 1", "function": job1},
-        {"name": "Job 2", "function": job2}
-    ])
+    workflow_engine.register_template(
+        "TEST_SEQ", [{"name": "Job 1", "function": job1}, {"name": "Job 2", "function": job2}]
+    )
 
     workflow_id = workflow_engine.start_workflow("TEST_SEQ", "Sequential Test", {})
     await workflow_engine.execute_workflow(workflow_id)
@@ -273,6 +261,7 @@ async def test_workflow_sequential_execution():
 @pytest.mark.asyncio
 async def test_workflow_stops_on_failure():
     """VERIFY: Workflow stops if a job fails"""
+
     async def job_ok(job_id, params):
         return {}
 
@@ -283,11 +272,14 @@ async def test_workflow_stops_on_failure():
         pytest.fail("This job should not run!")
         return {}
 
-    workflow_engine.register_template("TEST_FAIL", [
-        {"name": "OK", "function": job_ok},
-        {"name": "FAIL", "function": job_fail},
-        {"name": "SKIP", "function": job_skip}
-    ])
+    workflow_engine.register_template(
+        "TEST_FAIL",
+        [
+            {"name": "OK", "function": job_ok},
+            {"name": "FAIL", "function": job_fail},
+            {"name": "SKIP", "function": job_skip},
+        ],
+    )
 
     workflow_id = workflow_engine.start_workflow("TEST_FAIL", "Fail Test", {})
     await workflow_engine.execute_workflow(workflow_id)
@@ -300,25 +292,25 @@ async def test_workflow_stops_on_failure():
 @pytest.mark.asyncio
 async def test_workflow_aggregates_stats():
     """VERIFY: Workflow totals are calculated correctly"""
+
     async def job1(job_id, params):
         return {"items": 10}
 
     async def job2(job_id, params):
         return {"items": 5}
 
-    workflow_engine.register_template("TEST_STATS", [
-        {"name": "Job 1", "function": job1},
-        {"name": "Job 2", "function": job2}
-    ])
+    workflow_engine.register_template(
+        "TEST_STATS", [{"name": "Job 1", "function": job1}, {"name": "Job 2", "function": job2}]
+    )
 
     workflow_id = workflow_engine.start_workflow("TEST_STATS", "Stats Test", {})
     await workflow_engine.execute_workflow(workflow_id)
 
     # Find workflow completion
     complete_logs = [
-        log for log in mock_logs
-        if log.get("actionStatus") == "COMPLETED"
-        and log.get("actionType") == "TEST_STATS"
+        log
+        for log in mock_logs
+        if log.get("actionStatus") == "COMPLETED" and log.get("actionType") == "TEST_STATS"
     ]
     assert len(complete_logs) == 1
 
@@ -334,15 +326,12 @@ async def test_workflow_aggregates_stats():
 # Nested Actions (Parent/Child) Tests
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_nested_actions_parent_child():
     """VERIFY: Child actions link to parent via parentId"""
     parent_id = action_logger.start_action("PARENT", "Parent Action")
-    child_id = action_logger.start_action(
-        "CHILD",
-        "Child Action",
-        parent_action_id=parent_id
-    )
+    child_id = action_logger.start_action("CHILD", "Child Action", parent_action_id=parent_id)
 
     # Find child log
     child_logs = [log for log in mock_logs if log.get("actionSummary") == "Child Action"]
@@ -353,6 +342,7 @@ async def test_nested_actions_parent_child():
 # ============================================================================
 # Log Isolation Tests - CRITICAL FOR FILTERING
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_orphan_logs_without_action():
@@ -370,6 +360,7 @@ async def test_orphan_logs_without_action():
 # Real-World Scenario Test - IMPORT WORKFLOW
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_realistic_import_workflow():
     """
@@ -382,6 +373,7 @@ async def test_realistic_import_workflow():
     - Stats aggregation
     - Completion
     """
+
     async def fetch_external_data(job_id, params):
         action_logger.log_step(job_id, "Fetching from API...", level="INFO")
         await asyncio.sleep(0.01)
@@ -396,7 +388,7 @@ async def test_realistic_import_workflow():
                 f"Created {tag}",
                 entity_tag=tag,
                 entity_route=f"/assets/{tag}",
-                entity_type="Asset"
+                entity_type="Asset",
             )
         return {"items": 3}
 
@@ -405,27 +397,30 @@ async def test_realistic_import_workflow():
         await asyncio.sleep(0.01)
         return {"items": 3}
 
-    workflow_engine.register_template("IMPORT_GOLD_MINE", [
-        {"name": "Fetch External Data", "function": fetch_external_data},
-        {"name": "Create Assets", "function": create_assets},
-        {"name": "Update Database", "function": update_database}
-    ])
+    workflow_engine.register_template(
+        "IMPORT_GOLD_MINE",
+        [
+            {"name": "Fetch External Data", "function": fetch_external_data},
+            {"name": "Create Assets", "function": create_assets},
+            {"name": "Update Database", "function": update_database},
+        ],
+    )
 
     workflow_id = workflow_engine.start_workflow(
         "IMPORT_GOLD_MINE",
         "Import Gold Mine Project",
         params={},
         user_id="admin",
-        user_name="admin@aurumax.com"
+        user_name="admin@aurumax.com",
     )
 
     await workflow_engine.execute_workflow(workflow_id)
 
     # Verify workflow completed
     complete_logs = [
-        log for log in mock_logs
-        if log.get("actionStatus") == "COMPLETED"
-        and log.get("actionType") == "IMPORT_GOLD_MINE"
+        log
+        for log in mock_logs
+        if log.get("actionStatus") == "COMPLETED" and log.get("actionType") == "IMPORT_GOLD_MINE"
     ]
     assert len(complete_logs) == 1
     assert complete_logs[0]["actionStats"]["itemsProcessed"] == 9  # 3+3+3
@@ -448,6 +443,7 @@ async def test_realistic_import_workflow():
 # ============================================================================
 # Performance Test - LOG VOLUME
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_high_volume_logging():

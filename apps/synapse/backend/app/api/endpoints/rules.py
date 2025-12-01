@@ -721,10 +721,10 @@ def debug_rule_evaluation(
                 "actual": asset.type,
                 "passed": asset_type_match,
                 "explanation": (
-                f"Asset type '{asset.type}' "
-                f"{'matches' if asset_type_match else 'does not match'} "
-                f"expected '{condition['asset_type']}'"
-            ),
+                    f"Asset type '{asset.type}' "
+                    f"{'matches' if asset_type_match else 'does not match'} "
+                    f"expected '{condition['asset_type']}'"
+                ),
             }
         )
         if not asset_type_match:

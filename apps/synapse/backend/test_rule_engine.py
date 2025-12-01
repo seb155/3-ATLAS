@@ -10,11 +10,13 @@ Base.metadata.create_all(bind=engine)
 
 client = TestClient(app)
 
+
 def clear_db():
     with Session(engine) as session:
         session.query(MetamodelEdge).delete()
         session.query(MetamodelNode).delete()
         session.commit()
+
 
 def test_rule_engine_smart_matching():
     clear_db()
@@ -27,19 +29,40 @@ def test_rule_engine_smart_matching():
     # Let's use the client to seed via the metamodel API for consistency.
 
     # Create Pump PU-100
-    client.post("/api/v1/metamodel/node", json={
-        "name": "PU-100", "type": "PUMP", "discipline": "PROCESS", "semantic_type": "ASSET", "lod": 2
-    })
+    client.post(
+        "/api/v1/metamodel/node",
+        json={
+            "name": "PU-100",
+            "type": "PUMP",
+            "discipline": "PROCESS",
+            "semantic_type": "ASSET",
+            "lod": 2,
+        },
+    )
 
     # Create Motor MO-100 (The match)
-    client.post("/api/v1/metamodel/node", json={
-        "name": "MO-100", "type": "MOTOR", "discipline": "ELECTRICAL", "semantic_type": "ASSET", "lod": 2
-    })
+    client.post(
+        "/api/v1/metamodel/node",
+        json={
+            "name": "MO-100",
+            "type": "MOTOR",
+            "discipline": "ELECTRICAL",
+            "semantic_type": "ASSET",
+            "lod": 2,
+        },
+    )
 
     # Create Pump PU-200 (No match, should create MO-200)
-    client.post("/api/v1/metamodel/node", json={
-        "name": "PU-200", "type": "PUMP", "discipline": "PROCESS", "semantic_type": "ASSET", "lod": 2
-    })
+    client.post(
+        "/api/v1/metamodel/node",
+        json={
+            "name": "PU-200",
+            "type": "PUMP",
+            "discipline": "PROCESS",
+            "semantic_type": "ASSET",
+            "lod": 2,
+        },
+    )
 
     # 2. Run Import (which triggers Rule Engine)
     # We use the mock import endpoint, but we need to make sure it doesn't wipe our manual seed if we want to test matching.
@@ -56,9 +79,17 @@ def test_rule_engine_smart_matching():
     # Let's Pre-Seed 310-M-001 to test if it links instead of creating 310-PP-001-MO.
 
     # Pre-seed matching motor for Gold Mine asset
-    res = client.post("/api/v1/metamodel/node", json={
-        "name": "310-M-001", "type": "MOTOR", "discipline": "ELECTRICAL", "semantic_type": "ASSET", "lod": 2, "description": "Existing Match"
-    })
+    res = client.post(
+        "/api/v1/metamodel/node",
+        json={
+            "name": "310-M-001",
+            "type": "MOTOR",
+            "discipline": "ELECTRICAL",
+            "semantic_type": "ASSET",
+            "lod": 2,
+            "description": "Existing Match",
+        },
+    )
     assert res.status_code == 200, f"Failed to create 310-M-001: {res.text}"
 
     response = client.post("/api/v1/mock/import-gold-mine")
@@ -78,8 +109,11 @@ def test_rule_engine_smart_matching():
     link_log = next((l for l in logs if "LINK" in l["level"] and "310-M-001" in l["message"]), None)
     assert link_log is not None, "Should have linked to existing 310-M-001"
 
-    create_log = next((l for l in logs if "CREATE" in l["level"] and "420-PP-001" in l["message"]), None)
+    create_log = next(
+        (l for l in logs if "CREATE" in l["level"] and "420-PP-001" in l["message"]), None
+    )
     assert create_log is not None, "Should have created motor for 420-PP-001"
+
 
 def test_rule_engine_idempotency():
     # Run import twice

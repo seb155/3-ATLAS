@@ -463,7 +463,7 @@ def get_batch_operations(
     query = db.query(BatchOperation).filter(BatchOperation.project_id == project_id)
 
     if not include_rolled_back:
-        query = query.filter(BatchOperation.is_rolled_back == False)
+        query = query.filter(BatchOperation.is_rolled_back is False)
 
     total = query.count()
     batches = (

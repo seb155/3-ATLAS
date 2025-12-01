@@ -124,10 +124,7 @@ class TemplateService:
 
         # Load assets
         assets = (
-            self.db.query(Asset)
-            .filter(Asset.package_id == package_id)
-            .order_by(Asset.tag)
-            .all()
+            self.db.query(Asset).filter(Asset.package_id == package_id).order_by(Asset.tag).all()
         )
 
         if not assets:
@@ -178,9 +175,7 @@ class TemplateService:
     # IN-P040: INSTRUMENT INDEX
     # ==========================================================================
 
-    def _export_instrument_index(
-        self, context: TemplateContext, format: str
-    ) -> ExportResult:
+    def _export_instrument_index(self, context: TemplateContext, format: str) -> ExportResult:
         """
         Generate IN-P040 Instrument Index.
 
@@ -255,17 +250,13 @@ class TemplateService:
             )
 
         except Exception as e:
-            return ExportResult(
-                success=False, file_name="", error=f"Export failed: {str(e)}"
-            )
+            return ExportResult(success=False, file_name="", error=f"Export failed: {str(e)}")
 
     # ==========================================================================
     # CA-P040: CABLE SCHEDULE
     # ==========================================================================
 
-    def _export_cable_schedule(
-        self, context: TemplateContext, format: str
-    ) -> ExportResult:
+    def _export_cable_schedule(self, context: TemplateContext, format: str) -> ExportResult:
         """
         Generate CA-P040 Cable Schedule.
 
@@ -316,15 +307,9 @@ class TemplateService:
                 row = 7
                 for idx, cable in enumerate(context.cables, start=1):
                     from_asset = (
-                        self.db.query(Asset)
-                        .filter(Asset.id == cable.from_asset_id)
-                        .first()
+                        self.db.query(Asset).filter(Asset.id == cable.from_asset_id).first()
                     )
-                    to_asset = (
-                        self.db.query(Asset)
-                        .filter(Asset.id == cable.to_asset_id)
-                        .first()
-                    )
+                    to_asset = self.db.query(Asset).filter(Asset.id == cable.to_asset_id).first()
 
                     ws.cell(row, 1, idx)
                     ws.cell(row, 2, cable.tag)
@@ -361,9 +346,7 @@ class TemplateService:
             )
 
         except Exception as e:
-            return ExportResult(
-                success=False, file_name="", error=f"Export failed: {str(e)}"
-            )
+            return ExportResult(success=False, file_name="", error=f"Export failed: {str(e)}")
 
     # ==========================================================================
     # FORMATTING HELPERS
@@ -389,9 +372,7 @@ class TemplateService:
 
         # Package info
         ws.merge_cells(f"A{start_row + 2}:J{start_row + 2}")
-        package_cell = ws.cell(
-            start_row + 2, 1, f"Package: {context.package.name}"
-        )
+        package_cell = ws.cell(start_row + 2, 1, f"Package: {context.package.name}")
         package_cell.font = Font(size=11, bold=True)
         package_cell.alignment = Alignment(horizontal="center")
 
@@ -403,14 +384,10 @@ class TemplateService:
         date_cell.font = Font(size=9)
         date_cell.alignment = Alignment(horizontal="center")
 
-    def _write_column_headers(
-        self, ws, row: int, headers: list[str], freeze: bool = True
-    ):
+    def _write_column_headers(self, ws, row: int, headers: list[str], freeze: bool = True):
         """Write and format column headers."""
         # Header style
-        header_fill = PatternFill(
-            start_color="4472C4", end_color="4472C4", fill_type="solid"
-        )
+        header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
         header_font = Font(color="FFFFFF", bold=True, size=11)
         header_alignment = Alignment(horizontal="center", vertical="center")
         border = Border(

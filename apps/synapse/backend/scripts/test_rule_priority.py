@@ -19,13 +19,11 @@ def cleanup_test_data(db):
     from app.models.rules import RuleDefinition
 
     # Delete test rules
-    test_rule_names = [
-        "TEST_FIRM: Voltage",
-        "TEST_COUNTRY: Voltage",
-        "TEST_PROJECT: Voltage"
-    ]
+    test_rule_names = ["TEST_FIRM: Voltage", "TEST_COUNTRY: Voltage", "TEST_PROJECT: Voltage"]
     for name in test_rule_names:
-        db.query(RuleDefinition).filter(RuleDefinition.name.like(f"{name}%")).delete(synchronize_session=False)
+        db.query(RuleDefinition).filter(RuleDefinition.name.like(f"{name}%")).delete(
+            synchronize_session=False
+        )
 
     # Delete test assets
     db.query(Asset).filter(Asset.tag.like("TEST-%")).delete(synchronize_session=False)
@@ -63,9 +61,7 @@ def test_rule_priority():
         db.flush()
 
         project = Project(
-            name="TEST Conflict Priority",
-            description="Priority test",
-            client_id=client.id
+            name="TEST Conflict Priority", description="Priority test", client_id=client.id
         )
         project.country = "CA"  # Enable COUNTRY rules
         db.add(project)
@@ -75,7 +71,7 @@ def test_rule_priority():
             tag="TEST-P-001",
             type="PUMP",
             project_id=project.id,
-            properties={"pump_type": "centrifugal"}
+            properties={"pump_type": "centrifugal"},
         )
         db.add(asset)
         db.commit()
@@ -93,7 +89,7 @@ def test_rule_priority():
             condition={"type": "PUMP"},
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "480V"}},
-            is_active=True
+            is_active=True,
         )
 
         rule_country = RuleDefinition(
@@ -104,7 +100,7 @@ def test_rule_priority():
             condition={"type": "PUMP"},
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "600V"}},
-            is_active=True
+            is_active=True,
         )
 
         db.add_all([rule_firm, rule_country])
@@ -133,7 +129,7 @@ def test_rule_priority():
             condition={"type": "PUMP"},
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "4160V"}},
-            is_active=True
+            is_active=True,
         )
 
         db.add(rule_project)
@@ -143,9 +139,11 @@ def test_rule_priority():
         active_rules = result["rules"]
         active_rule_names = {r.name for r in active_rules}
 
-        if (rule_project.name in active_rule_names and
-            rule_country.name not in active_rule_names and
-            rule_firm.name not in active_rule_names):
+        if (
+            rule_project.name in active_rule_names
+            and rule_country.name not in active_rule_names
+            and rule_firm.name not in active_rule_names
+        ):
             print("✅ PASS: PROJECT rule active, COUNTRY and FIRM filtered out")
         else:
             print("❌ FAIL: Expected only PROJECT active")
@@ -183,6 +181,7 @@ def test_rule_priority():
     except Exception as e:
         print(f"\n❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         db.rollback()
     finally:

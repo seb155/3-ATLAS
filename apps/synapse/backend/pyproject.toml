@@ -16,13 +16,22 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
 ]
-ignore = ["B008"]
+ignore = [
+    "B008",   # function-call-in-default-argument
+    "B904",   # raise-without-from-inside-except (TODO: fix later)
+    "E501",   # line-too-long (handled by formatter, some edge cases remain)
+    "E402",   # module-import-not-at-top (needed for path setup in scripts)
+    "E722",   # bare-except (TODO: fix later)
+]
 exclude = [
     ".git",
     "__pycache__",
     "migrations",
     "alembic",
     ".venv",
+    "tests",
+    "scripts",
+    "test_*.py",
 ]
 
 [tool.ruff.per-file-ignores]

@@ -25,12 +25,16 @@ router = APIRouter()
 
 class ClassifyRequest(BaseModel):
     """Request body for instrument classification"""
+
     tag: str = Field(..., min_length=1, max_length=100, description="Instrument tag")
-    description: str = Field(..., min_length=1, max_length=500, description="Instrument description")
+    description: str = Field(
+        ..., min_length=1, max_length=500, description="Instrument description"
+    )
 
 
 class ClassifyResponse(BaseModel):
     """Response for instrument classification"""
+
     system: str
     io_type: str
     suggested_area: str | None
@@ -41,6 +45,7 @@ class ClassifyResponse(BaseModel):
 
 class SwitchProviderRequest(BaseModel):
     """Request to switch AI provider"""
+
     provider: str = Field(..., description="Provider name: ollama, openai, gemini, none")
     model: str | None = Field(None, description="Optional model override")
     api_key: str | None = Field(None, description="Optional API key (for openai/gemini)")
@@ -48,6 +53,7 @@ class SwitchProviderRequest(BaseModel):
 
 class ProviderInfo(BaseModel):
     """Information about an AI provider"""
+
     name: str
     status: str
     model: str | None = None
@@ -71,7 +77,7 @@ async def classify_instrument(request: ClassifyRequest):
         suggested_area=result.suggested_area,
         confidence=result.confidence,
         provider=result.provider,
-        error=result.error
+        error=result.error,
     )
 
 
@@ -99,28 +105,36 @@ async def list_providers():
             status="active" if current_provider == "ollama" else "available",
             model=os.getenv("AI_MODEL", "llama3.2") if current_provider == "ollama" else "llama3.2",
             requires_api_key=False,
-            description="Local AI inference - FREE, requires Ollama server"
+            description="Local AI inference - FREE, requires Ollama server",
         ),
         ProviderInfo(
             name="openai",
-            status="active" if current_provider == "openai" else ("configured" if os.getenv("OPENAI_API_KEY") else "available"),
-            model=os.getenv("AI_MODEL", "gpt-4o-mini") if current_provider == "openai" else "gpt-4o-mini",
+            status="active"
+            if current_provider == "openai"
+            else ("configured" if os.getenv("OPENAI_API_KEY") else "available"),
+            model=os.getenv("AI_MODEL", "gpt-4o-mini")
+            if current_provider == "openai"
+            else "gpt-4o-mini",
             requires_api_key=True,
-            description="OpenAI GPT models - PAID, cloud-based"
+            description="OpenAI GPT models - PAID, cloud-based",
         ),
         ProviderInfo(
             name="gemini",
-            status="active" if current_provider == "gemini" else ("configured" if os.getenv("GEMINI_API_KEY") else "available"),
-            model=os.getenv("AI_MODEL", "gemini-1.5-flash") if current_provider == "gemini" else "gemini-1.5-flash",
+            status="active"
+            if current_provider == "gemini"
+            else ("configured" if os.getenv("GEMINI_API_KEY") else "available"),
+            model=os.getenv("AI_MODEL", "gemini-1.5-flash")
+            if current_provider == "gemini"
+            else "gemini-1.5-flash",
             requires_api_key=True,
-            description="Google Gemini - PAID (free tier available), cloud-based"
+            description="Google Gemini - PAID (free tier available), cloud-based",
         ),
         ProviderInfo(
             name="none",
             status="active" if current_provider == "none" else "available",
             model=None,
             requires_api_key=False,
-            description="Disabled - No AI classification, manual mode only"
+            description="Disabled - No AI classification, manual mode only",
         ),
     ]
 
@@ -138,10 +152,7 @@ async def switch_provider(request: SwitchProviderRequest):
     """
     available = get_available_providers()
     if request.provider not in available:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid provider. Available: {available}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid provider. Available: {available}")
 
     # Update environment variables
     os.environ["AI_PROVIDER"] = request.provider
@@ -162,10 +173,7 @@ async def switch_provider(request: SwitchProviderRequest):
     provider = get_ai_provider()
     health = await provider.health_check()
 
-    return {
-        "message": f"Switched to {request.provider}",
-        "health": health
-    }
+    return {"message": f"Switched to {request.provider}", "health": health}
 
 
 @router.get("/config")

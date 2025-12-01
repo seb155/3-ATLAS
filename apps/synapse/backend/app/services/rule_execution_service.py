@@ -359,7 +359,7 @@ class RuleExecutionService:
         elif op in ("in", "IN"):
             return asset_value in expected if isinstance(expected, list) else False
         elif op == "contains":
-            return expected in asset_value if isinstance(asset_value, (str, list)) else False
+            return expected in asset_value if isinstance(asset_value, str | list) else False
         elif op in ("exists", "EXISTS"):
             return asset_value is not None
         elif op in ("not_exists", "NOT_EXISTS"):
@@ -1091,7 +1091,7 @@ class RuleExecutionService:
 
     def _load_rules(self, rule_ids: list[str] | None = None) -> list[RuleDefinition]:
         """Load rules in priority order."""
-        query = self.db.query(RuleDefinition).filter(RuleDefinition.is_active == True)
+        query = self.db.query(RuleDefinition).filter(RuleDefinition.is_active is True)
 
         if rule_ids:
             query = query.filter(RuleDefinition.id.in_(rule_ids))

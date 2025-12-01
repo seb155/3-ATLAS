@@ -7,13 +7,17 @@ from app.models.auth import User, UserRole
 
 # Create a dummy admin route for testing
 router = APIRouter()
+
+
 @router.get("/test-admin")
 def test_admin_route(user: User = Depends(get_current_admin_user)):
     return {"message": "Admin Access Granted"}
 
+
 app.include_router(router)
 
 client = TestClient(app)
+
 
 def test_rbac():
     # 1. Test as Engineer (Should Fail)
@@ -24,6 +28,7 @@ def test_rbac():
         del app.dependency_overrides[get_current_admin_user]
     # We need to override get_current_active_user because get_current_admin_user depends on it
     from app.api.deps import get_current_active_user
+
     app.dependency_overrides[get_current_active_user] = mock_engineer
 
     response = client.get("/test-admin")
@@ -41,6 +46,7 @@ def test_rbac():
     assert response.status_code == 200
     assert response.json()["message"] == "Admin Access Granted"
     print("✅ test_rbac (Admin granted) passed")
+
 
 if __name__ == "__main__":
     test_rbac()

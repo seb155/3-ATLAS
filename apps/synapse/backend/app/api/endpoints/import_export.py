@@ -111,8 +111,6 @@ def export_assets_csv(
     return response
 
 
-
-
 @router.post("/import", response_model=ImportSummaryResponse, status_code=200)
 async def import_assets_csv(
     file: UploadFile = File(...),
@@ -152,6 +150,7 @@ async def import_assets_csv(
     if mapping:
         try:
             import json
+
             column_map = json.loads(mapping)
         except Exception as e:
             print(f"Warning: Failed to parse mapping JSON: {e}")
@@ -270,9 +269,15 @@ async def import_assets_csv(
             # Strategy:
             # 1. Check for specific known nested fields via mapping
             known_nested = [
-                "electrical.voltage", "electrical.powerKW", "electrical.loadType",
-                "process.fluid", "process.minRange", "process.maxRange", "process.units",
-                "purchasing.workPackageId", "purchasing.status"
+                "electrical.voltage",
+                "electrical.powerKW",
+                "electrical.loadType",
+                "process.fluid",
+                "process.minRange",
+                "process.maxRange",
+                "process.units",
+                "purchasing.workPackageId",
+                "purchasing.status",
             ]
 
             for field in known_nested:
@@ -291,7 +296,7 @@ async def import_assets_csv(
                         # This is a bit complex to check efficiently, so we just overwrite if it wasn't mapped
                         # Or better: only process if key is NOT a value in column_map
                         is_mapped_column = False
-                        for map_key, map_val in column_map.items():
+                        for _map_key, map_val in column_map.items():
                             if map_val == key:
                                 is_mapped_column = True
                                 break
@@ -379,7 +384,9 @@ async def import_assets_csv(
                 # Create
                 if "type" not in asset_data:
                     summary["errors"].append(
-                        CSVRowError(row=row_idx, tag=tag, error="Missing required field: type").dict()
+                        CSVRowError(
+                            row=row_idx, tag=tag, error="Missing required field: type"
+                        ).dict()
                     )
                     summary["failed"] += 1
                     continue
@@ -430,10 +437,8 @@ async def import_assets_csv(
                     print(f"Warning: Failed to create MetamodelNode for {tag}: {str(e)}")
 
         except (SynapseValidationError, DatabaseError) as e:
-            error_msg = e.message if hasattr(e, 'message') else str(e)
-            summary["errors"].append(
-                CSVRowError(row=row_idx, tag=tag, error=error_msg).dict()
-            )
+            error_msg = e.message if hasattr(e, "message") else str(e)
+            summary["errors"].append(CSVRowError(row=row_idx, tag=tag, error=error_msg).dict())
             summary["failed"] += 1
             ActionLogger.log(
                 db=db,
@@ -451,7 +456,9 @@ async def import_assets_csv(
             traceback.print_exc()
             error_msg = f"System error: {str(e)}"
             summary["errors"].append(
-                CSVRowError(row=row_idx, tag=tag if 'tag' in locals() else None, error=error_msg).dict()
+                CSVRowError(
+                    row=row_idx, tag=tag if "tag" in locals() else None, error=error_msg
+                ).dict()
             )
             summary["failed"] += 1
             ActionLogger.log(
@@ -472,7 +479,7 @@ async def import_assets_csv(
         "created": summary["created"],
         "updated": summary["updated"],
         "errors": len(summary["errors"]),
-        "mapping": column_map
+        "mapping": column_map,
     }
 
     # NEW: Complete batch operation and workflow
@@ -635,7 +642,9 @@ async def import_dev_assets_csv(
 
                 if not tag:
                     summary["errors"].append(
-                        CSVRowError(row=row_idx, tag=None, error="Missing required field: tag").dict()
+                        CSVRowError(
+                            row=row_idx, tag=None, error="Missing required field: tag"
+                        ).dict()
                     )
                     summary["failed"] += 1
                     continue
@@ -712,7 +721,9 @@ async def import_dev_assets_csv(
                 else:
                     if "type" not in asset_data:
                         summary["errors"].append(
-                            CSVRowError(row=row_idx, tag=tag, error="Missing required field: type").dict()
+                            CSVRowError(
+                                row=row_idx, tag=tag, error="Missing required field: type"
+                            ).dict()
                         )
                         summary["failed"] += 1
                         continue
@@ -746,10 +757,8 @@ async def import_dev_assets_csv(
                 import traceback
 
                 traceback.print_exc()
-                error_msg = e.message if hasattr(e, 'message') else str(e)
-                summary["errors"].append(
-                    CSVRowError(row=row_idx, tag=tag, error=error_msg).dict()
-                )
+                error_msg = e.message if hasattr(e, "message") else str(e)
+                summary["errors"].append(CSVRowError(row=row_idx, tag=tag, error=error_msg).dict())
                 summary["failed"] += 1
                 ActionLogger.log(
                     db=db,
@@ -767,7 +776,9 @@ async def import_dev_assets_csv(
                 traceback.print_exc()
                 error_msg = f"System error: {str(e)}"
                 summary["errors"].append(
-                    CSVRowError(row=row_idx, tag=tag if 'tag' in locals() else None, error=error_msg).dict()
+                    CSVRowError(
+                        row=row_idx, tag=tag if "tag" in locals() else None, error=error_msg
+                    ).dict()
                 )
                 summary["failed"] += 1
                 ActionLogger.log(

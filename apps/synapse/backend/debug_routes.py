@@ -1,4 +1,3 @@
-
 from app.main import app
 
 print("Registered Routes:")

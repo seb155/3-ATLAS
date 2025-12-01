@@ -26,10 +26,7 @@ from app.core.security import get_password_hash
 from app.models.auth import Client, Project, User, UserRole
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -68,7 +65,7 @@ def seed_initial_data():
                 email="admin@aurumax.com",
                 hashed_password=get_password_hash("admin123!"),
                 full_name="Admin User",
-                role=UserRole.ADMIN
+                role=UserRole.ADMIN,
             )
             db.add(user)
             db.commit()
@@ -81,10 +78,7 @@ def seed_initial_data():
         client = db.query(Client).filter(Client.name == "AuruMax Mining").first()
         if not client:
             logger.info("Creating default client: AuruMax Mining")
-            client = Client(
-                name="AuruMax Mining",
-                contact_email="contact@aurumax.com"
-            )
+            client = Client(name="AuruMax Mining", contact_email="contact@aurumax.com")
             db.add(client)
             db.commit()
             db.refresh(client)
@@ -100,7 +94,7 @@ def seed_initial_data():
                 name="Gold Mine Project",
                 client_id=client.id,
                 description="Default project for testing and development",
-                status="ACTIVE"
+                status="ACTIVE",
             )
             db.add(project)
             db.commit()
@@ -124,6 +118,7 @@ def seed_baseline_rules():
     logger.info("📝 Seeding baseline rules...")
     try:
         from app.scripts.seed_cable_rules import seed_cable_rules
+
         seed_cable_rules()
         logger.info("✅ Baseline rules seeded")
     except ImportError:
@@ -134,21 +129,13 @@ def seed_baseline_rules():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Initialize SYNAPSE database')
+    parser = argparse.ArgumentParser(description="Initialize SYNAPSE database")
     parser.add_argument(
-        '--reset',
-        action='store_true',
-        help='Drop all tables and recreate (DESTRUCTIVE)'
+        "--reset", action="store_true", help="Drop all tables and recreate (DESTRUCTIVE)"
     )
+    parser.add_argument("--with-rules", action="store_true", help="Also seed baseline rules")
     parser.add_argument(
-        '--with-rules',
-        action='store_true',
-        help='Also seed baseline rules'
-    )
-    parser.add_argument(
-        '--schema-only',
-        action='store_true',
-        help='Only create schema, skip data seeding'
+        "--schema-only", action="store_true", help="Only create schema, skip data seeding"
     )
 
     args = parser.parse_args()
@@ -161,7 +148,7 @@ def main():
         # Step 1: Reset if requested
         if args.reset:
             confirm = input("⚠️  This will DELETE ALL DATA. Are you sure? (yes/no): ")
-            if confirm.lower() != 'yes':
+            if confirm.lower() != "yes":
                 logger.info("Cancelled.")
                 return
             drop_all_tables()

@@ -218,8 +218,6 @@ class ActionLogger:
         if action_id not in self.active_actions:
             return
 
-
-
         websocket_logger.log(
             {
                 "level": "INFO",
@@ -261,11 +259,7 @@ class ActionLogger:
             from app.models.action_log import ActionLog
 
             # Build kwargs for ActionLog
-            log_kwargs = {
-                'action_type': action_type,
-                'description': description,
-                **kwargs
-            }
+            log_kwargs = {"action_type": action_type, "description": description, **kwargs}
 
             action_log = ActionLog(**log_kwargs)
             db.add(action_log)
@@ -278,11 +272,13 @@ class ActionLogger:
             websocket_logger.log(payload)
         elif action_type or description:
             # Fallback: convert to payload
-            websocket_logger.log({
-                'action_type': str(action_type) if action_type else None,
-                'message': description,
-                **kwargs
-            })
+            websocket_logger.log(
+                {
+                    "action_type": str(action_type) if action_type else None,
+                    "message": description,
+                    **kwargs,
+                }
+            )
 
 
 # Global singleton instance

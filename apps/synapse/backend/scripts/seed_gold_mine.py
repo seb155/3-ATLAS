@@ -14,6 +14,7 @@ from app.models.models import Asset, AssetType, IOType, LBSNode, LocationType
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def seed_data():
     db = SessionLocal()
     try:
@@ -22,10 +23,7 @@ def seed_data():
         # 1. Create Client
         client = db.query(Client).filter(Client.name == "Gold Mine Corp").first()
         if not client:
-            client = Client(
-                name="Gold Mine Corp",
-                contact_email="contact@goldmine.com"
-            )
+            client = Client(name="Gold Mine Corp", contact_email="contact@goldmine.com")
             db.add(client)
             db.commit()
             db.refresh(client)
@@ -40,7 +38,7 @@ def seed_data():
                 name="Gold Mine Expansion",
                 client_id=client.id,
                 description="Expansion of the crushing plant and conveyor systems.",
-                status="ACTIVE"
+                status="ACTIVE",
             )
             db.add(project)
             db.commit()
@@ -58,7 +56,7 @@ def seed_data():
                 hashed_password=get_password_hash("secret"),
                 full_name="Gold Mine Admin",
                 role=UserRole.CLIENT,
-                is_active=True
+                is_active=True,
             )
             db.add(user)
             db.commit()
@@ -74,20 +72,36 @@ def seed_data():
         db.refresh(site)
 
         # Area
-        area = LBSNode(name="Crushing Plant", type=LocationType.AREA, project_id=project.id, parent_id=site.id)
+        area = LBSNode(
+            name="Crushing Plant", type=LocationType.AREA, project_id=project.id, parent_id=site.id
+        )
         db.add(area)
         db.commit()
         db.refresh(area)
 
         # Room
-        mcc_room = LBSNode(name="MCC Room 1", type=LocationType.ROOM, project_id=project.id, parent_id=area.id)
+        mcc_room = LBSNode(
+            name="MCC Room 1", type=LocationType.ROOM, project_id=project.id, parent_id=area.id
+        )
         db.add(mcc_room)
         db.commit()
         db.refresh(mcc_room)
 
         # Cabinets
-        plc_cabinet = LBSNode(name="PLC-01", type=LocationType.CABINET, project_id=project.id, parent_id=mcc_room.id, ip_rating="IP54")
-        rio_cabinet = LBSNode(name="RIO-01", type=LocationType.CABINET, project_id=project.id, parent_id=area.id, ip_rating="IP65") # RIO might be in the field
+        plc_cabinet = LBSNode(
+            name="PLC-01",
+            type=LocationType.CABINET,
+            project_id=project.id,
+            parent_id=mcc_room.id,
+            ip_rating="IP54",
+        )
+        rio_cabinet = LBSNode(
+            name="RIO-01",
+            type=LocationType.CABINET,
+            project_id=project.id,
+            parent_id=area.id,
+            ip_rating="IP65",
+        )  # RIO might be in the field
         db.add_all([plc_cabinet, rio_cabinet])
         db.commit()
         db.refresh(plc_cabinet)
@@ -109,7 +123,7 @@ def seed_data():
             io_type=IOType.ETHERNET_IP,
             manufacturer_part_id="1756-L83E",
             location_id=plc_cabinet.id,
-            purchasing={"status": "Ordered", "poNumber": "PO-998877"}
+            purchasing={"status": "Ordered", "poNumber": "PO-998877"},
         )
         assets.append(plc)
 
@@ -122,17 +136,19 @@ def seed_data():
         ]
 
         for tag_suffix, part, io_type in io_modules:
-            assets.append(Asset(
-                tag=f"PLC-01-{tag_suffix}",
-                description=f"IO Module {io_type}",
-                type=AssetType.CONTROL_SYSTEM,
-                project_id=project.id,
-                area="310",
-                system="Control",
-                io_type=io_type,
-                manufacturer_part_id=part,
-                location_id=plc_cabinet.id
-            ))
+            assets.append(
+                Asset(
+                    tag=f"PLC-01-{tag_suffix}",
+                    description=f"IO Module {io_type}",
+                    type=AssetType.CONTROL_SYSTEM,
+                    project_id=project.id,
+                    area="310",
+                    system="Control",
+                    io_type=io_type,
+                    manufacturer_part_id=part,
+                    location_id=plc_cabinet.id,
+                )
+            )
 
         # Instruments (Field)
         # Flow
@@ -146,7 +162,7 @@ def seed_data():
             io_type=IOType.ETHERNET_IP,
             manufacturer_part_id="Promass 83F",
             process={"fluid": "Slurry", "minRange": 0, "maxRange": 500, "units": "t/h"},
-            location_id=area.id # Physically in the area
+            location_id=area.id,  # Physically in the area
         )
         assets.append(fit_101)
 
@@ -158,10 +174,10 @@ def seed_data():
             project_id=project.id,
             area="310",
             system="Crushing",
-            io_type=IOType.AI, # 4-20mA
+            io_type=IOType.AI,  # 4-20mA
             manufacturer_part_id="Levelflex FMP51",
             process={"minRange": 0, "maxRange": 100, "units": "%"},
-            location_id=area.id
+            location_id=area.id,
         )
         assets.append(lit_102)
 
@@ -176,7 +192,7 @@ def seed_data():
             io_type=IOType.AI,
             manufacturer_part_id="Cerabar M PMC51",
             process={"minRange": 0, "maxRange": 250, "units": "bar"},
-            location_id=area.id
+            location_id=area.id,
         )
         assets.append(pit_103)
 
@@ -189,10 +205,10 @@ def seed_data():
             project_id=project.id,
             area="310",
             system="Crushing",
-            io_type=IOType.ETHERNET_IP, # E300
+            io_type=IOType.ETHERNET_IP,  # E300
             manufacturer_part_id="E300 Overload",
             electrical={"voltage": "4160V", "powerKW": 150, "loadType": "Constant"},
-            location_id=area.id
+            location_id=area.id,
         )
         assets.append(m_101)
 
@@ -204,17 +220,19 @@ def seed_data():
             project_id=project.id,
             area="310",
             system="Conveying",
-            io_type=IOType.ETHERNET_IP, # VFD
+            io_type=IOType.ETHERNET_IP,  # VFD
             manufacturer_part_id="PowerFlex 755",
             electrical={"voltage": "600V", "powerKW": 75, "loadType": "Variable"},
-            location_id=area.id
+            location_id=area.id,
         )
         assets.append(m_102)
 
         # --- NEW AREAS & ASSETS ---
 
         # 320 - Grinding
-        grinding_area = LBSNode(name="Grinding Plant", type=LocationType.AREA, project_id=project.id, parent_id=site.id)
+        grinding_area = LBSNode(
+            name="Grinding Plant", type=LocationType.AREA, project_id=project.id, parent_id=site.id
+        )
         db.add(grinding_area)
         db.commit()
         db.refresh(grinding_area)
@@ -231,81 +249,96 @@ def seed_data():
             manufacturer_part_id="Siemens HV Motor",
             electrical={"voltage": "4160V", "powerKW": 2500, "loadType": "Constant"},
             purchasing={"workPackageId": "PKG-MECH-02", "status": "Ordered"},
-            location_id=grinding_area.id
+            location_id=grinding_area.id,
         )
         assets.append(m_201)
 
         # 330 - Leaching (CIL)
-        leaching_area = LBSNode(name="CIL Leaching", type=LocationType.AREA, project_id=project.id, parent_id=site.id)
+        leaching_area = LBSNode(
+            name="CIL Leaching", type=LocationType.AREA, project_id=project.id, parent_id=site.id
+        )
         db.add(leaching_area)
         db.commit()
         db.refresh(leaching_area)
 
         # Leach Tank Agitator
         for i in range(1, 7):
-            assets.append(Asset(
-                tag=f"330-AG-{300+i}",
-                description=f"Leach Tank {i} Agitator",
-                type=AssetType.MOTOR,
-                project_id=project.id,
-                area="330",
-                system="Leaching",
-                io_type=IOType.ETHERNET_IP,
-                manufacturer_part_id="Agitator Drive",
-                electrical={"voltage": "600V", "powerKW": 45, "loadType": "Constant"},
-                purchasing={"workPackageId": "PKG-MECH-03", "status": "Engineering"},
-                location_id=leaching_area.id
-            ))
+            assets.append(
+                Asset(
+                    tag=f"330-AG-{300+i}",
+                    description=f"Leach Tank {i} Agitator",
+                    type=AssetType.MOTOR,
+                    project_id=project.id,
+                    area="330",
+                    system="Leaching",
+                    io_type=IOType.ETHERNET_IP,
+                    manufacturer_part_id="Agitator Drive",
+                    electrical={"voltage": "600V", "powerKW": 45, "loadType": "Constant"},
+                    purchasing={"workPackageId": "PKG-MECH-03", "status": "Engineering"},
+                    location_id=leaching_area.id,
+                )
+            )
             # PH Transmitter
-            assets.append(Asset(
-                tag=f"330-AIT-{300+i}",
-                description=f"Leach Tank {i} pH",
-                type=AssetType.INSTRUMENT,
-                project_id=project.id,
-                area="330",
-                system="Leaching",
-                io_type=IOType.AI,
-                manufacturer_part_id="Endress+Hauser CPS11D",
-                process={"minRange": 0, "maxRange": 14, "units": "pH"},
-                purchasing={"workPackageId": "PKG-INST-01", "status": "Ordered"},
-                location_id=leaching_area.id
-            ))
+            assets.append(
+                Asset(
+                    tag=f"330-AIT-{300+i}",
+                    description=f"Leach Tank {i} pH",
+                    type=AssetType.INSTRUMENT,
+                    project_id=project.id,
+                    area="330",
+                    system="Leaching",
+                    io_type=IOType.AI,
+                    manufacturer_part_id="Endress+Hauser CPS11D",
+                    process={"minRange": 0, "maxRange": 14, "units": "pH"},
+                    purchasing={"workPackageId": "PKG-INST-01", "status": "Ordered"},
+                    location_id=leaching_area.id,
+                )
+            )
 
         # 340 - Flotation
-        flotation_area = LBSNode(name="Flotation Circuit", type=LocationType.AREA, project_id=project.id, parent_id=site.id)
+        flotation_area = LBSNode(
+            name="Flotation Circuit",
+            type=LocationType.AREA,
+            project_id=project.id,
+            parent_id=site.id,
+        )
         db.add(flotation_area)
         db.commit()
         db.refresh(flotation_area)
 
         # Flotation Cells
         for i in range(1, 5):
-            assets.append(Asset(
-                tag=f"340-FC-{400+i}",
-                description=f"Rougher Cell {i}",
-                type=AssetType.MOTOR,
-                project_id=project.id,
-                area="340",
-                system="Flotation",
-                io_type=IOType.ETHERNET_IP,
-                manufacturer_part_id="Flotation Drive",
-                electrical={"voltage": "600V", "powerKW": 30, "loadType": "Constant"},
-                purchasing={"workPackageId": "PKG-MECH-04", "status": "Engineering"},
-                location_id=flotation_area.id
-            ))
+            assets.append(
+                Asset(
+                    tag=f"340-FC-{400+i}",
+                    description=f"Rougher Cell {i}",
+                    type=AssetType.MOTOR,
+                    project_id=project.id,
+                    area="340",
+                    system="Flotation",
+                    io_type=IOType.ETHERNET_IP,
+                    manufacturer_part_id="Flotation Drive",
+                    electrical={"voltage": "600V", "powerKW": 30, "loadType": "Constant"},
+                    purchasing={"workPackageId": "PKG-MECH-04", "status": "Engineering"},
+                    location_id=flotation_area.id,
+                )
+            )
             # Level Control Valve
-            assets.append(Asset(
-                tag=f"340-LV-{400+i}",
-                description=f"Rougher Cell {i} Level Valve",
-                type=AssetType.VALVE,
-                project_id=project.id,
-                area="340",
-                system="Flotation",
-                io_type=IOType.AO,
-                manufacturer_part_id="Control Valve",
-                process={"fluid": "Slurry"},
-                purchasing={"workPackageId": "PKG-INST-01", "status": "Engineering"},
-                location_id=flotation_area.id
-            ))
+            assets.append(
+                Asset(
+                    tag=f"340-LV-{400+i}",
+                    description=f"Rougher Cell {i} Level Valve",
+                    type=AssetType.VALVE,
+                    project_id=project.id,
+                    area="340",
+                    system="Flotation",
+                    io_type=IOType.AO,
+                    manufacturer_part_id="Control Valve",
+                    process={"fluid": "Slurry"},
+                    purchasing={"workPackageId": "PKG-INST-01", "status": "Engineering"},
+                    location_id=flotation_area.id,
+                )
+            )
 
         db.add_all(assets)
         db.commit()
@@ -322,6 +355,7 @@ def seed_data():
         raise
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     seed_data()

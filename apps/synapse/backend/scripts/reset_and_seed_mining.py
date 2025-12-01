@@ -28,6 +28,7 @@ from app.models.rules import RuleExecution
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def reset_database(db):
     """Delete all data from all tables"""
     logger.info("🗑️  Deleting all existing data...")
@@ -63,16 +64,14 @@ def reset_database(db):
         db.rollback()
         raise
 
+
 def seed_mining_data(db):
     """Create AuruMax Mining Corporation with projects and admin user"""
     logger.info("🏭 Creating AuruMax Mining Corporation...")
 
     try:
         # 1. Create Client
-        client = Client(
-            name="AuruMax Mining Corporation",
-            contact_email="contact@aurumax.com"
-        )
+        client = Client(name="AuruMax Mining Corporation", contact_email="contact@aurumax.com")
         db.add(client)
         db.commit()
         db.refresh(client)
@@ -83,7 +82,7 @@ def seed_mining_data(db):
             name="Northern Crusher Plant",
             client_id=client.id,
             description="Expansion project for the primary ore crushing facility in the Northern mining sector. Includes new conveyor systems, mill upgrades, and process automation.",
-            status="ACTIVE"
+            status="ACTIVE",
         )
         db.add(project1)
         db.commit()
@@ -95,7 +94,7 @@ def seed_mining_data(db):
             name="Tailings Management Facility",
             client_id=client.id,
             description="New tailings storage facility with advanced monitoring systems, environmental controls, and automated water treatment processes.",
-            status="ACTIVE"
+            status="ACTIVE",
         )
         db.add(project2)
         db.commit()
@@ -108,7 +107,7 @@ def seed_mining_data(db):
             hashed_password=get_password_hash("Admin123!"),
             full_name="AuruMax Administrator",
             role=UserRole.ADMIN,
-            is_active=True
+            is_active=True,
         )
         db.add(admin_user)
         db.commit()
@@ -121,7 +120,7 @@ def seed_mining_data(db):
             hashed_password=get_password_hash("Engineer123!"),
             full_name="Sarah Chen",
             role=UserRole.ENGINEER,
-            is_active=True
+            is_active=True,
         )
         db.add(engineer_user)
         db.commit()
@@ -141,12 +140,13 @@ def seed_mining_data(db):
         db.rollback()
         raise
 
+
 def main():
     db = SessionLocal()
     try:
-        logger.info("="* 60)
+        logger.info("=" * 60)
         logger.info("🔄 RESET AND SEED: AuruMax Mining Corporation")
-        logger.info("="* 60 + "\n")
+        logger.info("=" * 60 + "\n")
 
         # Step 1: Reset
         reset_database(db)
@@ -154,9 +154,9 @@ def main():
         # Step 2: Seed
         seed_mining_data(db)
 
-        logger.info("\n" + "="* 60)
+        logger.info("\n" + "=" * 60)
         logger.info("✅ ALL DONE! Database is ready for use.")
-        logger.info("="* 60)
+        logger.info("=" * 60)
 
     except Exception as e:
         logger.error(f"\n❌ Fatal error: {e}")
@@ -165,6 +165,7 @@ def main():
         db.close()
 
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

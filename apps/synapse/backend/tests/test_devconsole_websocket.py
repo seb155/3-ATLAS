@@ -20,6 +20,7 @@ from fastapi.responses import JSONResponse
 # HTTP Middleware Logging Tests
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_middleware_logs_all_requests():
     """VERIFY: Middleware logs every HTTP request"""
@@ -29,7 +30,9 @@ async def test_middleware_logs_all_requests():
     # Mock WebSocketLogger.log
     received_logs = []
 
-    with patch("app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock) as mock_log:
+    with patch(
+        "app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock
+    ) as mock_log:
         mock_log.side_effect = lambda **kwargs: received_logs.append(kwargs)
 
         # Mock request
@@ -41,8 +44,11 @@ async def test_middleware_logs_all_requests():
             "query_string": b"",
         }
 
-        async def mock_receive(): return {"type": "http.request", "body": b""}
-        async def mock_send(message): pass
+        async def mock_receive():
+            return {"type": "http.request", "body": b""}
+
+        async def mock_send(message):
+            pass
 
         request = Request(scope, mock_receive, mock_send)
 
@@ -73,7 +79,9 @@ async def test_middleware_calculates_response_time():
 
     received_logs = []
 
-    with patch("app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock) as mock_log:
+    with patch(
+        "app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock
+    ) as mock_log:
         mock_log.side_effect = lambda **kwargs: received_logs.append(kwargs)
 
         # Mock slow request
@@ -115,10 +123,13 @@ async def test_middleware_extracts_topic_from_url():
     for path, expected_topic in test_cases:
         received_logs = []
 
-        with patch("app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock) as mock_log:
+        with patch(
+            "app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock
+        ) as mock_log:
             mock_log.side_effect = lambda **kwargs: received_logs.append(kwargs)
 
-            async def mock_call_next(req): return JSONResponse({"status": "ok"})
+            async def mock_call_next(req):
+                return JSONResponse({"status": "ok"})
 
             scope = {
                 "type": "http",
@@ -139,20 +150,20 @@ async def test_middleware_extracts_topic_from_url():
 # WebSocket Connection Tests
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_websocket_logger_formats_correctly():
     """VERIFY: WebSocket logger formats logs with all required fields"""
     from app.services.websocket_manager import WebSocketLogger, log_manager
 
     # Mock log_manager.broadcast
-    with patch.object(log_manager, 'broadcast', new_callable=AsyncMock) as mock_broadcast:
-
+    with patch.object(log_manager, "broadcast", new_callable=AsyncMock) as mock_broadcast:
         await WebSocketLogger.log(
             level="INFO",
             message="Test message",
             source="BACKEND",
             action_id="test-123",
-            user_id="user-456"
+            user_id="user-456",
         )
 
         # Verify broadcast was called with correct structure
@@ -249,16 +260,20 @@ async def test_websocket_handles_send_failures():
 # Log Enrichment Tests
 # ============================================================================
 
+
 @pytest.mark.asyncio
 async def test_user_extracted_from_jwt():
     """VERIFY: User ID/name extracted from request state"""
     from app.middleware.logging_middleware import LoggingMiddleware
 
     received_logs = []
-    with patch("app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock) as mock_log:
+    with patch(
+        "app.services.websocket_manager.websocket_logger.log", new_callable=AsyncMock
+    ) as mock_log:
         mock_log.side_effect = lambda **kwargs: received_logs.append(kwargs)
 
-        async def mock_call_next(req): return JSONResponse({"status": "ok"})
+        async def mock_call_next(req):
+            return JSONResponse({"status": "ok"})
 
         scope = {
             "type": "http",
@@ -287,6 +302,7 @@ async def test_user_extracted_from_jwt():
 # ============================================================================
 # Real-Time Streaming Test
 # ============================================================================
+
 
 @pytest.mark.asyncio
 async def test_logs_stream_in_real_time():

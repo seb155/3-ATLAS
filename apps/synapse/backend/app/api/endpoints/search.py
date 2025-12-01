@@ -40,6 +40,7 @@ router = APIRouter()
 
 class SearchResult(BaseModel):
     """Individual search result"""
+
     id: str
     type: Literal["asset", "rule", "cable", "location", "project", "action", "navigation"]
     title: str
@@ -52,6 +53,7 @@ class SearchResult(BaseModel):
 
 class SearchResponse(BaseModel):
     """Search response with categorized results"""
+
     query: str
     total: int
     results: list[SearchResult]
@@ -62,6 +64,7 @@ class SearchResponse(BaseModel):
 
 class IndexStatus(BaseModel):
     """Status of search index"""
+
     available: bool
     engine: str
     indexes: dict[str, dict] | None = None
@@ -71,60 +74,108 @@ class IndexStatus(BaseModel):
 # Navigation shortcuts (always available, not indexed)
 NAVIGATION_SHORTCUTS = [
     SearchResult(
-        id="nav-dashboard", type="navigation", title="Dashboard",
-        subtitle="Go to main dashboard", icon="LayoutDashboard", path="/dashboard"
+        id="nav-dashboard",
+        type="navigation",
+        title="Dashboard",
+        subtitle="Go to main dashboard",
+        icon="LayoutDashboard",
+        path="/dashboard",
     ),
     SearchResult(
-        id="nav-assets", type="navigation", title="Assets",
-        subtitle="View all assets and instruments", icon="Box", path="/assets"
+        id="nav-assets",
+        type="navigation",
+        title="Assets",
+        subtitle="View all assets and instruments",
+        icon="Box",
+        path="/assets",
     ),
     SearchResult(
-        id="nav-rules", type="navigation", title="Rules",
-        subtitle="Manage business rules", icon="GitBranch", path="/rules"
+        id="nav-rules",
+        type="navigation",
+        title="Rules",
+        subtitle="Manage business rules",
+        icon="GitBranch",
+        path="/rules",
     ),
     SearchResult(
-        id="nav-cables", type="navigation", title="Cables",
-        subtitle="Cable management", icon="Cable", path="/cables"
+        id="nav-cables",
+        type="navigation",
+        title="Cables",
+        subtitle="Cable management",
+        icon="Cable",
+        path="/cables",
     ),
     SearchResult(
-        id="nav-import", type="navigation", title="Import CSV",
-        subtitle="Import data from CSV files", icon="Upload", path="/import"
+        id="nav-import",
+        type="navigation",
+        title="Import CSV",
+        subtitle="Import data from CSV files",
+        icon="Upload",
+        path="/import",
     ),
     SearchResult(
-        id="nav-export", type="navigation", title="Export Package",
-        subtitle="Generate export packages", icon="Download", path="/export"
+        id="nav-export",
+        type="navigation",
+        title="Export Package",
+        subtitle="Generate export packages",
+        icon="Download",
+        path="/export",
     ),
     SearchResult(
-        id="nav-settings", type="navigation", title="Settings",
-        subtitle="Application settings", icon="Settings", path="/settings"
+        id="nav-settings",
+        type="navigation",
+        title="Settings",
+        subtitle="Application settings",
+        icon="Settings",
+        path="/settings",
     ),
     SearchResult(
-        id="nav-metamodel", type="navigation", title="Metamodel Graph",
-        subtitle="View system relationships", icon="Network", path="/metamodel"
+        id="nav-metamodel",
+        type="navigation",
+        title="Metamodel Graph",
+        subtitle="View system relationships",
+        icon="Network",
+        path="/metamodel",
     ),
 ]
 
 # Quick actions (always available, not indexed)
 QUICK_ACTIONS = [
     SearchResult(
-        id="action-new-asset", type="action", title="Create New Asset",
-        subtitle="Add a new instrument or equipment", icon="Plus",
-        path="/assets/new", metadata={"action": "create", "entity": "asset"}
+        id="action-new-asset",
+        type="action",
+        title="Create New Asset",
+        subtitle="Add a new instrument or equipment",
+        icon="Plus",
+        path="/assets/new",
+        metadata={"action": "create", "entity": "asset"},
     ),
     SearchResult(
-        id="action-new-rule", type="action", title="Create New Rule",
-        subtitle="Define a new business rule", icon="Plus",
-        path="/rules/new", metadata={"action": "create", "entity": "rule"}
+        id="action-new-rule",
+        type="action",
+        title="Create New Rule",
+        subtitle="Define a new business rule",
+        icon="Plus",
+        path="/rules/new",
+        metadata={"action": "create", "entity": "rule"},
     ),
     SearchResult(
-        id="action-run-rules", type="action", title="Run All Rules",
-        subtitle="Execute all active rules", icon="Play",
-        path="/rules/run", metadata={"action": "execute", "entity": "rules"}
+        id="action-run-rules",
+        type="action",
+        title="Run All Rules",
+        subtitle="Execute all active rules",
+        icon="Play",
+        path="/rules/run",
+        metadata={"action": "execute", "entity": "rules"},
     ),
     SearchResult(
-        id="action-ai-classify", type="action", title="AI Auto-Classify",
-        subtitle="Classify untagged instruments with AI", icon="Sparkles",
-        path="/assets/classify", metadata={"action": "ai", "entity": "assets"}
+        id="action-ai-classify",
+        type="action",
+        title="AI Auto-Classify",
+        subtitle="Classify untagged instruments with AI",
+        icon="Sparkles",
+        path="/assets/classify",
+        metadata={"action": "ai", "entity": "assets"},
     ),
 ]
 
@@ -164,10 +215,7 @@ def search_navigation_and_actions(query: str, type_filter: list[str] | None) -> 
 
 
 async def search_with_meilisearch(
-    query: str,
-    type_filter: list[str] | None,
-    project_id: str | None,
-    limit: int
+    query: str, type_filter: list[str] | None, project_id: str | None, limit: int
 ) -> tuple[list[SearchResult], dict[str, int], int]:
     """Search using MeiliSearch engine"""
     meili = get_meilisearch_service()
@@ -190,27 +238,24 @@ async def search_with_meilisearch(
         return [], {}, 0
 
     # Perform search
-    meili_results = meili.search(
-        query=query,
-        indexes=indexes,
-        project_id=project_id,
-        limit=limit
-    )
+    meili_results = meili.search(query=query, indexes=indexes, project_id=project_id, limit=limit)
 
     # Convert to SearchResult format
     results = []
     for hit in meili_results.get("results", []):
         icon_map = {"asset": "Cpu", "rule": "GitBranch", "cable": "Cable", "location": "MapPin"}
-        results.append(SearchResult(
-            id=hit["id"],
-            type=hit["type"],
-            title=hit["title"],
-            subtitle=hit.get("subtitle"),
-            icon=icon_map.get(hit["type"], "File"),
-            path=hit.get("path"),
-            score=int(hit.get("score", 0) * 100),
-            metadata=hit.get("metadata")
-        ))
+        results.append(
+            SearchResult(
+                id=hit["id"],
+                type=hit["type"],
+                title=hit["title"],
+                subtitle=hit.get("subtitle"),
+                icon=icon_map.get(hit["type"], "File"),
+                path=hit.get("path"),
+                score=int(hit.get("score", 0) * 100),
+                metadata=hit.get("metadata"),
+            )
+        )
 
     # Map categories from MeiliSearch index names to types
     categories = {}
@@ -222,11 +267,7 @@ async def search_with_meilisearch(
 
 
 async def search_with_fallback(
-    query: str,
-    type_filter: list[str] | None,
-    project_id: str | None,
-    limit: int,
-    db: Session
+    query: str, type_filter: list[str] | None, project_id: str | None, limit: int, db: Session
 ) -> tuple[list[SearchResult], dict[str, int]]:
     """Fallback search using thefuzz + database queries"""
     results = []
@@ -239,7 +280,7 @@ async def search_with_fallback(
                 Asset.tag.ilike(f"%{query}%"),
                 Asset.description.ilike(f"%{query}%"),
                 Asset.system.ilike(f"%{query}%"),
-                Asset.area.ilike(f"%{query}%")
+                Asset.area.ilike(f"%{query}%"),
             )
         )
         if project_id:
@@ -250,15 +291,20 @@ async def search_with_fallback(
             score = max(
                 calculate_fuzzy_score(query, asset.tag or ""),
                 calculate_fuzzy_score(query, asset.description or ""),
-                calculate_fuzzy_score(query, asset.system or "")
+                calculate_fuzzy_score(query, asset.system or ""),
             )
-            results.append(SearchResult(
-                id=asset.id, type="asset",
-                title=asset.tag or "Unknown",
-                subtitle=f"{asset.description or ''} • {asset.system or 'Unclassified'}",
-                icon="Cpu", path=f"/assets/{asset.id}", score=score,
-                metadata={"area": asset.area, "system": asset.system}
-            ))
+            results.append(
+                SearchResult(
+                    id=asset.id,
+                    type="asset",
+                    title=asset.tag or "Unknown",
+                    subtitle=f"{asset.description or ''} • {asset.system or 'Unclassified'}",
+                    icon="Cpu",
+                    path=f"/assets/{asset.id}",
+                    score=score,
+                    metadata={"area": asset.area, "system": asset.system},
+                )
+            )
         categories["asset"] = len(assets)
 
     # Search Rules
@@ -266,7 +312,7 @@ async def search_with_fallback(
         rule_query = db.query(RuleDefinition).filter(
             or_(
                 RuleDefinition.name.ilike(f"%{query}%"),
-                RuleDefinition.description.ilike(f"%{query}%")
+                RuleDefinition.description.ilike(f"%{query}%"),
             )
         )
         if project_id:
@@ -276,15 +322,20 @@ async def search_with_fallback(
         for rule in rules:
             score = max(
                 calculate_fuzzy_score(query, rule.name or ""),
-                calculate_fuzzy_score(query, rule.description or "")
+                calculate_fuzzy_score(query, rule.description or ""),
             )
-            results.append(SearchResult(
-                id=rule.id, type="rule",
-                title=rule.name or "Unnamed Rule",
-                subtitle=rule.description or "No description",
-                icon="GitBranch", path=f"/rules/{rule.id}", score=score,
-                metadata={"enabled": rule.enabled, "priority": rule.priority}
-            ))
+            results.append(
+                SearchResult(
+                    id=rule.id,
+                    type="rule",
+                    title=rule.name or "Unnamed Rule",
+                    subtitle=rule.description or "No description",
+                    icon="GitBranch",
+                    path=f"/rules/{rule.id}",
+                    score=score,
+                    metadata={"enabled": rule.enabled, "priority": rule.priority},
+                )
+            )
         categories["rule"] = len(rules)
 
     # Search Cables
@@ -294,7 +345,7 @@ async def search_with_fallback(
                 Cable.tag.ilike(f"%{query}%"),
                 Cable.description.ilike(f"%{query}%"),
                 Cable.from_location.ilike(f"%{query}%"),
-                Cable.to_location.ilike(f"%{query}%")
+                Cable.to_location.ilike(f"%{query}%"),
             )
         )
         if project_id:
@@ -304,15 +355,22 @@ async def search_with_fallback(
         for cable in cables:
             score = max(
                 calculate_fuzzy_score(query, cable.tag or ""),
-                calculate_fuzzy_score(query, cable.description or "")
+                calculate_fuzzy_score(query, cable.description or ""),
             )
-            results.append(SearchResult(
-                id=cable.id, type="cable",
-                title=cable.tag or "Unknown Cable",
-                subtitle=f"{cable.from_location} → {cable.to_location}" if cable.from_location else cable.description,
-                icon="Cable", path=f"/cables/{cable.id}", score=score,
-                metadata={"cableType": cable.cable_type, "length": cable.length}
-            ))
+            results.append(
+                SearchResult(
+                    id=cable.id,
+                    type="cable",
+                    title=cable.tag or "Unknown Cable",
+                    subtitle=f"{cable.from_location} → {cable.to_location}"
+                    if cable.from_location
+                    else cable.description,
+                    icon="Cable",
+                    path=f"/cables/{cable.id}",
+                    score=score,
+                    metadata={"cableType": cable.cable_type, "length": cable.length},
+                )
+            )
         categories["cable"] = len(cables)
 
     # Search Locations
@@ -327,15 +385,20 @@ async def search_with_fallback(
         for loc in locations:
             score = max(
                 calculate_fuzzy_score(query, loc.name or ""),
-                calculate_fuzzy_score(query, loc.code or "")
+                calculate_fuzzy_score(query, loc.code or ""),
             )
-            results.append(SearchResult(
-                id=loc.id, type="location",
-                title=loc.name or loc.code or "Unknown Location",
-                subtitle=f"Code: {loc.code}" if loc.code else None,
-                icon="MapPin", path=f"/locations/{loc.id}", score=score,
-                metadata={"type": str(loc.type) if loc.type else None, "code": loc.code}
-            ))
+            results.append(
+                SearchResult(
+                    id=loc.id,
+                    type="location",
+                    title=loc.name or loc.code or "Unknown Location",
+                    subtitle=f"Code: {loc.code}" if loc.code else None,
+                    icon="MapPin",
+                    path=f"/locations/{loc.id}",
+                    score=score,
+                    metadata={"type": str(loc.type) if loc.type else None, "code": loc.code},
+                )
+            )
         categories["location"] = len(locations)
 
     return results, categories
@@ -345,9 +408,11 @@ async def search_with_fallback(
 async def global_search(
     q: str = Query("", min_length=0, max_length=100, description="Search query"),
     limit: int = Query(20, ge=1, le=50, description="Max results"),
-    types: str | None = Query(None, description="Filter by types: asset,rule,cable,navigation,action"),
+    types: str | None = Query(
+        None, description="Filter by types: asset,rule,cable,navigation,action"
+    ),
     project_id: str | None = Query(None, description="Filter by project"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Global search across all entities.
@@ -370,7 +435,7 @@ async def global_search(
             total=len(results),
             results=results[:limit],
             categories={"navigation": len(NAVIGATION_SHORTCUTS), "action": len(QUICK_ACTIONS)},
-            search_engine="static"
+            search_engine="static",
         )
 
     # Search navigation and actions first
@@ -412,7 +477,7 @@ async def global_search(
         results=all_results[:limit],
         categories=categories,
         search_engine=search_engine,
-        processing_time_ms=processing_time
+        processing_time_ms=processing_time,
     )
 
 
@@ -420,7 +485,7 @@ async def global_search(
 async def get_suggestions(
     q: str = Query(..., min_length=1, max_length=50),
     limit: int = Query(5, ge=1, le=10),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get autocomplete suggestions for quick navigation."""
     suggestions = []
@@ -437,11 +502,13 @@ async def get_suggestions(
         try:
             results = meili.search(q, limit=limit)
             for hit in results.get("results", [])[:limit]:
-                suggestions.append({
-                    "text": hit["title"],
-                    "type": hit["type"],
-                    "path": hit.get("path", f"/{hit['type']}s/{hit['id']}")
-                })
+                suggestions.append(
+                    {
+                        "text": hit["title"],
+                        "type": hit["type"],
+                        "path": hit.get("path", f"/{hit['type']}s/{hit['id']}"),
+                    }
+                )
             return suggestions[:limit]
         except Exception:
             pass  # Fall through to database
@@ -452,9 +519,13 @@ async def get_suggestions(
         if tag:
             suggestions.append({"text": tag, "type": "asset", "path": f"/assets?search={tag}"})
 
-    rules = db.query(RuleDefinition.name).filter(
-        RuleDefinition.name.ilike(f"{q}%")
-    ).distinct().limit(limit).all()
+    rules = (
+        db.query(RuleDefinition.name)
+        .filter(RuleDefinition.name.ilike(f"{q}%"))
+        .distinct()
+        .limit(limit)
+        .all()
+    )
     for (name,) in rules:
         if name:
             suggestions.append({"text": name, "type": "rule", "path": f"/rules?search={name}"})
@@ -472,6 +543,7 @@ async def get_recent_searches():
 # MeiliSearch Management Endpoints
 # =============================================================================
 
+
 @router.get("/status", response_model=IndexStatus)
 async def get_search_status():
     """Get search engine status and index statistics."""
@@ -484,27 +556,22 @@ async def get_search_status():
                 available=True,
                 engine="meilisearch",
                 indexes=stats,
-                message="MeiliSearch is healthy"
+                message="MeiliSearch is healthy",
             )
         except Exception as e:
             return IndexStatus(
-                available=False,
-                engine="meilisearch",
-                message=f"Error getting stats: {e}"
+                available=False, engine="meilisearch", message=f"Error getting stats: {e}"
             )
     else:
         return IndexStatus(
             available=False,
             engine="thefuzz_fallback",
-            message="MeiliSearch unavailable, using database fallback"
+            message="MeiliSearch unavailable, using database fallback",
         )
 
 
 @router.post("/reindex")
-async def reindex_all(
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
-):
+async def reindex_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Reindex all data from database to MeiliSearch.
     Runs in background for large datasets.
@@ -522,7 +589,7 @@ async def reindex_all(
 
     return {
         "status": "started",
-        "message": "Reindexing started in background. Check /search/status for progress."
+        "message": "Reindexing started in background. Check /search/status for progress.",
     }
 
 
@@ -544,7 +611,7 @@ async def _reindex_all_data(db: Session):
                     "io_type": str(a.io_type) if a.io_type else "",
                     "discipline": a.discipline or "",
                     "project_id": a.project_id or "",
-                    "created_at": str(a.created_at) if a.created_at else ""
+                    "created_at": str(a.created_at) if a.created_at else "",
                 }
                 for a in assets
             ]
@@ -563,7 +630,7 @@ async def _reindex_all_data(db: Session):
                     "enabled": r.enabled,
                     "priority": r.priority or 0,
                     "project_id": r.project_id or "",
-                    "created_at": str(r.created_at) if r.created_at else ""
+                    "created_at": str(r.created_at) if r.created_at else "",
                 }
                 for r in rules
             ]
@@ -583,7 +650,7 @@ async def _reindex_all_data(db: Session):
                     "cable_type": c.cable_type or "",
                     "length": c.length,
                     "project_id": c.project_id or "",
-                    "created_at": str(c.created_at) if c.created_at else ""
+                    "created_at": str(c.created_at) if c.created_at else "",
                 }
                 for c in cables
             ]
@@ -601,7 +668,7 @@ async def _reindex_all_data(db: Session):
                     "description": "",
                     "parent_id": loc.parent_id,
                     "project_id": loc.project_id or "",
-                    "type": str(loc.type) if loc.type else ""
+                    "type": str(loc.type) if loc.type else "",
                 }
                 for loc in locations
             ]
@@ -619,7 +686,7 @@ async def _reindex_all_data(db: Session):
 async def reindex_entity_type(
     entity_type: Literal["assets", "rules", "cables", "locations"],
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Reindex a specific entity type."""
     meili = get_meilisearch_service()
@@ -637,7 +704,7 @@ async def reindex_entity_type(
                 "description": a.description or "",
                 "system": a.system or "",
                 "area": a.area or "",
-                "project_id": a.project_id or ""
+                "project_id": a.project_id or "",
             }
             for a in assets
         ]
@@ -651,7 +718,7 @@ async def reindex_entity_type(
                 "id": r.id,
                 "name": r.name or "",
                 "description": r.description or "",
-                "project_id": r.project_id or ""
+                "project_id": r.project_id or "",
             }
             for r in rules
         ]
@@ -665,7 +732,7 @@ async def reindex_entity_type(
                 "id": c.id,
                 "tag": c.tag or "",
                 "description": c.description or "",
-                "project_id": c.project_id or ""
+                "project_id": c.project_id or "",
             }
             for c in cables
         ]
@@ -679,7 +746,7 @@ async def reindex_entity_type(
                 "id": loc.id,
                 "name": loc.name or "",
                 "code": loc.code or "",
-                "project_id": loc.project_id or ""
+                "project_id": loc.project_id or "",
             }
             for loc in locations
         ]

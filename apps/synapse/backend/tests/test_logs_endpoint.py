@@ -2,8 +2,7 @@
 Tests for logs endpoint (HTTP fallback for non-WebSocket clients).
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 class TestLogsEndpoint:
@@ -23,7 +22,7 @@ class TestLogsEndpoint:
 
     def test_get_logs_default_limit(self, client):
         """Test GET /api/v1/logs/ uses default limit of 100."""
-        with patch('app.api.endpoints.logs.WebSocketLogger') as mock_logger:
+        with patch("app.api.endpoints.logs.WebSocketLogger") as mock_logger:
             mock_logger.get_logs.return_value = []
             response = client.get("/api/v1/logs/")
             assert response.status_code == 200
@@ -59,6 +58,7 @@ class TestLogsWebSocket:
         """Test WebSocket connection and graceful disconnect."""
         # Clear logs first to ensure clean state
         from app.services.websocket_manager import WebSocketLogger
+
         WebSocketLogger.clear()
 
         with client.websocket_connect("/ws/logs") as websocket:

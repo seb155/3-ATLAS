@@ -1,4 +1,3 @@
-
 import requests
 
 API_URL = "http://localhost:8000/api/v1"
@@ -6,6 +5,7 @@ LOGIN_URL = f"{API_URL}/auth/login"
 CLEAR_URL = f"{API_URL}/mock/project-data"
 IMPORT_URL = f"{API_URL}/import_export/dev-import"
 ASSETS_URL = f"{API_URL}/assets"
+
 
 def verify():
     # 1. Login
@@ -57,6 +57,7 @@ def verify():
         print("✅ Import successful (4 assets found).")
     else:
         print(f"❌ Import failed (found {len(assets)} assets).")
+
 
 if __name__ == "__main__":
     verify()

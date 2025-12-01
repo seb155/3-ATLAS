@@ -4,7 +4,6 @@ Provides mock authentication until proper auth is implemented.
 """
 
 
-
 from fastapi import Header
 
 

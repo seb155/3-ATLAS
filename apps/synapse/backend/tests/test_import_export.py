@@ -24,10 +24,7 @@ def test_import_project(db_session):
     # Use get_or_create pattern to avoid constraint violations
     client = db_session.query(Client).filter(Client.id == "test-client-import").first()
     if not client:
-        client = Client(
-            id="test-client-import",
-            name="Test Import Client"
-        )
+        client = Client(id="test-client-import", name="Test Import Client")
         db_session.add(client)
         db_session.flush()
 
@@ -66,6 +63,7 @@ def override_auth(client):
     """Override authentication for all tests"""
     from app.api.deps import get_current_active_user
     from app.main import app
+
     app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
     yield
     app.dependency_overrides.clear()
@@ -89,9 +87,7 @@ V-101,Control Valve,VALVE,Area 100,Control System,24VDC,,Air
 
     files = {"file": ("assets.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -106,9 +102,7 @@ V-101,Control Valve,VALVE,Area 100,Control System,24VDC,,Air
     assert len(data["errors"]) == 0
 
     # Verify database
-    assets = db_session.query(Asset).filter(
-        Asset.project_id == "test-project-import"
-    ).all()
+    assets = db_session.query(Asset).filter(Asset.project_id == "test-project-import").all()
     assert len(assets) == 3
 
     # Verify specific asset
@@ -130,7 +124,7 @@ def test_import_csv_update_success(client, db_session, test_import_project):
         description="Original Description",
         type="PUMP",
         project_id="test-project-import",
-        electrical={"voltage": "120V"}
+        electrical={"voltage": "120V"},
     )
     db_session.add(existing_asset)
     db_session.commit()
@@ -142,9 +136,7 @@ P-101,Updated Description,480V,75.0
 
     files = {"file": ("update.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -172,9 +164,7 @@ P-101,PUMP,Valid Asset
 
     files = {"file": ("invalid.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -198,9 +188,7 @@ NEW-ASSET-01,Missing Type Asset,480V
 
     files = {"file": ("invalid_type.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -221,9 +209,7 @@ def test_import_csv_invalid_file_format(client, db_session, test_import_project)
     files = {"file": ("data.txt", "not a csv", "text/plain")}
 
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     # Should raise FileValidationError (400 or 422 depending on exception handler)
@@ -232,7 +218,9 @@ def test_import_csv_invalid_file_format(client, db_session, test_import_project)
     assert "csv" in response.json()["detail"].lower() or "CSV" in response.json()["detail"]
 
 
-def test_import_csv_multi_tenancy_isolation(client, db_session, test_import_project, other_test_project):
+def test_import_csv_multi_tenancy_isolation(
+    client, db_session, test_import_project, other_test_project
+):
     """Test that assets are isolated by project_id"""
     # Import to project A
     csv_content_a = """tag,type,description
@@ -241,9 +229,7 @@ PROJECT-A-ASSET,PUMP,Asset for Project A
 
     files = {"file": ("project_a.csv", csv_content_a, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
     assert response.status_code == 200
     assert response.json()["created"] == 1
@@ -257,18 +243,14 @@ PROJECT-A-ASSET,MOTOR,Same tag but different project
     response = client.post(
         "/api/v1/import_export/import",
         headers={"X-Project-ID": "test-project-import-other"},
-        files=files
+        files=files,
     )
     assert response.status_code == 200
     assert response.json()["created"] == 1
 
     # Verify isolation
-    assets_a = db_session.query(Asset).filter(
-        Asset.project_id == "test-project-import"
-    ).all()
-    assets_b = db_session.query(Asset).filter(
-        Asset.project_id == "test-project-import-other"
-    ).all()
+    assets_a = db_session.query(Asset).filter(Asset.project_id == "test-project-import").all()
+    assets_b = db_session.query(Asset).filter(Asset.project_id == "test-project-import-other").all()
 
     assert len(assets_a) == 1
     assert len(assets_b) == 1
@@ -280,10 +262,7 @@ def test_import_csv_duplicate_tag_within_project(client, db_session, test_import
     """Test that duplicate tags in same project trigger update, not create"""
     # Create existing asset
     existing = Asset(
-        tag="DUPLICATE-TAG",
-        description="Original",
-        type="PUMP",
-        project_id="test-project-import"
+        tag="DUPLICATE-TAG", description="Original", type="PUMP", project_id="test-project-import"
     )
     db_session.add(existing)
     db_session.commit()
@@ -295,9 +274,7 @@ DUPLICATE-TAG,Updated via CSV
 
     files = {"file": ("duplicate.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -306,10 +283,11 @@ DUPLICATE-TAG,Updated via CSV
     assert data["updated"] == 1
 
     # Verify only one asset exists
-    assets = db_session.query(Asset).filter(
-        Asset.tag == "DUPLICATE-TAG",
-        Asset.project_id == "test-project-import"
-    ).all()
+    assets = (
+        db_session.query(Asset)
+        .filter(Asset.tag == "DUPLICATE-TAG", Asset.project_id == "test-project-import")
+        .all()
+    )
     assert len(assets) == 1
     assert assets[0].description == "Updated via CSV"
 
@@ -322,9 +300,7 @@ P-201,PUMP,480V,100.5,Water,0,100,ORDERED
 
     files = {"file": ("nested.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -346,9 +322,7 @@ def test_import_csv_empty_file(client, db_session, test_import_project):
 
     files = {"file": ("empty.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -371,9 +345,7 @@ INVALID-03,,Invalid - Missing Type
 
     files = {"file": ("partial.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -392,13 +364,11 @@ def test_import_csv_bom_handling(client, db_session, test_import_project):
     # Create CSV content with BOM
     csv_content = "tag,type,description\nBOM-TEST,PUMP,Asset with BOM\n"
     # Encode with UTF-8 BOM
-    csv_bytes = csv_content.encode('utf-8-sig')
+    csv_bytes = csv_content.encode("utf-8-sig")
 
     files = {"file": ("bom.csv", csv_bytes, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -409,7 +379,9 @@ def test_import_csv_bom_handling(client, db_session, test_import_project):
         print(f"DEBUG BOM test - Response: {data}")
         print(f"DEBUG BOM test - Errors: {data.get('errors')}")
 
-    assert data["created"] == 1, f"Expected 1 created, got {data['created']}. Errors: {data.get('errors')}"
+    assert (
+        data["created"] == 1
+    ), f"Expected 1 created, got {data['created']}. Errors: {data.get('errors')}"
 
     asset = db_session.query(Asset).filter(Asset.tag == "BOM-TEST").first()
     assert asset is not None, "Asset with tag BOM-TEST should exist in database"
@@ -423,9 +395,7 @@ def test_import_csv_whitespace_handling(client, db_session, test_import_project)
 
     files = {"file": ("spaces.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200
@@ -434,9 +404,10 @@ def test_import_csv_whitespace_handling(client, db_session, test_import_project)
 
     # Tag should be trimmed (via CSVRowSchema validator)
     asset = db_session.query(Asset).filter(Asset.tag == "SPACE-TEST").first()
-    assert asset is not None or db_session.query(Asset).filter(
-        Asset.tag == "  SPACE-TEST  "
-    ).first() is not None  # Depending on implementation
+    assert (
+        asset is not None
+        or db_session.query(Asset).filter(Asset.tag == "  SPACE-TEST  ").first() is not None
+    )  # Depending on implementation
 
 
 def test_export_csv_success(client, db_session, test_import_project):
@@ -448,22 +419,21 @@ def test_export_csv_success(client, db_session, test_import_project):
             description="Export Test 1",
             type="PUMP",
             project_id="test-project-import",
-            electrical={"voltage": "480V", "powerKW": 75.0}
+            electrical={"voltage": "480V", "powerKW": 75.0},
         ),
         Asset(
             tag="EXPORT-02",
             description="Export Test 2",
             type="MOTOR",
             project_id="test-project-import",
-            process={"fluid": "Water"}
-        )
+            process={"fluid": "Water"},
+        ),
     ]
     db_session.add_all(assets)
     db_session.commit()
 
     response = client.get(
-        "/api/v1/import_export/export",
-        headers={"X-Project-ID": "test-project-import"}
+        "/api/v1/import_export/export", headers={"X-Project-ID": "test-project-import"}
     )
 
     assert response.status_code == 200
@@ -486,23 +456,14 @@ def test_export_csv_success(client, db_session, test_import_project):
 def test_export_csv_multi_tenancy(client, db_session, test_import_project, other_test_project):
     """Test CSV export respects project isolation"""
     # Create assets in different projects
-    asset_a = Asset(
-        tag="PROJECT-A",
-        type="PUMP",
-        project_id="test-project-import"
-    )
-    asset_b = Asset(
-        tag="PROJECT-B",
-        type="MOTOR",
-        project_id="test-project-import-other"
-    )
+    asset_a = Asset(tag="PROJECT-A", type="PUMP", project_id="test-project-import")
+    asset_b = Asset(tag="PROJECT-B", type="MOTOR", project_id="test-project-import-other")
     db_session.add_all([asset_a, asset_b])
     db_session.commit()
 
     # Export from project A
     response = client.get(
-        "/api/v1/import_export/export",
-        headers={"X-Project-ID": "test-project-import"}
+        "/api/v1/import_export/export", headers={"X-Project-ID": "test-project-import"}
     )
 
     csv_content = response.text
@@ -518,9 +479,7 @@ RULE-TEST-01,PUMP,Asset to trigger rules
 
     files = {"file": ("rules.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200

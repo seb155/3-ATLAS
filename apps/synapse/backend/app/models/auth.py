@@ -64,7 +64,9 @@ class Project(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
     client_id = Column(String, ForeignKey("clients.id"), nullable=False)
-    country = Column(String, nullable=True)  # Country code for COUNTRY-level rules (e.g., "CA", "US")
+    country = Column(
+        String, nullable=True
+    )  # Country code for COUNTRY-level rules (e.g., "CA", "US")
     description = Column(String)
     status = Column(String, default="ACTIVE")  # ACTIVE, ARCHIVED, HOLD
     created_at = Column(DateTime(timezone=True), server_default=func.now())

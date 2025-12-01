@@ -1,4 +1,3 @@
-
 import pytest
 
 from app.models.auth import Project
@@ -13,10 +12,7 @@ def test_import_project(db_session):
     # Use get_or_create pattern to avoid constraint violations
     client = db_session.query(Client).filter(Client.id == "test-client-import").first()
     if not client:
-        client = Client(
-            id="test-client-import",
-            name="Test Import Client"
-        )
+        client = Client(id="test-client-import", name="Test Import Client")
         db_session.add(client)
         db_session.flush()
 
@@ -32,10 +28,12 @@ def test_import_project(db_session):
 
     return project
 
+
 def test_import_csv(client, db_session, test_import_project):
     # Override auth for this test
     from app.api.deps import get_current_active_user
     from app.main import app
+
     app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
     db = db_session
@@ -53,9 +51,7 @@ IMPORT-INVALID-01,Invalid Asset Description,,480V,Air
     # 2. Send Request
     files = {"file": ("test.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     if response.status_code != 200:
@@ -80,10 +76,12 @@ IMPORT-INVALID-01,Invalid Asset Description,,480V,Air
 
     print("✅ test_import_csv (Create) passed")
 
+
 def test_import_update_csv(client, db_session, test_import_project):
     # Override auth for this test
     from app.api.deps import get_current_active_user
     from app.main import app
+
     app.dependency_overrides[get_current_active_user] = lambda: {"username": "testuser"}
 
     # 1. Create existing asset
@@ -93,7 +91,7 @@ def test_import_update_csv(client, db_session, test_import_project):
         description="Original Description",
         type=AssetType.MOTOR,
         project_id="test-project-import",
-        electrical={"voltage": "120V"}
+        electrical={"voltage": "120V"},
     )
     db.add(asset)
     db.commit()
@@ -105,9 +103,7 @@ IMPORT-UPDATE-01,Updated Description,480V
 
     files = {"file": ("update.csv", csv_content, "text/csv")}
     response = client.post(
-        "/api/v1/import_export/import",
-        headers={"X-Project-ID": "test-project-import"},
-        files=files
+        "/api/v1/import_export/import", headers={"X-Project-ID": "test-project-import"}, files=files
     )
 
     assert response.status_code == 200

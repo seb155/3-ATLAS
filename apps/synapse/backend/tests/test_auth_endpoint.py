@@ -3,8 +3,8 @@ Tests for authentication endpoints (register, login).
 """
 
 import uuid
+
 import pytest
-from app.models.auth import User
 
 
 class TestAuthRegister:
@@ -15,11 +15,7 @@ class TestAuthRegister:
         unique_email = f"test-{uuid.uuid4().hex[:8]}@example.com"
         response = client.post(
             "/api/v1/auth/register",
-            json={
-                "email": unique_email,
-                "password": "securepassword123",
-                "full_name": "Test User"
-            }
+            json={"email": unique_email, "password": "securepassword123", "full_name": "Test User"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -37,22 +33,14 @@ class TestAuthRegister:
         # First registration
         response1 = client.post(
             "/api/v1/auth/register",
-            json={
-                "email": unique_email,
-                "password": "password123",
-                "full_name": "First User"
-            }
+            json={"email": unique_email, "password": "password123", "full_name": "First User"},
         )
         assert response1.status_code == 200
 
         # Duplicate registration
         response2 = client.post(
             "/api/v1/auth/register",
-            json={
-                "email": unique_email,
-                "password": "password456",
-                "full_name": "Second User"
-            }
+            json={"email": unique_email, "password": "password456", "full_name": "Second User"},
         )
         assert response2.status_code == 409  # DuplicateError returns 409
 
@@ -60,11 +48,7 @@ class TestAuthRegister:
         """Test registration without full_name (optional field)."""
         unique_email = f"noname-{uuid.uuid4().hex[:8]}@example.com"
         response = client.post(
-            "/api/v1/auth/register",
-            json={
-                "email": unique_email,
-                "password": "password123"
-            }
+            "/api/v1/auth/register", json={"email": unique_email, "password": "password123"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -73,11 +57,7 @@ class TestAuthRegister:
     def test_register_invalid_email(self, client, db_session):
         """Test registration with invalid email format."""
         response = client.post(
-            "/api/v1/auth/register",
-            json={
-                "email": "not-an-email",
-                "password": "password123"
-            }
+            "/api/v1/auth/register", json={"email": "not-an-email", "password": "password123"}
         )
         # Should fail validation
         assert response.status_code == 422
@@ -94,11 +74,7 @@ class TestAuthLogin:
 
         response = client.post(
             "/api/v1/auth/register",
-            json={
-                "email": unique_email,
-                "password": password,
-                "full_name": "Login Test User"
-            }
+            json={"email": unique_email, "password": password, "full_name": "Login Test User"},
         )
         assert response.status_code == 200
 
@@ -108,10 +84,7 @@ class TestAuthLogin:
         """Test successful login returns access token."""
         response = client.post(
             "/api/v1/auth/login",
-            data={
-                "username": registered_user["email"],
-                "password": registered_user["password"]
-            }
+            data={"username": registered_user["email"], "password": registered_user["password"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -122,10 +95,7 @@ class TestAuthLogin:
         """Test login fails with wrong password."""
         response = client.post(
             "/api/v1/auth/login",
-            data={
-                "username": registered_user["email"],
-                "password": "wrongpassword"
-            }
+            data={"username": registered_user["email"], "password": "wrongpassword"},
         )
         assert response.status_code == 401
         assert "Incorrect email or password" in response.json()["detail"]
@@ -134,23 +104,14 @@ class TestAuthLogin:
         """Test login fails for non-existent user."""
         response = client.post(
             "/api/v1/auth/login",
-            data={
-                "username": "nonexistent@example.com",
-                "password": "password123"
-            }
+            data={"username": "nonexistent@example.com", "password": "password123"},
         )
         assert response.status_code == 401
         assert "Incorrect email or password" in response.json()["detail"]
 
     def test_login_empty_credentials(self, client, db_session):
         """Test login fails with empty credentials."""
-        response = client.post(
-            "/api/v1/auth/login",
-            data={
-                "username": "",
-                "password": ""
-            }
-        )
+        response = client.post("/api/v1/auth/login", data={"username": "", "password": ""})
         # Should fail validation or auth
         assert response.status_code in [401, 422]
 
@@ -158,10 +119,7 @@ class TestAuthLogin:
         """Test access token is properly formatted JWT."""
         response = client.post(
             "/api/v1/auth/login",
-            data={
-                "username": registered_user["email"],
-                "password": registered_user["password"]
-            }
+            data={"username": registered_user["email"], "password": registered_user["password"]},
         )
         assert response.status_code == 200
         token = response.json()["access_token"]

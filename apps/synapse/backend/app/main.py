@@ -57,7 +57,7 @@ import os
 _allowed_origins_env = os.getenv(
     "ALLOWED_ORIGINS",
     # Default origins for local development (override in .env for production)
-    "http://localhost:4000,http://localhost:5173,http://localhost:8000,http://localhost:8001,http://127.0.0.1:4000,http://127.0.0.1:8000"
+    "http://localhost:4000,http://localhost:5173,http://localhost:8000,http://localhost:8001,http://127.0.0.1:4000,http://127.0.0.1:8000",
 )
 
 # Parse comma-separated origins
@@ -172,7 +172,7 @@ async def database_error_handler(request, exc: DatabaseError):
 async def integrity_error_handler(request, exc: IntegrityError):
     # Extract constraint details for better debugging
     detail = "Database constraint violation"
-    if hasattr(exc, 'orig') and exc.orig:
+    if hasattr(exc, "orig") and exc.orig:
         detail = str(exc.orig)
     return JSONResponse(
         status_code=409,

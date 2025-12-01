@@ -14,7 +14,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.models.auth import Project
-from app.models.metamodel import MetamodelNode, SemanticType
 from app.models.models import Asset
 from app.models.rules import RuleActionType, RuleDefinition, RuleExecution, RuleSource
 from app.services.rule_engine import RuleEngine
@@ -25,6 +24,7 @@ from app.services.rule_loader import RuleLoader
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def test_project(db_session: Session):
     """Create test project"""
@@ -33,10 +33,7 @@ def test_project(db_session: Session):
     # Check if client exists, create if not
     client = db_session.query(Client).filter(Client.id == "test-client").first()
     if not client:
-        client = Client(
-            id="test-client",
-            name="Test Client"
-        )
+        client = Client(id="test-client", name="Test Client")
         db_session.add(client)
         db_session.flush()
 
@@ -72,7 +69,7 @@ def firm_rule(db_session: Session):
                 "relation": "powers",
                 "discipline": "ELECTRICAL",
                 "semantic_type": "ASSET",
-                "properties": {"motor_type": "Electric"}
+                "properties": {"motor_type": "Electric"},
             }
         },
         is_active=True,
@@ -128,9 +125,10 @@ def test_pump(db_session: Session, test_project):
 # RuleLoader Tests
 # ============================================================================
 
+
 def test_rule_loader_loads_firm_rules(db_session: Session, test_project, firm_rule):
     """Test RuleLoader loads FIRM rules"""
-    rules = RuleLoader.load_rules_for_project(db_session,test_project.id)
+    rules = RuleLoader.load_rules_for_project(db_session, test_project.id)
 
     assert len(rules) >= 1
     assert firm_rule.id in [r.id for r in rules]
@@ -139,7 +137,7 @@ def test_rule_loader_loads_firm_rules(db_session: Session, test_project, firm_ru
 
 def test_rule_loader_loads_country_rules(db_session: Session, test_project, country_rule):
     """Test RuleLoader loads COUNTRY rules for project country"""
-    rules = RuleLoader.load_rules_for_project(db_session,test_project.id)
+    rules = RuleLoader.load_rules_for_project(db_session, test_project.id)
 
     # Should include country rule for CA
     assert country_rule.id in [r.id for r in rules]
@@ -147,7 +145,7 @@ def test_rule_loader_loads_country_rules(db_session: Session, test_project, coun
 
 def test_rule_loader_priority_order(db_session: Session, test_project, firm_rule, country_rule):
     """Test RuleLoader sorts by priority (highest first)"""
-    rules = RuleLoader.load_rules_for_project(db_session,test_project.id)
+    rules = RuleLoader.load_rules_for_project(db_session, test_project.id)
 
     # Country rule (priority 30) should come before FIRM rule (priority 10)
     priorities = [r.priority for r in rules]
@@ -159,7 +157,7 @@ def test_rule_loader_excludes_inactive(db_session: Session, test_project, firm_r
     firm_rule.is_active = False
     db_session.commit()
 
-    rules = RuleLoader.load_rules_for_project(db_session,test_project.id)
+    rules = RuleLoader.load_rules_for_project(db_session, test_project.id)
 
     assert firm_rule.id not in [r.id for r in rules]
 
@@ -168,9 +166,12 @@ def test_rule_loader_excludes_inactive(db_session: Session, test_project, firm_r
 # RuleExecutor Tests
 # ============================================================================
 
-def test_executor_evaluates_condition_match(db_session: Session, test_project, firm_rule, test_pump):
+
+def test_executor_evaluates_condition_match(
+    db_session: Session, test_project, firm_rule, test_pump
+):
     """Test RuleExecutor evaluates matching condition"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     matched = executor._evaluate_condition(firm_rule.condition, test_pump)
 
@@ -179,7 +180,7 @@ def test_executor_evaluates_condition_match(db_session: Session, test_project, f
 
 def test_executor_evaluates_condition_no_match(db_session: Session, test_project, firm_rule):
     """Test RuleExecutor evaluates non-matching condition"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Create TANK (should not match PUMP rule)
     tank = Asset(
@@ -196,7 +197,7 @@ def test_executor_evaluates_condition_no_match(db_session: Session, test_project
 
 def test_executor_creates_child(db_session: Session, test_project, firm_rule, test_pump):
     """Test RuleExecutor creates child asset"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Execute rule
     execution = executor.execute_rule(firm_rule, test_pump)
@@ -208,17 +209,18 @@ def test_executor_creates_child(db_session: Session, test_project, firm_rule, te
     assert "310-PP-001-M" in execution.action_taken
 
     # Verify child was created (RuleExecutor creates Asset, not MetamodelNode)
-    motor = db_session.query(Asset).filter(
-        Asset.tag == "310-PP-001-M",
-        Asset.project_id == test_project.id
-    ).first()
+    motor = (
+        db_session.query(Asset)
+        .filter(Asset.tag == "310-PP-001-M", Asset.project_id == test_project.id)
+        .first()
+    )
     assert motor is not None
     assert motor.type == "MOTOR"
 
 
 def test_executor_idempotency(db_session: Session, test_project, firm_rule, test_pump):
     """Test RuleExecutor doesn't create duplicates"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Execute rule twice
     execution1 = executor.execute_rule(firm_rule, test_pump)
@@ -229,15 +231,13 @@ def test_executor_idempotency(db_session: Session, test_project, firm_rule, test
     assert execution2.action_type == "SKIP"
 
     # Verify only one motor exists
-    motors = db_session.query(Asset).filter(
-        Asset.tag == "310-PP-001-M"
-    ).all()
+    motors = db_session.query(Asset).filter(Asset.tag == "310-PP-001-M").all()
     assert len(motors) == 1
 
 
 def test_executor_set_property(db_session: Session, test_project, country_rule):
     """Test RuleExecutor sets properties"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Create motor
     motor = Asset(
@@ -273,19 +273,15 @@ def test_executor_property_filters(db_session: Session, test_project):
         action_type=RuleActionType.SET_PROPERTY,
         condition={
             "asset_type": "PUMP",
-            "property_filters": [
-                {"key": "pump_type", "op": "==", "value": "CENTRIFUGAL"}
-            ]
+            "property_filters": [{"key": "pump_type", "op": "==", "value": "CENTRIFUGAL"}],
         },
-        action={
-            "set_property": {"manufacturer": "Flowserve"}
-        },
+        action={"set_property": {"manufacturer": "Flowserve"}},
         is_active=True,
     )
     db_session.add(rule)
     db_session.commit()
 
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Test matching asset
     pump1 = Asset(
@@ -308,7 +304,7 @@ def test_executor_property_filters(db_session: Session, test_project):
 
 def test_executor_operators(db_session: Session, test_project):
     """Test RuleExecutor operator evaluation"""
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
 
     # Test ==
     assert executor._evaluate_operator("PUMP", "==", "PUMP") is True
@@ -333,10 +329,11 @@ def test_executor_operators(db_session: Session, test_project):
 # RuleEngine Integration Tests
 # ============================================================================
 
+
 def test_rule_engine_applies_rules(db_session: Session, test_project, firm_rule, test_pump):
     """Test RuleEngine applies all rules to all assets"""
     # Execute rule engine
-    summary = RuleEngine.apply_rules(db_session,test_project.id)
+    summary = RuleEngine.apply_rules(db_session, test_project.id)
 
     # Verify summary
     assert summary["total_rules"] >= 1
@@ -345,9 +342,7 @@ def test_rule_engine_applies_rules(db_session: Session, test_project, firm_rule,
     assert summary["actions_taken"] >= 1
 
     # Verify motor was created
-    motor = db_session.query(Asset).filter(
-        Asset.tag == "310-PP-001-M"
-    ).first()
+    motor = db_session.query(Asset).filter(Asset.tag == "310-PP-001-M").first()
     assert motor is not None
 
 
@@ -378,9 +373,9 @@ def test_rule_engine_execution_logs(db_session: Session, test_project, firm_rule
     RuleEngine.apply_rules(db_session, test_project.id)
 
     # Verify execution logs exist
-    executions = db_session.query(RuleExecution).filter(
-        RuleExecution.project_id == test_project.id
-    ).all()
+    executions = (
+        db_session.query(RuleExecution).filter(RuleExecution.project_id == test_project.id).all()
+    )
 
     assert len(executions) >= 1
 
@@ -407,7 +402,7 @@ def test_rule_engine_error_handling(db_session: Session, test_project, test_pump
     db_session.commit()
 
     # Execute should not crash
-    summary = RuleEngine.apply_rules(db_session,test_project.id)
+    summary = RuleEngine.apply_rules(db_session, test_project.id)
 
     # Should log errors
     assert summary["errors"] >= 1
@@ -416,6 +411,7 @@ def test_rule_engine_error_handling(db_session: Session, test_project, test_pump
 # ============================================================================
 # API Endpoint Tests
 # ============================================================================
+
 
 def test_api_list_rules(client: TestClient, db_session: Session, firm_rule):
     """Test GET /api/v1/rules"""
@@ -430,6 +426,7 @@ def test_api_list_rules(client: TestClient, db_session: Session, firm_rule):
 def test_api_create_rule(client: TestClient, db_session: Session):
     """Test POST /api/v1/rules"""
     import uuid
+
     unique_name = f"API Test Rule {uuid.uuid4().hex[:8]}"
     rule_data = {
         "name": unique_name,
@@ -451,7 +448,9 @@ def test_api_create_rule(client: TestClient, db_session: Session):
 
     if response.status_code != 201:
         print(f"DEBUG: Create rule failed with {response.status_code}: {response.json()}")
-    assert response.status_code == 201, f"Expected 201, got {response.status_code}: {response.json()}"
+    assert (
+        response.status_code == 201
+    ), f"Expected 201, got {response.status_code}: {response.json()}"
     data = response.json()
     assert data["name"] == unique_name
     assert data["priority"] == 10  # Auto-assigned for FIRM
@@ -480,9 +479,7 @@ def test_api_delete_rule(client: TestClient, db_session: Session, firm_rule):
     assert response.status_code == 204
 
     # Verify deleted
-    deleted = db_session.query(RuleDefinition).filter(
-        RuleDefinition.id == firm_rule.id
-    ).first()
+    deleted = db_session.query(RuleDefinition).filter(RuleDefinition.id == firm_rule.id).first()
     assert deleted is None
 
 
@@ -510,10 +507,12 @@ def test_api_test_rule(client: TestClient, db_session: Session, firm_rule):
     assert data["test_results"][1]["condition_matched"] is False
 
 
-def test_api_execution_logs(client: TestClient, db_session: Session, test_project, firm_rule, test_pump):
+def test_api_execution_logs(
+    client: TestClient, db_session: Session, test_project, firm_rule, test_pump
+):
     """Test GET /api/v1/rules/executions/logs"""
     # Execute rule to create logs
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
     executor.execute_rule(firm_rule, test_pump)
 
     response = client.get(f"/api/v1/rules/executions/logs?project_id={test_project.id}")
@@ -524,7 +523,9 @@ def test_api_execution_logs(client: TestClient, db_session: Session, test_projec
     assert data[0]["rule_id"] == firm_rule.id
 
 
-def test_api_execution_summary(client: TestClient, db_session: Session, test_project, firm_rule, test_pump):
+def test_api_execution_summary(
+    client: TestClient, db_session: Session, test_project, firm_rule, test_pump
+):
     """Test GET /api/v1/rules/executions/summary"""
     # Execute rule
     RuleEngine.apply_rules(db_session, test_project.id)
@@ -542,13 +543,14 @@ def test_api_execution_summary(client: TestClient, db_session: Session, test_pro
 # Stats and Performance Tests
 # ============================================================================
 
+
 def test_rule_stats_updated(db_session: Session, test_project, firm_rule, test_pump):
     """Test rule statistics are updated on execution"""
     initial_count = firm_rule.execution_count
     initial_success = firm_rule.success_count
 
     # Execute rule
-    executor = RuleExecutor(db_session,test_project.id)
+    executor = RuleExecutor(db_session, test_project.id)
     executor.execute_rule(firm_rule, test_pump)
 
     db_session.refresh(firm_rule)
@@ -589,7 +591,7 @@ def test_performance_many_rules_many_assets(db_session: Session, test_project):
 
     # Execute rule engine
     start = time.time()
-    summary = RuleEngine.apply_rules(db_session,test_project.id)
+    summary = RuleEngine.apply_rules(db_session, test_project.id)
     elapsed = time.time() - start
 
     # Should complete in reasonable time (< 5 seconds for 50 executions)

@@ -599,9 +599,7 @@ class VersioningService:
 
             # Get all versions created by this batch
             affected_versions = (
-                self.db.query(AssetVersion)
-                .filter(AssetVersion.batch_id == batch_id)
-                .all()
+                self.db.query(AssetVersion).filter(AssetVersion.batch_id == batch_id).all()
             )
 
             # Group by asset and find pre-batch version
@@ -776,7 +774,7 @@ class VersioningService:
             return False
 
         # Compare as JSON strings for complex objects
-        if isinstance(a, (dict, list)) or isinstance(b, (dict, list)):
+        if isinstance(a, dict | list) or isinstance(b, dict | list):
             return json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
         return a == b

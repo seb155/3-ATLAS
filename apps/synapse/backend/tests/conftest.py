@@ -16,19 +16,14 @@ from app.main import app
 # PostgreSQL test database URL
 # Use localhost:5433 when running from host, forge-postgres:5432 when in Docker
 TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5433/synapse_test"
+    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/synapse_test"
 )
 
 
 @pytest.fixture(scope="session")
 def engine():
     """Create a test database engine (session-scoped for performance)."""
-    engine = create_engine(
-        TEST_DATABASE_URL,
-        poolclass=StaticPool,
-        echo=False
-    )
+    engine = create_engine(TEST_DATABASE_URL, poolclass=StaticPool, echo=False)
 
     # Drop existing tables first (in case schema changed)
     Base.metadata.drop_all(bind=engine)
@@ -68,10 +63,7 @@ def client(db_session):
     dev_user = db_session.query(User).filter(User.id == "dev-user").first()
     if not dev_user:
         dev_user = User(
-            id="dev-user",
-            email="dev@axoiq.com",
-            hashed_password="test",
-            is_active=True
+            id="dev-user", email="dev@axoiq.com", hashed_password="test", is_active=True
         )
         db_session.add(dev_user)
         db_session.commit()

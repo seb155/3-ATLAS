@@ -110,7 +110,7 @@ class RuleEngine:
             for asset in assets:
                 # Capture asset info BEFORE execute_rule (which may rollback)
                 asset_id = asset.id
-                asset_discipline = getattr(asset, 'discipline', None)
+                asset_discipline = getattr(asset, "discipline", None)
 
                 execution = executor.execute_rule(rule, asset)
                 total_executions += 1
@@ -173,7 +173,9 @@ class RuleEngine:
                     f"Summary: {actions_taken} actions, {errors} errors"
                 ),
                 project_id=project_id,
-                parent_id=root_log_id if errors == 0 else None,  # Don't use parent if errors (may be rolled back)
+                parent_id=root_log_id
+                if errors == 0
+                else None,  # Don't use parent if errors (may be rolled back)
                 status=ActionStatus.COMPLETED if errors == 0 else ActionStatus.FAILED,
             )
         except Exception:

@@ -16,6 +16,7 @@ def verify_conflicts():
     try:
         print("1. Setting up test data...")
         import uuid
+
         unique_suffix = str(uuid.uuid4())[:8]
 
         # Create a test client with unique name
@@ -27,7 +28,7 @@ def verify_conflicts():
         project = Project(
             name=f"Conflict Test {unique_suffix}",
             description="Testing Rule Priorities",
-            client_id=client.id
+            client_id=client.id,
         )
         # Add country attribute for COUNTRY rule filtering
         project.country = "CA"  # Canada
@@ -36,10 +37,7 @@ def verify_conflicts():
 
         # Create a test asset
         asset = Asset(
-            tag="P-101",
-            type="PUMP",
-            project_id=project.id,
-            properties={"type": "centrifugal"}
+            tag="P-101", type="PUMP", project_id=project.id, properties={"type": "centrifugal"}
         )
         db.add(asset)
         db.commit()
@@ -58,7 +56,7 @@ def verify_conflicts():
             condition={"type": "PUMP"},
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "480V"}},
-            is_active=True
+            is_active=True,
         )
         db.add(rule_firm)
 
@@ -73,7 +71,7 @@ def verify_conflicts():
             condition={"type": "PUMP"},
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "600V"}},
-            is_active=True
+            is_active=True,
         )
         db.add(rule_country)
 
@@ -113,7 +111,7 @@ def verify_conflicts():
             action_type=RuleActionType.SET_PROPERTY,
             action={"set_property": {"voltage": "4160V"}},
             is_active=True,
-            overrides_rule_id=rule_country.id
+            overrides_rule_id=rule_country.id,
         )
         db.add(rule_project)
         db.commit()
@@ -144,7 +142,9 @@ def verify_conflicts():
         # Here PROJECT (50) is winner, FIRM (10) is loser.
         # If FIRM is enforced, it should be a violation.
 
-        violation = next((v for v in violations if v["overridden_rule"]["id"] == rule_firm.id), None)
+        violation = next(
+            (v for v in violations if v["overridden_rule"]["id"] == rule_firm.id), None
+        )
 
         if violation:
             print("✅ SUCCESS: Detected enforcement violation for FIRM rule.")
@@ -166,9 +166,11 @@ def verify_conflicts():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     verify_conflicts()
