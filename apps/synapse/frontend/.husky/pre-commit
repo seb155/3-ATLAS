@@ -1,1 +1,9 @@
-npm test
+#!/bin/sh
+
+# Frontend lint-staged
+cd apps/synapse/frontend && npx lint-staged
+
+# Backend ruff check (if in monorepo root)
+if [ -d "apps/synapse/backend" ]; then
+  cd apps/synapse/backend && ruff check . && ruff format --check .
+fi
