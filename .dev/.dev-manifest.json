@@ -1,0 +1,64 @@
+{
+  "$schema": "dev-manifest-schema",
+  "version": "1.0",
+  "context_type": "parent",
+  "project": {
+    "id": "axiom",
+    "name": "AXIOM Platform",
+    "path": "/home/seb/projects/AXIOM"
+  },
+  "children": [
+    {
+      "id": "synapse",
+      "name": "SYNAPSE",
+      "path": "apps/synapse/.dev",
+      "description": "MBSE Platform - Engineering automation"
+    },
+    {
+      "id": "nexus",
+      "name": "NEXUS",
+      "path": "apps/nexus/.dev",
+      "description": "Knowledge Portal - Employee hub"
+    },
+    {
+      "id": "atlas",
+      "name": "ATLAS",
+      "path": "apps/atlas/.dev",
+      "description": "AI OS - Orchestration system"
+    },
+    {
+      "id": "apex",
+      "name": "APEX",
+      "path": "apps/apex/.dev",
+      "description": "Enterprise Portal - Dashboard"
+    },
+    {
+      "id": "cortex",
+      "name": "CORTEX",
+      "path": "apps/cortex/.dev",
+      "description": "Memory Engine - CAG/RAG"
+    },
+    {
+      "id": "echo",
+      "name": "ECHO",
+      "path": "apps/echo/.dev",
+      "description": "Voice Assistant - Tauri Desktop"
+    },
+    {
+      "id": "forge",
+      "name": "FORGE",
+      "path": "forge/.dev",
+      "description": "Shared Infrastructure - Docker services"
+    }
+  ],
+  "shared_resources": {
+    "credentials": "context/credentials.md",
+    "infrastructure": "infra/registry.yml",
+    "decisions": "decisions/",
+    "apps_registry": "ai/active-apps.json"
+  },
+  "metadata": {
+    "created": "2025-12-01T00:00:00Z",
+    "last_updated": "2025-12-01T00:00:00Z"
+  }
+}

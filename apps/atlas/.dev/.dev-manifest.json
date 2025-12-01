@@ -1,0 +1,28 @@
+{
+  "$schema": "dev-manifest-schema",
+  "version": "1.0",
+  "context_type": "child",
+  "project": {
+    "id": "atlas",
+    "name": "ATLAS",
+    "path": "/home/seb/projects/AXIOM/apps/atlas",
+    "description": "AI OS - Orchestration system"
+  },
+  "parent": {
+    "id": "axiom",
+    "path": "../../../.dev"
+  },
+  "inherit_from_parent": [
+    "credentials",
+    "infrastructure",
+    "apps_registry"
+  ],
+  "stack": {
+    "runtime": "Claude Code CLI",
+    "components": "Agents, Rules, Commands, Skills, Hooks"
+  },
+  "metadata": {
+    "created": "2025-12-01T00:00:00Z",
+    "last_updated": "2025-12-01T00:00:00Z"
+  }
+}

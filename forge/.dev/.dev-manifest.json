@@ -1,0 +1,26 @@
+{
+  "$schema": "dev-manifest-schema",
+  "version": "1.0",
+  "context_type": "child",
+  "project": {
+    "id": "forge",
+    "name": "FORGE",
+    "path": "/home/seb/projects/AXIOM/forge",
+    "description": "Shared Infrastructure - Docker services"
+  },
+  "parent": {
+    "id": "axiom",
+    "path": "../.dev"
+  },
+  "inherit_from_parent": [
+    "credentials",
+    "apps_registry"
+  ],
+  "stack": {
+    "services": ["PostgreSQL", "Redis", "MeiliSearch", "Grafana", "Traefik"]
+  },
+  "metadata": {
+    "created": "2025-12-01T00:00:00Z",
+    "last_updated": "2025-12-01T00:00:00Z"
+  }
+}
