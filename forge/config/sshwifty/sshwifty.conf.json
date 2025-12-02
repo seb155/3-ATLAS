@@ -1,6 +1,6 @@
 {
   "HostName": "ssh.axoiq.com",
-  "SharedKey": "",
+  "SharedKey": "byfSA14PgmqHZnQr2KCWyF90TrO5RQug",
   "Servers": [
     {
       "ListenInterface": "0.0.0.0",
@@ -13,28 +13,118 @@
   ],
   "Presets": [
     {
+      "Title": "═══ PROXMOX ═══",
+      "Type": "SSH",
+      "Host": "192.168.1.20:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "PVE1 (Proxmox VE)",
+      "Type": "SSH",
+      "Host": "192.168.1.20:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "PVE2 (Proxmox VE)",
+      "Type": "SSH",
+      "Host": "pve2.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "═══ INFRASTRUCTURE ═══",
+      "Type": "SSH",
+      "Host": "192.168.5.20:22",
+      "Meta": { "User": "root" }
+    },
+    {
       "Title": "NPM1 (Nginx Proxy Manager)",
       "Type": "SSH",
       "Host": "pihole01.home.s-gagnon.com:22",
-      "Meta": {
-        "User": "root"
-      }
+      "Meta": { "User": "root" }
     },
     {
-      "Title": "NPM2 (Nginx Proxy Manager)",
+      "Title": "NPM2 (Nginx Proxy Manager HA)",
       "Type": "SSH",
       "Host": "pihole02.home.s-gagnon.com:22",
-      "Meta": {
-        "User": "root"
-      }
+      "Meta": { "User": "root" }
     },
     {
-      "Title": "PVE1 (Proxmox)",
+      "Title": "Pi-hole (DNS)",
       "Type": "SSH",
-      "Host": "192.168.1.20:22",
-      "Meta": {
-        "User": "root"
-      }
+      "Host": "192.168.1.10:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "═══ STORAGE ═══",
+      "Type": "SSH",
+      "Host": "192.168.1.59:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "TrueNAS",
+      "Type": "SSH",
+      "Host": "192.168.1.59:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "PBS (Proxmox Backup)",
+      "Type": "SSH",
+      "Host": "pbs.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "═══ SERVICES ═══",
+      "Type": "SSH",
+      "Host": "192.168.1.123:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "Vaultwarden",
+      "Type": "SSH",
+      "Host": "192.168.1.123:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "Homepage Dashboard",
+      "Type": "SSH",
+      "Host": "192.168.10.10:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "Home Assistant",
+      "Type": "SSH",
+      "Host": "ha.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "═══ AI / DEV ═══",
+      "Type": "SSH",
+      "Host": "ollama.home.axoiq.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "Ollama (LLM Server)",
+      "Type": "SSH",
+      "Host": "ollama.home.axoiq.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "VS Code Web",
+      "Type": "SSH",
+      "Host": "vscode.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "═══ NETWORK ═══",
+      "Type": "SSH",
+      "Host": "udm.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
+    },
+    {
+      "Title": "UDM-SE (UniFi)",
+      "Type": "SSH",
+      "Host": "udm.home.s-gagnon.com:22",
+      "Meta": { "User": "root" }
     }
   ],
   "OnlyAllowPresetRemotes": false

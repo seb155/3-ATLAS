@@ -1,0 +1,45 @@
+# =============================================================================
+# Tailscale Client - Connect to Headscale VPN
+# =============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.tailscale.yml up -d
+#
+# This container connects to Headscale and can:
+#   - Act as a subnet router (expose home network to VPN)
+#   - Act as an exit node (route all traffic through home)
+#   - Access Docker network from anywhere via VPN
+#
+# Documentation: https://tailscale.com/kb/1282/docker
+# =============================================================================
+
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: forge-tailscale
+    hostname: forge-gateway
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      # Auth key for Headscale
+      - TS_AUTHKEY=${TAILSCALE_AUTHKEY}
+      # State directory
+      - TS_STATE_DIR=/var/lib/tailscale
+      # Connect directly to Headscale container (not via Cloudflare)
+      - TS_EXTRA_ARGS=--login-server=http://forge-headscale:8080 --hostname=forge-gateway --advertise-routes=192.168.1.0/24,192.168.5.0/24,192.168.10.0/24,192.168.30.0/24 --advertise-exit-node --accept-routes --accept-dns
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - forge-network
+    labels:
+      - "com.axiom.service=infrastructure"
+      - "com.axiom.description=Tailscale VPN gateway to Headscale"
+
+volumes:
+  tailscale-state:
+    name: forge-tailscale-state
+
+networks:
+  forge-network:
+    external: true

@@ -159,6 +159,29 @@ http:
       tls: {}
 
     # ========================================================================
+    # REMOTE ACCESS HUB (via Cloudflare Tunnel)
+    # ========================================================================
+
+    # Sshwifty - SSH WebUI
+    sshwifty-prod:
+      rule: "Host(`ssh.axoiq.com`)"
+      service: sshwifty
+      entryPoints:
+        - web  # Cloudflare handles SSL, sends HTTP to Traefik
+      priority: 10
+
+    # RustDesk WebSocket
+    rustdesk-ws-prod:
+      rule: "Host(`rustdesk-ws.axoiq.com`)"
+      service: rustdesk-ws
+      entryPoints:
+        - web  # Cloudflare handles SSL, sends HTTP to Traefik
+      priority: 10
+
+    # Headscale VPN Control Server (handled by Docker labels now)
+    # Routes managed via docker-compose.headscale.yml labels
+
+    # ========================================================================
     # DEVELOPMENT ROUTES (localhost) - HTTP only
     # ========================================================================
 
@@ -316,6 +339,20 @@ http:
       loadBalancer:
         servers:
           - url: "http://forge-prometheus:9090"
+
+    # Remote Access Hub
+    sshwifty:
+      loadBalancer:
+        servers:
+          - url: "http://forge-sshwifty:8182"
+
+    rustdesk-ws:
+      loadBalancer:
+        servers:
+          - url: "http://forge-rustdesk-hbbs:21118"
+
+    # Headscale VPN (handled by Docker labels)
+    # Services managed via docker-compose.headscale.yml
 
   # ==========================================================================
   # MIDDLEWARES

@@ -1,0 +1,87 @@
+# Headscale Configuration
+# Documentation: https://headscale.net/ref/configuration/
+
+# Server URL - This is how clients will connect
+server_url: https://vpn.axoiq.com
+
+# Address to listen on
+listen_addr: 0.0.0.0:8080
+
+# Metrics (Prometheus)
+metrics_listen_addr: 0.0.0.0:9090
+
+# gRPC settings for Tailscale clients
+grpc_listen_addr: 0.0.0.0:50443
+grpc_allow_insecure: false
+
+# Noise protocol (ts2021) - Required for modern Tailscale clients
+noise:
+  private_key_path: /var/lib/headscale/noise_private.key
+
+# IP prefixes for the VPN network
+prefixes:
+  v4: 100.64.0.0/10
+  v6: fd7a:115c:a1e0::/48
+
+# DERP (Designated Encrypted Relay for Packets)
+# Used for NAT traversal when direct connections fail
+derp:
+  server:
+    enabled: false  # We'll use Tailscale's public DERP servers
+  urls:
+    - https://controlplane.tailscale.com/derpmap/default
+  auto_update_enabled: true
+  update_frequency: 24h
+
+# Disable built-in key expiry (or set to your preference)
+disable_check_updates: false
+
+# Ephemeral node cleanup
+ephemeral_node_inactivity_timeout: 30m
+
+# Database - SQLite for simplicity
+database:
+  type: sqlite
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
+
+# DNS configuration
+dns:
+  # Use your Pi-hole as DNS for VPN clients
+  nameservers:
+    global:
+      - 192.168.1.10  # Your Pi-hole
+  # Enable MagicDNS - access nodes by name
+  magic_dns: true
+  # Base domain for MagicDNS (must be different from server_url)
+  base_domain: ts.axoiq.com
+
+# Logging
+log:
+  format: text
+  level: info
+
+# Policy - ACLs (Access Control Lists)
+# Default: allow all traffic between nodes
+policy:
+  mode: file
+  path: ""
+
+# TLS - Disabled since Cloudflare/Traefik handles SSL
+tls_cert_path: ""
+tls_key_path: ""
+
+# OIDC Authentication (Optional - for web UI login)
+# Uncomment and configure if you want SSO
+# oidc:
+#   issuer: https://auth.example.com
+#   client_id: headscale
+#   client_secret: your-secret
+#   scope: ["openid", "profile", "email"]
+
+# CLI socket for headscale commands
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+
+# Randomize client ports
+randomize_client_port: false

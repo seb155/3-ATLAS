@@ -1,0 +1,52 @@
+# =============================================================================
+# Cloudflare Tunnel - Secure External Access
+# =============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.cloudflared.yml up -d
+#
+# Prerequisites:
+#   1. Create tunnel at https://one.dash.cloudflare.com/
+#      Zero Trust → Networks → Tunnels → Create
+#   2. Add CLOUDFLARE_TUNNEL_TOKEN to .env
+#
+# Architecture:
+#   Internet → Cloudflare Edge → Tunnel → Traefik → Containers
+#
+# Benefits:
+#   - No exposed ports to internet
+#   - No port forwarding required
+#   - Built-in DDoS protection
+#   - SSL handled by Cloudflare
+#   - Works behind CGNAT
+#
+# Documentation: .dev/context/cloudflare-tunnel-setup.md
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # Cloudflare Tunnel Connector
+  # ===========================================================================
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: forge-cloudflared
+    hostname: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - forge-network
+    # Note: Traefik should be running (from docker-compose.traefik.yml)
+    # but no hard dependency needed - cloudflared connects via network
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.axiom.service=infrastructure"
+      - "com.axiom.description=Cloudflare Tunnel for secure external access"
+
+networks:
+  forge-network:
+    external: true

@@ -1,0 +1,74 @@
+# =============================================================================
+# Headscale - Self-hosted Tailscale Control Server
+# =============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.headscale.yml up -d
+#
+# Headscale is an open source implementation of the Tailscale control server.
+# It allows you to run your own VPN mesh network without depending on Tailscale's servers.
+#
+# After starting:
+#   1. Create a user: docker exec forge-headscale headscale users create seb
+#   2. Create auth key: docker exec forge-headscale headscale preauthkeys create --user seb
+#   3. Use the key to connect Tailscale clients
+#
+# Documentation: https://headscale.net/
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # Headscale Control Server
+  # ===========================================================================
+  headscale:
+    image: headscale/headscale:latest
+    container_name: forge-headscale
+    hostname: headscale
+    restart: unless-stopped
+    command: serve
+    volumes:
+      - ./config/headscale:/etc/headscale
+      - headscale-data:/var/lib/headscale
+    ports:
+      # Metrics (optional, for Prometheus)
+      - "9090:9090"
+    networks:
+      - forge-network
+    healthcheck:
+      test: ["CMD", "headscale", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      # All traffic to Headscale (API + ts2021 noise protocol)
+      - "traefik.http.routers.headscale.rule=Host(`vpn.axoiq.com`)"
+      - "traefik.http.routers.headscale.entrypoints=web"
+      - "traefik.http.routers.headscale.service=headscale"
+      - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+      - "com.axiom.service=infrastructure"
+      - "com.axiom.description=Headscale VPN control server"
+
+  # ===========================================================================
+  # Headscale UI (Optional - Web interface)
+  # ===========================================================================
+  headscale-ui:
+    image: ghcr.io/gurucomputing/headscale-ui:latest
+    container_name: forge-headscale-ui
+    hostname: headscale-ui
+    restart: unless-stopped
+    networks:
+      - forge-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.headscale-ui.rule=Host(`vpn.axoiq.com`) && PathPrefix(`/web`)"
+      - "traefik.http.routers.headscale-ui.entrypoints=web"
+      - "traefik.http.routers.headscale-ui.service=headscale-ui"
+      - "traefik.http.services.headscale-ui.loadbalancer.server.port=80"
+
+volumes:
+  headscale-data:
+    name: forge-headscale-data
+
+networks:
+  forge-network:
+    external: true
