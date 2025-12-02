@@ -1,6 +1,36 @@
 # ECHO Feature Status
 
-> Last Updated: 2025-12-01 (Session 2)
+> Last Updated: 2025-12-02 (Session 3)
+
+---
+
+## SESSION 2025-12-02 - HYBRID MODE + BUG FIXES
+
+### Mode Hybride NPU - NOUVEAU
+| Feature | Status | Description |
+|---------|--------|-------------|
+| docker-compose.hybrid.yml | ✅ Done | Frontend Docker seul |
+| echo-mode.ps1 | ✅ Done | Script switching Docker ↔ Hybride |
+| Backend natif NPU | ✅ Done | 3-5x plus rapide |
+| CORS host.docker.internal | ✅ Done | Frontend Docker → Backend natif |
+
+### Bug Fixes - Session 2025-12-02
+| Bug | Status | Description |
+|-----|--------|-------------|
+| API reload crash | ✅ Fixed | `initialize(force_reload=True)` → `initialize()` |
+| Model not changing | ✅ Fixed | Singleton re-lit settings dans `load_model()` |
+
+### Commandes Mode Hybride
+```powershell
+# Démarrer NPU mode (rapide)
+.\.dev\scripts\echo-mode.ps1 -Mode hybrid -Action start
+
+# Démarrer Docker mode (lent)
+.\.dev\scripts\echo-mode.ps1 -Mode docker -Action start
+
+# Status
+.\.dev\scripts\echo-mode.ps1 -Action status
+```
 
 ---
 
