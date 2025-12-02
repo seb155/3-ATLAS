@@ -39,44 +39,38 @@ Lis .atlas/ATLAS-2.0-PLAN.md pour les détails.
 ## Progression Globale
 
 ```
-Phase 0: Migration Symlinks    [░░░░░░░░░░]   0%  ← PROCHAINE
-Phase 1: Parallel Agents       [░░░░░░░░░░]   0%
+Phase 0: Migration Symlinks    [██████████] 100%  ✅ COMPLETE
+Phase 1: Parallel Agents       [░░░░░░░░░░]   0%  ← PROCHAINE
 Phase 2: Git Worktrees         [░░░░░░░░░░]   0%
 Phase 3: Sandbox Pool          [░░░░░░░░░░]   0%
 Phase 4: Monorepo Layers       [░░░░░░░░░░]   0%
 Phase 5: Inter-Agent Comms     [░░░░░░░░░░]   0%
 ─────────────────────────────────────────────────
-TOTAL                          [░░░░░░░░░░]   0%
+TOTAL                          [█░░░░░░░░░]  17%
 ```
 
 ---
 
 ## Détail par Phase
 
-### Phase 0: Migration Symlinks → Local
-**Status:** NOT STARTED
-**Bloquant:** OUI (toutes les autres phases)
+### Phase 0: Migration Symlinks → Local ✅ COMPLETE
+**Status:** COMPLETE (2025-12-02)
+**Bloquant:** OUI (toutes les autres phases) - RÉSOLU
 
 | Tâche | Status | Notes |
 |-------|--------|-------|
-| Backup contenu symlink | [ ] | |
-| Supprimer symlink | [ ] | |
-| Copier contenu local | [ ] | |
-| Git add + commit | [ ] | |
-| Tester /0-new-session | [ ] | |
-| Consolider .agent/ | [ ] | Optionnel |
+| Backup contenu symlink | [x] | Restauré depuis git history |
+| Supprimer symlink | [x] | rm .claude (était cassé) |
+| Copier contenu local | [x] | git checkout 7c995e0 -- .claude |
+| Git add + commit | [x] | Commit ccb5914 |
+| Tester /0-new-session | [x] | Commandes disponibles |
+| Consolider .agent/ | [ ] | Optionnel - à faire plus tard |
 
-**Commandes:**
-```bash
-# Voir état actuel
-ls -la /home/user/AXIOM/.claude
-
-# Exécuter migration (quand prêt)
-cp -rL /home/user/AXIOM/.claude /tmp/atlas-backup/
-rm /home/user/AXIOM/.claude
-cp -r /tmp/atlas-backup/.claude /home/user/AXIOM/.claude
-git add .claude/ && git commit -m "refactor: migrate ATLAS from symlink to local"
-```
+**Résultat:**
+- Symlink supprimé
+- 30 fichiers restaurés depuis commit 7c995e0
+- Structure complète: agents/, commands/, skills/, hooks/, context/
+- Push effectué sur branche feature
 
 ---
 
@@ -176,7 +170,23 @@ git add .claude/ && git commit -m "refactor: migrate ATLAS from symlink to local
 
 ## Historique des Sessions
 
-### 2025-12-02 - Session Initiale
+### 2025-12-02 - Session 2: Phase 0 Complete
+**Durée:** ~15 minutes
+**Accomplissements:**
+- Migration symlink → local complétée
+- Découverte: symlink était cassé (target n'existe pas)
+- Solution: restauration depuis git history (commit 7c995e0)
+- 30 fichiers .claude/ restaurés et commités
+
+**Commits:**
+- `ccb5914` - refactor(atlas): migrate from symlink to local .claude directory
+
+**Prochaine action:**
+Phase 1 - Créer les builder agents (backend, frontend, qa)
+
+---
+
+### 2025-12-02 - Session 1: Planning
 **Durée:** ~45 minutes
 **Accomplissements:**
 - Analyse architecture ATLAS v1.0 actuelle
@@ -188,9 +198,7 @@ git add .claude/ && git commit -m "refactor: migrate ATLAS from symlink to local
 **Fichiers créés:**
 - `.atlas/ATLAS-2.0-PLAN.md` - Plan complet détaillé
 - `.atlas/ATLAS-2.0-PROGRESS.md` - Ce fichier
-
-**Prochaine action:**
-Commencer Phase 0 (Migration Symlinks)
+- `.atlas/CONTINUE-SESSION.md` - Guide continuation
 
 ---
 
