@@ -108,6 +108,50 @@ ATLAS est l'orchestrateur principal du système AXIOM. Il gère:
 
 ---
 
+## Monorepo Layer System (ATLAS 2.0)
+
+### Principe
+
+Les configurations Claude peuvent être définies à deux niveaux:
+1. **Root** (`.claude/`) - Partagé par toutes les apps
+2. **App** (`apps/{app}/.claude/`) - Overrides spécifiques
+
+### Résolution des Layers
+
+```
+Quand tu cherches un fichier de configuration:
+
+1. Vérifie d'abord: apps/{current_app}/.claude/{path}
+2. Si non trouvé: .claude/{path}
+3. Le fichier app OVERRIDE complètement (pas de merge)
+
+Exemple pour /test dans SYNAPSE:
+→ Cherche: apps/synapse/.claude/commands/test.md
+→ Si trouvé: utilise celui-là
+→ Sinon: utilise .claude/commands/test.md
+```
+
+### Ce qui peut être Override
+
+| Composant | Override? | Path |
+|-----------|-----------|------|
+| Commands | ✅ OUI | `apps/{app}/.claude/commands/` |
+| Agent Rules | ✅ OUI | `apps/{app}/.claude/agents/rules/` |
+| Context | ✅ OUI | `apps/{app}/.claude/context/` |
+| Agents | ❌ NON | Toujours depuis root |
+| Skills | ❌ NON | Toujours depuis root |
+| Hooks | ❌ NON | Toujours depuis root |
+
+### Configuration Monorepo
+
+Voir `.atlas/config.yml` pour:
+- Registry de toutes les apps
+- Configuration des layers
+- Hot files par app
+- Test commands par app
+
+---
+
 ## Commandes Disponibles
 
 | Commande | Mode | Description |

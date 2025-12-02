@@ -1,0 +1,241 @@
+# ATLAS 2.0 - Monorepo Configuration
+#
+# Central configuration for AXIOM monorepo management.
+# Defines apps, layers, and orchestration settings.
+#
+
+version: "2.0"
+updated: "2025-12-02"
+
+# =============================================================================
+# MONOREPO STRUCTURE
+# =============================================================================
+
+monorepo:
+  name: "AXIOM"
+  root: "."
+  description: "Unified AXoiq development platform with AI OS"
+
+  # Application registry
+  apps:
+    synapse:
+      path: "apps/synapse"
+      display_name: "SYNAPSE"
+      description: "MBSE Platform (FastAPI + React 19)"
+      status: "active"
+      has_backend: true
+      has_frontend: true
+
+      # Default builders for this app
+      default_builders:
+        - backend-builder
+        - frontend-builder
+        - qa-tester
+
+      # Test commands
+      test_commands:
+        backend: "cd apps/synapse/backend && pytest"
+        frontend: "cd apps/synapse/frontend && npm test"
+        all: "cd apps/synapse && npm test && pytest"
+
+      # Hot files for context loading
+      hot_files:
+        backend:
+          - "app/main.py"
+          - "app/api/endpoints/"
+          - "app/models/"
+        frontend:
+          - "src/App.tsx"
+          - "src/components/"
+          - "src/hooks/"
+
+    nexus:
+      path: "apps/nexus"
+      display_name: "NEXUS"
+      description: "Knowledge Portal + UI pour CORTEX"
+      status: "development"
+      has_backend: true
+      has_frontend: true
+      default_builders:
+        - frontend-builder
+        - qa-tester
+      test_commands:
+        frontend: "cd apps/nexus && npm test"
+
+    cortex:
+      path: "apps/cortex"
+      display_name: "CORTEX"
+      description: "Memory Engine (CAG/RAG)"
+      status: "planning"
+      has_backend: true
+      has_frontend: false
+      default_builders:
+        - backend-builder
+      test_commands:
+        backend: "cd apps/cortex && pytest"
+
+    apex:
+      path: "apps/apex"
+      display_name: "APEX"
+      description: "Enterprise Portal / Dashboard"
+      status: "planning"
+      has_backend: true
+      has_frontend: true
+      default_builders:
+        - backend-builder
+        - frontend-builder
+
+    echo:
+      path: "apps/echo"
+      display_name: "ECHO"
+      description: "Voice Interface"
+      status: "development"
+      has_backend: true
+      has_frontend: false
+      default_builders:
+        - backend-builder
+
+# =============================================================================
+# LAYER SYSTEM
+# =============================================================================
+
+layers:
+  # Root layer - shared across all apps
+  root:
+    path: ".claude"
+    priority: 1
+    description: "Shared configuration for entire monorepo"
+    provides:
+      - agents
+      - commands
+      - skills
+      - hooks
+      - context
+
+  # App layer - per-app overrides (optional)
+  app:
+    path: "apps/{app}/.claude"
+    priority: 2
+    description: "App-specific overrides"
+    can_override:
+      - commands      # Custom commands per app
+      - agents/rules  # App-specific rules
+      - context       # App-specific context files
+
+# Layer resolution order (highest priority wins):
+# 1. apps/{current_app}/.claude/{path}  (if exists)
+# 2. .claude/{path}                      (fallback)
+
+# =============================================================================
+# PARALLEL AGENTS
+# =============================================================================
+
+parallel_agents:
+  enabled: true
+
+  # Maximum concurrent agents
+  max_concurrent: 5
+
+  # Use git worktrees for isolation
+  use_worktrees: true
+  worktree_base: "../AXIOM-worktrees"
+
+  # Use sandbox containers
+  use_sandbox: true
+  sandbox_pool_size: 3
+
+  # Model allocation
+  models:
+    orchestrator: "opus"    # ATLAS main
+    builders: "sonnet"      # Backend, Frontend builders
+    validators: "haiku"     # QA, linters
+
+  # Cost optimization
+  cost_optimization:
+    prefer_haiku_for_simple: true
+    token_budget_per_session: 500000
+    warn_at_percent: 80
+
+# =============================================================================
+# CONTEXT MANAGEMENT
+# =============================================================================
+
+context:
+  # Global hot files (always loaded)
+  global_hot_files:
+    - "CLAUDE.md"
+    - ".dev/context/project-state.md"
+    - ".atlas/config.yml"
+    - "README.md"
+
+  # Critical files (read-only, protected)
+  protected_files:
+    - ".dev/infra/registry.yml"
+    - ".dev/context/credentials.md"
+    - ".claude/agents/rules/"
+
+  # Session state files
+  session:
+    state_file: ".dev/ai/session-state.json"
+    history_file: ".claude/context/session-history.json"
+    hot_files: ".dev/ai/hot-files.json"
+
+  # Context loading modes
+  modes:
+    full:
+      load_all_apps: true
+      show_review: true
+      description: "Complete context for new day"
+
+    quick:
+      load_all_apps: false
+      load_last_app: true
+      show_review: false
+      description: "Fast continuation"
+
+    recovery:
+      load_all_apps: true
+      reconstruct_state: true
+      description: "After /compact or interruption"
+
+# =============================================================================
+# INFRASTRUCTURE
+# =============================================================================
+
+infrastructure:
+  # FORGE base path
+  forge_path: "forge"
+
+  # Docker network
+  network: "forge_default"
+
+  # Registry file
+  registry: ".dev/infra/registry.yml"
+
+  # URL registry
+  urls: ".dev/infra/url-registry.yml"
+
+# =============================================================================
+# DEVELOPMENT
+# =============================================================================
+
+development:
+  # Git configuration
+  git:
+    default_branch: "main"
+    feature_prefix: "feat/"
+    bugfix_prefix: "fix/"
+
+  # Pre-commit checks
+  pre_commit:
+    run_tests: true
+    run_lint: true
+    check_types: true
+
+  # IDE settings
+  ide:
+    recommended: "vscode"
+    extensions:
+      - "ms-python.python"
+      - "dbaeumer.vscode-eslint"
+      - "esbenp.prettier-vscode"

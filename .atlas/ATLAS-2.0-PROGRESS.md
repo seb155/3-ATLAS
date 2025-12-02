@@ -43,10 +43,10 @@ Phase 0: Migration Symlinks    [██████████] 100%  ✅ COMPLE
 Phase 1: Parallel Agents       [██████████] 100%  ✅ COMPLETE
 Phase 2: Git Worktrees         [██████████] 100%  ✅ COMPLETE
 Phase 3: Sandbox Pool          [██████████] 100%  ✅ COMPLETE
-Phase 4: Monorepo Layers       [░░░░░░░░░░]   0%  ← PROCHAINE
-Phase 5: Inter-Agent Comms     [░░░░░░░░░░]   0%
+Phase 4: Monorepo Layers       [██████████] 100%  ✅ COMPLETE
+Phase 5: Inter-Agent Comms     [░░░░░░░░░░]   0%  ← PROCHAINE
 ─────────────────────────────────────────────────
-TOTAL                          [██████░░░░]  67%
+TOTAL                          [████████░░]  83%
 ```
 
 ---
@@ -172,20 +172,27 @@ python pool-manager.py cleanup         # Cleanup idle
 
 ---
 
-### Phase 4: Monorepo Layer System
-**Status:** NOT STARTED
-**Dépendance:** Phase 0
+### Phase 4: Monorepo Layer System ✅ COMPLETE
+**Status:** COMPLETE (2025-12-02)
+**Dépendance:** Phase 0 ✅
 
 | Tâche | Status | Notes |
 |-------|--------|-------|
-| Créer .atlas/config.yml | [ ] | |
-| Update atlas.md layer resolution | [ ] | |
-| Créer exemple override | [ ] | apps/synapse/.claude/ |
-| Tester layers | [ ] | |
+| Créer .atlas/config.yml | [x] | Config complète monorepo |
+| Update atlas.md layer resolution | [x] | Section Layer System |
+| Créer exemple override | [x] | apps/synapse/.claude/ |
+| Documentation | [x] | README dans synapse/.claude/ |
 
-**Fichiers à créer:**
-- `.atlas/config.yml`
-- `apps/synapse/.claude/commands/` (exemple)
+**Fichiers créés:**
+- `.atlas/config.yml` ✅ - Configuration monorepo complète
+- `apps/synapse/.claude/README.md` ✅ - Documentation layers
+- `apps/synapse/.claude/commands/test.md` ✅ - Exemple override
+
+**Layer Resolution:**
+```
+1. apps/{app}/.claude/{path}  → App-specific (priority)
+2. .claude/{path}             → Root (fallback)
+```
 
 ---
 
@@ -209,6 +216,24 @@ python pool-manager.py cleanup         # Cleanup idle
 ---
 
 ## Historique des Sessions
+
+### 2025-12-02 - Session 6: Phase 4 Complete
+**Durée:** ~5 minutes
+**Accomplissements:**
+- Créé .atlas/config.yml avec config monorepo complète
+- Ajouté Layer System documentation à atlas.md
+- Créé exemple override dans apps/synapse/.claude/
+- Layer resolution: app-specific > root
+
+**Fichiers créés:**
+- `.atlas/config.yml`
+- `apps/synapse/.claude/README.md`
+- `apps/synapse/.claude/commands/test.md`
+
+**Prochaine action:**
+Phase 5 - Inter-Agent Communication (dernière phase!)
+
+---
 
 ### 2025-12-02 - Session 5: Phase 3 Complete
 **Durée:** ~10 minutes
