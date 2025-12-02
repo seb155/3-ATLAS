@@ -123,10 +123,118 @@ ATLAS est l'orchestrateur principal du système AXIOM. Il gère:
 
 ## Agents Disponibles
 
+### Orchestrators (Opus)
 | Agent | Invocation | Cas d'usage |
 |-------|------------|-------------|
 | DevOps Manager | `subagent_type="devops-manager"` | Infrastructure, ports, Docker |
 | Brainstorm | `subagent_type="brainstorm"` | Design, idées, exploration |
+
+### Builders (Sonnet/Haiku) - ATLAS 2.0
+| Agent | Invocation | Model | Cas d'usage |
+|-------|------------|-------|-------------|
+| Backend Builder | `subagent_type="general-purpose"` | Sonnet | Python/FastAPI development |
+| Frontend Builder | `subagent_type="general-purpose"` | Sonnet | React/TypeScript development |
+| QA Tester | `subagent_type="general-purpose"` | Haiku | Tests, linting, validation |
+
+**Note:** Les builders utilisent `general-purpose` avec un prompt spécialisé.
+Voir `.claude/agents/builders/` pour les prompts complets.
+
+---
+
+## Parallel Execution Protocol (ATLAS 2.0)
+
+### Principe Fondamental
+
+Pour exécuter des agents EN PARALLÈLE, tu DOIS envoyer **UN SEUL message**
+avec **PLUSIEURS appels Task tool**. C'est la seule façon d'obtenir
+une vraie parallélisation.
+
+### Pattern Correct (Parallèle)
+
+```
+UN message avec 3 Tool calls:
+├── Task(backend-builder, "Create API...")    ─┐
+├── Task(frontend-builder, "Create UI...")     ├── Exécution SIMULTANÉE
+└── Task(qa-tester, "Write tests...")         ─┘
+```
+
+### Pattern Incorrect (Séquentiel)
+
+```
+Message 1: Task(backend-builder)  → Attend résultat
+Message 2: Task(frontend-builder) → Attend résultat
+Message 3: Task(qa-tester)        → Attend résultat
+                                    = 3x plus lent!
+```
+
+### Quand Paralléliser
+
+| Scénario | Agents à lancer | Parallèle? |
+|----------|-----------------|------------|
+| Nouvelle feature full-stack | Backend + Frontend | ✅ OUI |
+| Code review complet | Backend + Frontend + QA | ✅ OUI |
+| Bug fix backend puis tests | Backend → QA | ❌ NON (dépendance) |
+| Exploration codebase | 3x Explore agents | ✅ OUI |
+
+### Règles de Parallélisation
+
+1. **Indépendance**: Ne parallélise que les tâches SANS dépendances mutuelles
+2. **Single Message**: TOUS les Task tools dans UN seul message
+3. **Max Concurrent**: Limite à 3-5 agents simultanés (coût tokens)
+4. **Synthesis**: Attends TOUS les résultats avant de continuer
+
+### Template de Dispatch
+
+Quand tu identifies une opportunité de parallélisation:
+
+```
+"Je lance [N] agents en parallèle:
+
+Agent 1 - [Nom]: [Tâche spécifique]
+Agent 2 - [Nom]: [Tâche spécifique]
+Agent 3 - [Nom]: [Tâche spécifique]
+
+Ces tâches sont indépendantes car [raison].
+Je les lance TOUS dans ce message."
+```
+
+### Prompts pour Builders
+
+**Backend Builder:**
+```
+Tu es Backend-Builder, spécialiste Python/FastAPI.
+Lis .claude/agents/builders/backend-builder.md pour ton protocole complet.
+
+Tâche: [description]
+App: [synapse|nexus|cortex]
+Fichiers existants à considérer: [liste]
+
+Retourne ton résultat au format YAML spécifié dans ton protocole.
+```
+
+**Frontend Builder:**
+```
+Tu es Frontend-Builder, spécialiste React/TypeScript.
+Lis .claude/agents/builders/frontend-builder.md pour ton protocole complet.
+
+Tâche: [description]
+App: [synapse|nexus|cortex]
+API à consommer: [endpoint specs si disponible]
+
+Retourne ton résultat au format YAML spécifié dans ton protocole.
+```
+
+**QA Tester:**
+```
+Tu es QA-Tester, spécialiste tests et validation.
+Lis .claude/agents/builders/qa-tester.md pour ton protocole complet.
+
+Tâche: [write_tests|run_tests|coverage|lint|all]
+Target: [backend|frontend|both]
+Fichiers à tester: [liste]
+
+Retourne ton résultat au format YAML spécifié dans ton protocole.
+```
 
 ---
 
