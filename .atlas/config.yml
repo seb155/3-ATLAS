@@ -216,6 +216,62 @@ infrastructure:
   urls: ".dev/infra/url-registry.yml"
 
 # =============================================================================
+# TOKEN OPTIMIZATION
+# =============================================================================
+
+token_optimization:
+  # Compact workflow
+  compact:
+    threshold_percent: 50
+    auto_compact: false
+    preserve_on_compact:
+      - "Current task and TodoWrite progress"
+      - "File paths being modified"
+      - "Test results and errors"
+      - "Git branch and uncommitted changes"
+    discard_on_compact:
+      - "File contents already committed"
+      - "Exploration/search results"
+      - "Verbose tool outputs"
+
+  # Output limits per agent type
+  output_limits:
+    orchestrator:
+      model: "opus"
+      max_output_tokens: 16000
+      max_thinking_tokens: 8000
+    builders:
+      model: "sonnet"
+      max_output_tokens: 8000
+      max_thinking_tokens: 4096
+    validators:
+      model: "haiku"
+      max_output_tokens: 4000
+      max_thinking_tokens: 1024
+
+  # MCP server management
+  mcp:
+    auto_disable_unused: true
+    max_active_servers: 2
+    warn_at_tokens: 30000
+    profiles:
+      minimal:
+        servers: ["filesystem"]
+        description: "Minimum for file operations"
+      development:
+        servers: ["filesystem", "git"]
+        description: "Standard development"
+      full:
+        servers: ["filesystem", "git", "docker", "database"]
+        description: "Full infrastructure access"
+
+  # Context budget
+  budget:
+    max_per_session: 500000
+    warn_at_percent: 80
+    critical_at_percent: 95
+
+# =============================================================================
 # DEVELOPMENT
 # =============================================================================
 
