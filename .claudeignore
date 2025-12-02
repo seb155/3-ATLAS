@@ -1,0 +1,141 @@
+# ATLAS 2.0 - Token Optimization
+# Comprehensive exclusion patterns for minimal context loading
+# Based on claude-token-optimizer best practices
+
+# =============================================================================
+# ATLAS RUNTIME (High Priority - Never Load)
+# =============================================================================
+
+# Runtime directory (task queues, results, agent status)
+.atlas/runtime/
+.atlas/runtime/**
+
+# Session archives (load on-demand only)
+.atlas/sessions/archive/
+.atlas/sessions/archive/**
+
+# Temporary worktree directories
+/AXIOM-worktrees/
+../AXIOM-worktrees/
+
+# =============================================================================
+# BUILD ARTIFACTS & CACHES
+# =============================================================================
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node.js
+node_modules/
+**/node_modules/
+.npm/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# =============================================================================
+# FORGE SANDBOX
+# =============================================================================
+
+forge/sandbox/__pycache__/
+forge/sandbox/*.pyc
+forge/sandbox/.venv/
+
+# =============================================================================
+# LARGE GENERATED FILES
+# =============================================================================
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Documentation builds
+docs/_build/
+site/
+
+# =============================================================================
+# IDE & EDITOR
+# =============================================================================
+
+.idea/
+.vscode/
+*.sublime-*
+*.code-workspace
+
+# =============================================================================
+# VERSION CONTROL
+# =============================================================================
+
+.git/
+.svn/
+.hg/
+
+# =============================================================================
+# ENVIRONMENT & SECRETS (Never index)
+# =============================================================================
+
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# =============================================================================
+# DOCKER
+# =============================================================================
+
+# Don't index large compose outputs
+docker-compose.override.yml
+
+# =============================================================================
+# DATA FILES (Load on-demand)
+# =============================================================================
+
+*.csv
+*.xlsx
+*.xls
+*.sqlite
+*.db
+*.sql
+
+# =============================================================================
+# MEDIA (Never relevant for code context)
+# =============================================================================
+
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.mp4
+*.mp3
+*.wav
+*.pdf

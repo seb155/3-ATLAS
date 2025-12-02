@@ -1,0 +1,112 @@
+# ATLAS 2.0 - Sandbox Pool Configuration
+#
+# Central configuration for agent sandbox management
+#
+
+version: "1.0"
+
+# Pool settings
+pool:
+  # Minimum sandboxes always ready (pre-warmed)
+  min_warm: 2
+
+  # Maximum concurrent sandboxes
+  max_size: 5
+
+  # Seconds before idle sandbox is recycled
+  idle_timeout: 300
+
+  # Seconds before force-killing stuck sandbox
+  execution_timeout: 600
+
+  # Health check interval (seconds)
+  health_check_interval: 30
+
+# Individual sandbox settings
+sandbox:
+  # Docker image to use
+  image: "axiom-agent-sandbox:latest"
+
+  # Resource limits
+  resources:
+    cpu: "1.0"
+    memory: "1Gi"
+
+  # Workspace mount
+  workspace:
+    host_path: "${AXIOM_ROOT}"
+    container_path: "/workspace"
+    read_only: false
+
+  # Network configuration
+  network:
+    mode: "bridge"
+    name: "forge_default"
+    allow_internet: true
+
+  # Security settings
+  security:
+    privileged: false
+    read_only_rootfs: false
+    no_new_privileges: true
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - CHOWN
+        - SETUID
+        - SETGID
+
+# Agent-specific configurations
+agents:
+  backend-builder:
+    pool: "backend"
+    model: "sonnet"
+    warm_count: 1
+    env:
+      - "PYTHONPATH=/workspace/apps/synapse/backend"
+
+  frontend-builder:
+    pool: "frontend"
+    model: "sonnet"
+    warm_count: 1
+    env:
+      - "NODE_PATH=/workspace/apps/synapse/frontend/node_modules"
+
+  qa-tester:
+    pool: "qa"
+    model: "haiku"
+    warm_count: 1
+    env:
+      - "PYTEST_CURRENT_TEST=true"
+
+# Cleanup policies
+cleanup:
+  # Remove completed sandbox after N seconds
+  completed_retention: 60
+
+  # Remove failed sandbox after N seconds
+  failed_retention: 300
+
+  # Prune unused images weekly
+  image_prune_schedule: "0 0 * * 0"
+
+# Logging
+logging:
+  # Log level: debug, info, warning, error
+  level: "info"
+
+  # Log file location
+  file: "${AXIOM_ROOT}/.atlas/runtime/sandbox.log"
+
+  # Max log file size (MB)
+  max_size: 10
+
+  # Number of backup files
+  backup_count: 3
+
+# Metrics (optional)
+metrics:
+  enabled: false
+  prometheus_port: 9090
+  collect_interval: 15
