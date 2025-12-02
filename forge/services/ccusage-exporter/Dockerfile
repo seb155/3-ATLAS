@@ -5,15 +5,17 @@ LABEL description="Claude Code Usage Exporter for Prometheus"
 
 WORKDIR /app
 
-# Copy application
-COPY exporter.py .
-COPY requirements.txt .
+# Create non-root user first
+RUN useradd -m -u 1000 exporter
+
+# Copy application and set ownership
+COPY --chown=exporter:exporter exporter.py .
+COPY --chown=exporter:exporter requirements.txt .
 
 # Install dependencies (none currently, but future-proofing)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create non-root user
-RUN useradd -m -u 1000 exporter
+# Switch to non-root user
 USER exporter
 
 # Expose metrics port

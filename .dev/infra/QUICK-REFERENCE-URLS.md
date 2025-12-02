@@ -32,6 +32,7 @@
 |---------|-----|------|-------------|
 | **Traefik Dashboard** | https://traefik.axoiq.com | 8888 | - |
 | **Grafana** | https://grafana.axoiq.com | 3000 | admin / admin |
+| **Prometheus** | https://prometheus.axoiq.com | 3090 | - |
 | **pgAdmin** | https://pgadmin.axoiq.com | 5050 | admin@axoiq.com / admin |
 | **Prisma Studio** | https://prisma.axoiq.com | 5555 | - |
 | **Loki** | https://loki.axoiq.com | 3100 | API only |
@@ -39,6 +40,8 @@
 | **MeiliSearch** | - | 7700 | API only (no UI) |
 | **PostgreSQL** | - | 5433 | Internal only |
 | **Redis** | - | 6379 | Internal only |
+| **OTEL Collector** | - | 3200/3201 | Internal only (gRPC/HTTP) |
+| **ccusage-exporter** | - | 3202 | Internal only |
 
 ---
 
@@ -82,6 +85,9 @@
 # FORGE (always first!)
 cd D:\Projects\AXIOM\forge
 docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+
+# FORGE Observability (Claude Code Stats) - Optional
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
 
 # SYNAPSE
 cd D:\Projects\AXIOM\apps\synapse

@@ -30,14 +30,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Pricing per 1M tokens (as of December 2024)
+# Pricing per 1M tokens (December 2025)
+# Source: https://platform.claude.com/docs/en/about-claude/pricing
 PRICING = {
-    # Opus 4.5
+    # Opus 4.5 - NEW PRICE (67% reduction!)
     "claude-opus-4-5-20251101": {
-        "input": 15.00,
-        "output": 75.00,
-        "cache_read": 1.50,
-        "cache_creation": 18.75
+        "input": 5.00,        # Was $15
+        "output": 25.00,      # Was $75
+        "cache_read": 0.50,   # 0.1x input
+        "cache_creation": 6.25  # 1.25x input
     },
     # Sonnet 4.5
     "claude-sonnet-4-5-20250514": {
@@ -53,7 +54,14 @@ PRICING = {
         "cache_read": 0.30,
         "cache_creation": 3.75
     },
-    # Haiku 3.5
+    # Haiku 4.5 (new)
+    "claude-haiku-4-5-20251001": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_read": 0.10,
+        "cache_creation": 1.25
+    },
+    # Haiku 3.5 (legacy)
     "claude-3-5-haiku-20241022": {
         "input": 0.80,
         "output": 4.00,
@@ -67,7 +75,7 @@ PRICING = {
         "cache_read": 0.03,
         "cache_creation": 0.30
     },
-    # Default fallback
+    # Default fallback (Sonnet pricing)
     "default": {
         "input": 3.00,
         "output": 15.00,
@@ -76,11 +84,14 @@ PRICING = {
     }
 }
 
+# Monthly budget for Max plan (configurable via env)
+MONTHLY_BUDGET = float(os.environ.get('CLAUDE_MONTHLY_BUDGET', '300'))
+
 # Model name normalization
 MODEL_ALIASES = {
     "opus": "claude-opus-4-5-20251101",
     "sonnet": "claude-sonnet-4-5-20250514",
-    "haiku": "claude-3-5-haiku-20241022",
+    "haiku": "claude-haiku-4-5-20251001",  # Updated to Haiku 4.5
 }
 
 
@@ -136,18 +147,25 @@ class MetricsCollector:
             logger.error(f"Error reading {filepath}: {e}")
         return entries
 
-    def extract_project_name(self, filepath: Path) -> str:
-        """Extract project name from file path."""
-        # Path structure: ~/.claude/projects/<project-hash>/conversations/<file>.jsonl
-        parts = filepath.parts
-        try:
-            projects_idx = parts.index('projects')
-            if projects_idx + 1 < len(parts):
-                project_hash = parts[projects_idx + 1]
-                # Try to find a readable name from the path
-                return project_hash[:12]  # Truncate hash for readability
-        except (ValueError, IndexError):
-            pass
+    def extract_project_name(self, entry: dict, filepath: Path) -> str:
+        """Extract project name from cwd field (last folder) or filepath."""
+        # Try cwd field first (best source)
+        cwd = entry.get('cwd', '')
+        if cwd:
+            # /home/seb/projects/AXIOM/apps/synapse -> synapse
+            # /home/seb/projects/AXIOM -> AXIOM
+            parts = cwd.rstrip('/').split('/')
+            if parts:
+                return parts[-1]
+
+        # Fallback: decode folder name from filepath
+        # Folder name format: -home-seb-projects-AXIOM
+        folder_name = filepath.parent.name
+        if folder_name.startswith('-'):
+            parts = folder_name.split('-')
+            if parts:
+                return parts[-1]
+
         return "unknown"
 
     def scan_all_projects(self) -> dict:
@@ -155,10 +173,18 @@ class MetricsCollector:
         metrics = {
             'tokens': defaultdict(lambda: defaultdict(int)),  # {project: {model_type: count}}
             'cost': defaultdict(lambda: defaultdict(float)),  # {project: {model: cost}}
+            'cost_monthly': defaultdict(lambda: defaultdict(float)),  # {project: {model: cost}} current month only
             'sessions': defaultdict(int),  # {project: count}
             'messages': defaultdict(lambda: defaultdict(int)),  # {project: {role: count}}
+            'tools': defaultdict(lambda: defaultdict(int)),  # {project: {tool: count}}
+            'responses': defaultdict(lambda: defaultdict(int)),  # {project: {status: count}}
             'last_activity': defaultdict(float),  # {project: timestamp}
         }
+
+        # Calculate current month start for budget tracking
+        now = datetime.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        month_start_ts = month_start.timestamp()
 
         if not self.projects_dir.exists():
             logger.warning(f"Projects directory not found: {self.projects_dir}")
@@ -169,41 +195,68 @@ class MetricsCollector:
         logger.info(f"Found {len(jsonl_files)} JSONL files")
 
         for filepath in jsonl_files:
-            project = self.extract_project_name(filepath)
             entries = self.parse_jsonl_file(filepath)
 
             session_ids = set()
+            project_cache = {}  # Cache project names per session
 
             for entry in entries:
-                # Track sessions
+                # Extract project name from cwd (cached per session for efficiency)
                 session_id = entry.get('sessionId') or entry.get('session_id')
                 if session_id:
                     session_ids.add(session_id)
+                    if session_id not in project_cache:
+                        project_cache[session_id] = self.extract_project_name(entry, filepath)
+                    project = project_cache[session_id]
+                else:
+                    project = self.extract_project_name(entry, filepath)
 
-                # Track messages
-                role = entry.get('role', 'unknown')
+                # Get message object (Claude Code structure)
+                message = entry.get('message', {})
+
+                # Track messages by role (from message object or entry type)
+                role = message.get('role') or entry.get('type', 'unknown')
                 metrics['messages'][project][role] += 1
 
                 # Track timestamp
                 timestamp = entry.get('timestamp') or entry.get('created_at')
+                entry_ts = None
                 if timestamp:
                     try:
                         if isinstance(timestamp, str):
                             dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                            ts = dt.timestamp()
+                            entry_ts = dt.timestamp()
                         else:
-                            ts = float(timestamp)
+                            entry_ts = float(timestamp)
                         metrics['last_activity'][project] = max(
-                            metrics['last_activity'][project], ts
+                            metrics['last_activity'][project], entry_ts
                         )
                     except (ValueError, TypeError):
                         pass
 
-                # Track tokens and cost from usage data
-                usage = entry.get('usage', {})
-                model = entry.get('model', 'unknown')
+                # Track stop_reason for success/error rate
+                stop_reason = message.get('stop_reason')
+                if stop_reason:  # Ignore null (streaming in progress)
+                    if stop_reason in ['end_turn', 'tool_use']:
+                        metrics['responses'][project]['success'] += 1
+                    elif stop_reason == 'max_tokens':
+                        metrics['responses'][project]['truncated'] += 1
+                    else:
+                        metrics['responses'][project]['error'] += 1
+
+                # Extract usage from message object (correct structure)
+                usage = message.get('usage', {})
+                model = message.get('model', 'unknown')
+
+                # Skip if no usage data
+                if not usage:
+                    continue
+
                 model_normalized = self.normalize_model_name(model)
                 pricing = self.get_pricing(model)
+
+                # Track if this entry is in current month (for budget)
+                is_current_month = entry_ts and entry_ts >= month_start_ts
 
                 # Input tokens
                 input_tokens = usage.get('input_tokens', 0)
@@ -211,6 +264,8 @@ class MetricsCollector:
                     metrics['tokens'][project][f"{model_normalized}_input"] += input_tokens
                     cost = (input_tokens / 1_000_000) * pricing['input']
                     metrics['cost'][project][model_normalized] += cost
+                    if is_current_month:
+                        metrics['cost_monthly'][project][model_normalized] += cost
 
                 # Output tokens
                 output_tokens = usage.get('output_tokens', 0)
@@ -218,6 +273,8 @@ class MetricsCollector:
                     metrics['tokens'][project][f"{model_normalized}_output"] += output_tokens
                     cost = (output_tokens / 1_000_000) * pricing['output']
                     metrics['cost'][project][model_normalized] += cost
+                    if is_current_month:
+                        metrics['cost_monthly'][project][model_normalized] += cost
 
                 # Cache read tokens
                 cache_read = usage.get('cache_read_input_tokens', 0)
@@ -225,6 +282,8 @@ class MetricsCollector:
                     metrics['tokens'][project][f"{model_normalized}_cache_read"] += cache_read
                     cost = (cache_read / 1_000_000) * pricing['cache_read']
                     metrics['cost'][project][model_normalized] += cost
+                    if is_current_month:
+                        metrics['cost_monthly'][project][model_normalized] += cost
 
                 # Cache creation tokens
                 cache_creation = usage.get('cache_creation_input_tokens', 0)
@@ -232,8 +291,20 @@ class MetricsCollector:
                     metrics['tokens'][project][f"{model_normalized}_cache_creation"] += cache_creation
                     cost = (cache_creation / 1_000_000) * pricing['cache_creation']
                     metrics['cost'][project][model_normalized] += cost
+                    if is_current_month:
+                        metrics['cost_monthly'][project][model_normalized] += cost
 
-            metrics['sessions'][project] += len(session_ids)
+                # Track tool usage from message content
+                content = message.get('content', [])
+                if isinstance(content, list):
+                    for item in content:
+                        if isinstance(item, dict) and item.get('type') == 'tool_use':
+                            tool_name = item.get('name', 'unknown')
+                            metrics['tools'][project][tool_name] += 1
+
+            # Add session count for all projects found in this file
+            for proj in set(project_cache.values()):
+                metrics['sessions'][proj] += len([sid for sid, p in project_cache.items() if p == proj])
 
         self.metrics = metrics
         self.last_scan = time.time()
@@ -247,8 +318,11 @@ class MetricsCollector:
         lines.append("# HELP claude_code_tokens_total Total tokens used by Claude Code")
         lines.append("# TYPE claude_code_tokens_total counter")
 
-        lines.append("# HELP claude_code_cost_usd Total cost in USD")
+        lines.append("# HELP claude_code_cost_usd Total cost in USD (all time)")
         lines.append("# TYPE claude_code_cost_usd counter")
+
+        lines.append("# HELP claude_code_cost_monthly_usd Cost in USD for current month")
+        lines.append("# TYPE claude_code_cost_monthly_usd gauge")
 
         lines.append("# HELP claude_code_sessions_total Total number of sessions")
         lines.append("# TYPE claude_code_sessions_total counter")
@@ -256,8 +330,26 @@ class MetricsCollector:
         lines.append("# HELP claude_code_messages_total Total messages by role")
         lines.append("# TYPE claude_code_messages_total counter")
 
+        lines.append("# HELP claude_code_responses_total Total responses by status (success/truncated/error)")
+        lines.append("# TYPE claude_code_responses_total counter")
+
         lines.append("# HELP claude_code_last_activity_timestamp Last activity timestamp")
         lines.append("# TYPE claude_code_last_activity_timestamp gauge")
+
+        lines.append("# HELP claude_code_tools_total Total tool calls by tool name")
+        lines.append("# TYPE claude_code_tools_total counter")
+
+        lines.append("# HELP claude_code_budget_monthly_usd Monthly budget for Max plan")
+        lines.append("# TYPE claude_code_budget_monthly_usd gauge")
+
+        lines.append("# HELP claude_code_budget_used_usd Amount used from monthly budget")
+        lines.append("# TYPE claude_code_budget_used_usd gauge")
+
+        lines.append("# HELP claude_code_budget_remaining_usd Remaining monthly budget")
+        lines.append("# TYPE claude_code_budget_remaining_usd gauge")
+
+        lines.append("# HELP claude_code_budget_used_percent Percentage of monthly budget used")
+        lines.append("# TYPE claude_code_budget_used_percent gauge")
 
         lines.append("# HELP claude_code_exporter_last_scan_timestamp Last successful scan")
         lines.append("# TYPE claude_code_exporter_last_scan_timestamp gauge")
@@ -300,6 +392,40 @@ class MetricsCollector:
             lines.append(
                 f'claude_code_last_activity_timestamp{{project="{project}"}} {timestamp}'
             )
+
+        # Tool usage metrics
+        for project, tool_data in self.metrics.get('tools', {}).items():
+            for tool, count in tool_data.items():
+                lines.append(
+                    f'claude_code_tools_total{{tool="{tool}",project="{project}"}} {count}'
+                )
+
+        # Response status metrics (success/truncated/error)
+        for project, response_data in self.metrics.get('responses', {}).items():
+            for status, count in response_data.items():
+                lines.append(
+                    f'claude_code_responses_total{{status="{status}",project="{project}"}} {count}'
+                )
+
+        # Monthly cost metrics
+        for project, cost_data in self.metrics.get('cost_monthly', {}).items():
+            for model, cost in cost_data.items():
+                lines.append(
+                    f'claude_code_cost_monthly_usd{{model="{model}",project="{project}"}} {cost:.6f}'
+                )
+
+        # Budget metrics (aggregate)
+        total_monthly_cost = sum(
+            cost for project_costs in self.metrics.get('cost_monthly', {}).values()
+            for cost in project_costs.values()
+        )
+        budget_remaining = max(0, MONTHLY_BUDGET - total_monthly_cost)
+        budget_percent = min(100, (total_monthly_cost / MONTHLY_BUDGET) * 100) if MONTHLY_BUDGET > 0 else 0
+
+        lines.append(f'claude_code_budget_monthly_usd {MONTHLY_BUDGET:.2f}')
+        lines.append(f'claude_code_budget_used_usd {total_monthly_cost:.6f}')
+        lines.append(f'claude_code_budget_remaining_usd {budget_remaining:.6f}')
+        lines.append(f'claude_code_budget_used_percent {budget_percent:.2f}')
 
         # Exporter metadata
         if self.last_scan:
@@ -354,6 +480,7 @@ def main():
     logger.info(f"  Projects directory: {projects_dir}")
     logger.info(f"  Metrics port: {port}")
     logger.info(f"  Scrape interval: {scrape_interval}s")
+    logger.info(f"  Monthly budget: ${MONTHLY_BUDGET:.2f}")
 
     # Initialize collector
     collector = MetricsCollector(projects_dir)

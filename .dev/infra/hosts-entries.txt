@@ -34,6 +34,7 @@
 127.0.0.1 loki.axoiq.com
 127.0.0.1 wiki.axoiq.com
 127.0.0.1 portainer.axoiq.com
+127.0.0.1 prometheus.axoiq.com
 
 # ------------------------------------------
 # Testing & QA
@@ -61,6 +62,7 @@
 127.0.0.1 api-nexus.localhost
 127.0.0.1 grafana.localhost
 127.0.0.1 traefik.localhost
+127.0.0.1 prometheus.localhost
 
 # ============================================
 # END OF HOSTS ENTRIES

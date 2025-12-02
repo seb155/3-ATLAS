@@ -48,13 +48,6 @@ exporters:
   # Loki for logs/events
   loki:
     endpoint: "http://loki:3100/loki/api/v1/push"
-    labels:
-      attributes:
-        session.id: "session_id"
-        model: "model"
-        organization.id: "org_id"
-      resource:
-        service.name: "service_name"
 
   # Debug logging (development only)
   debug:

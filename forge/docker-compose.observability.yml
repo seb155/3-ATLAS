@@ -11,6 +11,7 @@ services:
   prometheus:
     image: prom/prometheus:v2.54.1
     container_name: forge-prometheus
+    user: root
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -34,8 +35,9 @@ services:
 
   # OpenTelemetry Collector - Receives telemetry from Claude Code
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.115.0
+    image: otel/opentelemetry-collector-contrib:0.96.0
     container_name: forge-otel-collector
+    user: "0:0"
     command: ["--config=/etc/otel/collector-config.yaml"]
     volumes:
       - ./config/otel/collector-config.yaml:/etc/otel/collector-config.yaml:ro
@@ -66,6 +68,7 @@ services:
       - CLAUDE_PROJECTS_DIR=/data/claude-projects
       - SCRAPE_INTERVAL=60
       - METRICS_PORT=9091
+      - CLAUDE_MONTHLY_BUDGET=300  # Max plan budget
     ports:
       - "3202:9091"
     networks:

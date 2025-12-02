@@ -113,6 +113,40 @@ http:
       tls: {}  # Use local mkcert certificate
 
     # ========================================================================
+    # OBSERVABILITY ROUTES (axoiq.com) - Claude Code Statistics
+    # ========================================================================
+
+    # Prometheus
+    prometheus-prod:
+      rule: "Host(`prometheus.axoiq.com`)"
+      service: prometheus
+      entryPoints:
+        - websecure
+      tls: {}
+
+    # ========================================================================
+    # CODE-SERVER ROUTES (VS Code WebUI)
+    # ========================================================================
+
+    # code-server - Main instance (seb)
+    code-seb-prod:
+      rule: "Host(`code.axoiq.com`)"
+      service: code-seb
+      entryPoints:
+        - websecure
+      tls: {}
+      middlewares:
+        - security-headers
+        - rate-limit
+
+    code-seb-dev:
+      rule: "Host(`code.localhost`)"
+      service: code-seb
+      entryPoints:
+        - web
+      priority: 1
+
+    # ========================================================================
     # PERSONAL PROJECTS ROUTES (axoiq.com) - HTTPS
     # ========================================================================
 
@@ -191,6 +225,13 @@ http:
         - web
       priority: 1
 
+    # Observability - Dev routes
+    prometheus-dev:
+      rule: "Host(`prometheus.localhost`)"
+      service: prometheus
+      entryPoints:
+        - web
+      priority: 1
 
   services:
     homepage:
@@ -263,4 +304,38 @@ http:
       loadBalancer:
         servers:
           - url: "http://findash-app:5173"
+
+    # code-server (VS Code WebUI)
+    code-seb:
+      loadBalancer:
+        servers:
+          - url: "http://forge-code-seb:8443"
+
+    # Observability Services (Claude Code Statistics)
+    prometheus:
+      loadBalancer:
+        servers:
+          - url: "http://forge-prometheus:9090"
+
+  # ==========================================================================
+  # MIDDLEWARES
+  # ==========================================================================
+  middlewares:
+    # Security headers for all services
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsPreload: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        customFrameOptionsValue: "SAMEORIGIN"
+
+    # Rate limiting to prevent abuse
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
 

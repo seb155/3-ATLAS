@@ -104,6 +104,48 @@ port_registry:
       description: "Loki - Log aggregation"
       networks: ["forge-network"]
 
+    # Claude Code Observability Stack
+    3090:
+      service: "forge-prometheus"
+      app: "forge"
+      type: "metrics"
+      internal_port: 9090
+      protocol: "http"
+      description: "Prometheus - Time-series metrics storage"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.observability.yml"
+      traefik_domain: "prometheus.axoiq.com"
+
+    3200:
+      service: "forge-otel-collector"
+      app: "forge"
+      type: "telemetry"
+      internal_port: 4317
+      protocol: "grpc"
+      description: "OpenTelemetry Collector - OTLP gRPC endpoint"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.observability.yml"
+
+    3201:
+      service: "forge-otel-collector"
+      app: "forge"
+      type: "telemetry"
+      internal_port: 4318
+      protocol: "http"
+      description: "OpenTelemetry Collector - OTLP HTTP endpoint"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.observability.yml"
+
+    3202:
+      service: "forge-ccusage-exporter"
+      app: "forge"
+      type: "metrics"
+      internal_port: 9091
+      protocol: "http"
+      description: "ccusage-exporter - Claude Code JSONL metrics exporter"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.observability.yml"
+
     5050:
       service: "forge-pgadmin"
       app: "forge"
@@ -298,8 +340,43 @@ port_registry:
       networks: ["forge-network"]
       traefik_domain: "findash.axoiq.com"
 
+    # ========================================================================
+    # CODE-SERVER (VS Code WebUI) - Range FORGE 3000-3999
+    # ========================================================================
+    3050:
+      service: "forge-code-seb"
+      app: "forge"
+      type: "web"
+      internal_port: 8443
+      protocol: "https"
+      description: "code-server - seb (Sysbox DinD, VS Code WebUI)"
+      networks: ["forge-network"]
+      traefik_domain: "code.axoiq.com"
+      compose_file: "forge/docker-compose.code-server.yml"
+
+    3051:
+      service: "forge-code-user1"
+      app: "forge"
+      type: "web"
+      internal_port: 8443
+      reserved: true
+      description: "code-server - user1 (réservé)"
+      networks: ["forge-network"]
+      traefik_domain: "code-user1.axoiq.com"
+
+    3052:
+      service: "forge-code-user2"
+      app: "forge"
+      type: "web"
+      internal_port: 8443
+      reserved: true
+      description: "code-server - user2 (réservé)"
+      networks: ["forge-network"]
+      traefik_domain: "code-user2.axoiq.com"
+
   # Available ports for future allocation
   available:
+    forge: "3053-3089 (code-server: 3050-3052 allocated)"
     synapse: "4002-4999"
     nexus: "5174-5999"
     apex: "6402-6999 (personal projects: 6100-6401 allocated)"
@@ -439,6 +516,34 @@ services:
       volumes: ["./docs"]
       dependencies: []
       compose_file: "forge/docker-compose.yml"
+
+    # Claude Code Observability Stack
+    - name: "forge-prometheus"
+      image: "prom/prometheus:v2.54.1"
+      ports: [3090]
+      networks: ["forge-network"]
+      volumes: ["prometheus-data", "./config/prometheus"]
+      health_check: "wget --spider http://localhost:9090/-/healthy"
+      dependencies: []
+      compose_file: "forge/docker-compose.observability.yml"
+
+    - name: "forge-otel-collector"
+      image: "otel/opentelemetry-collector-contrib:0.115.0"
+      ports: [3200, 3201]
+      networks: ["forge-network"]
+      volumes: ["./config/otel/collector-config.yaml"]
+      health_check: "wget --spider http://localhost:13133/"
+      dependencies: ["forge-prometheus", "forge-loki"]
+      compose_file: "forge/docker-compose.observability.yml"
+
+    - name: "forge-ccusage-exporter"
+      image: "forge-ccusage-exporter:latest"
+      ports: [3202]
+      networks: ["forge-network"]
+      volumes: ["~/.claude/projects"]
+      health_check: "wget --spider http://localhost:9091/health"
+      dependencies: []
+      compose_file: "forge/docker-compose.observability.yml"
 
     - name: "forge-traefik"
       image: "traefik:v3.6.2"
@@ -722,6 +827,11 @@ compose_files:
       description: "Traefik reverse proxy (overlay file)"
       services: 1
       usage: "docker-compose -f docker-compose.yml -f docker-compose.traefik.yml up -d"
+
+    - path: "forge/docker-compose.observability.yml"
+      description: "Claude Code Observability Stack (Prometheus, OTEL Collector, ccusage-exporter)"
+      services: 3
+      usage: "docker-compose -f docker-compose.yml -f docker-compose.observability.yml up -d"
 
   synapse:
     - path: "apps/synapse/docker-compose.dev.yml"

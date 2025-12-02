@@ -1,0 +1,141 @@
+# =============================================================================
+# code-server - VS Code in Browser (Multi-User avec Sysbox)
+# =============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.code-server.yml up -d
+#
+# Prerequisites:
+#   1. Sysbox installed on WSL2 (for secure Docker-in-Docker)
+#   2. Pi-hole DNS: code.axoiq.com -> WSL2 IP
+#   3. Traefik running with forge-network
+#
+# Documentation: .dev/context/code-server-setup.md
+# =============================================================================
+
+x-code-server-base: &code-server-base
+  image: lscr.io/linuxserver/code-server:latest
+  # Sysbox runtime for secure Docker-in-Docker (no privileged mode needed)
+  # Uncomment runtime below when Sysbox is installed, remove privileged: true
+  # runtime: sysbox-runc
+  privileged: true  # Fallback when Sysbox not available
+  environment:
+    - TZ=America/New_York
+    - DOCKER_MODS=linuxserver/mods:universal-docker
+  networks:
+    - forge-network
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8443/healthz"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 30s
+
+services:
+  # =========================================================================
+  # Primary Instance (seb) - Full access to all projects
+  # =========================================================================
+  code-seb:
+    <<: *code-server-base
+    container_name: forge-code-seb
+    hostname: code-seb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - PASSWORD=${CODE_SERVER_PASSWORD_SEB:-changeme}
+      - SUDO_PASSWORD=${CODE_SERVER_PASSWORD_SEB:-changeme}
+      - PROXY_DOMAIN=code.axoiq.com
+      - DEFAULT_WORKSPACE=/workspace
+      - DOCKER_MODS=linuxserver/mods:universal-docker
+    volumes:
+      # Workspace - full access to all projects
+      - /home/seb/projects:/workspace
+      # Config persistence (extensions, settings, etc.)
+      - code-seb-config:/config
+      # Git/SSH integration (read-only for security)
+      - /home/seb/.ssh:/config/.ssh:ro
+      - /home/seb/.gitconfig:/config/.gitconfig:ro
+      # ATLAS framework access
+      - /home/seb/projects/.claude:/workspace/.claude:ro
+    ports:
+      - "3050:8443"
+    labels:
+      # Traefik routing
+      - "traefik.enable=true"
+      # Production route (HTTPS)
+      - "traefik.http.routers.code-seb.rule=Host(`code.axoiq.com`)"
+      - "traefik.http.routers.code-seb.entrypoints=websecure"
+      - "traefik.http.routers.code-seb.tls=true"
+      - "traefik.http.routers.code-seb.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.code-seb.loadbalancer.server.port=8443"
+      # Development route (HTTP)
+      - "traefik.http.routers.code-seb-dev.rule=Host(`code.localhost`)"
+      - "traefik.http.routers.code-seb-dev.entrypoints=web"
+      - "traefik.http.routers.code-seb-dev.priority=1"
+
+  # =========================================================================
+  # Additional Users (uncomment and configure as needed)
+  # Each user gets isolated container with their own workspace
+  # =========================================================================
+
+  # code-user1:
+  #   <<: *code-server-base
+  #   container_name: forge-code-user1
+  #   hostname: code-user1
+  #   environment:
+  #     - PUID=1001
+  #     - PGID=1001
+  #     - TZ=America/New_York
+  #     - PASSWORD=${CODE_SERVER_PASSWORD_USER1:-changeme}
+  #     - SUDO_PASSWORD=${CODE_SERVER_PASSWORD_USER1:-changeme}
+  #     - PROXY_DOMAIN=code-user1.axoiq.com
+  #     - DEFAULT_WORKSPACE=/workspace
+  #     - DOCKER_MODS=linuxserver/mods:universal-docker
+  #   volumes:
+  #     - /home/user1/projects:/workspace
+  #     - code-user1-config:/config
+  #   ports:
+  #     - "3051:8443"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.code-user1.rule=Host(`code-user1.axoiq.com`)"
+  #     - "traefik.http.routers.code-user1.entrypoints=websecure"
+  #     - "traefik.http.routers.code-user1.tls=true"
+  #     - "traefik.http.services.code-user1.loadbalancer.server.port=8443"
+
+  # code-user2:
+  #   <<: *code-server-base
+  #   container_name: forge-code-user2
+  #   hostname: code-user2
+  #   environment:
+  #     - PUID=1002
+  #     - PGID=1002
+  #     - TZ=America/New_York
+  #     - PASSWORD=${CODE_SERVER_PASSWORD_USER2:-changeme}
+  #     - SUDO_PASSWORD=${CODE_SERVER_PASSWORD_USER2:-changeme}
+  #     - PROXY_DOMAIN=code-user2.axoiq.com
+  #     - DEFAULT_WORKSPACE=/workspace
+  #     - DOCKER_MODS=linuxserver/mods:universal-docker
+  #   volumes:
+  #     - /home/user2/projects:/workspace
+  #     - code-user2-config:/config
+  #   ports:
+  #     - "3052:8443"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.code-user2.rule=Host(`code-user2.axoiq.com`)"
+  #     - "traefik.http.routers.code-user2.entrypoints=websecure"
+  #     - "traefik.http.routers.code-user2.tls=true"
+  #     - "traefik.http.services.code-user2.loadbalancer.server.port=8443"
+
+volumes:
+  code-seb-config:
+    name: forge-code-seb-config
+  # code-user1-config:
+  #   name: forge-code-user1-config
+  # code-user2-config:
+  #   name: forge-code-user2-config
+
+networks:
+  forge-network:
+    external: true
