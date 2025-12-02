@@ -399,6 +399,87 @@ Voir `.atlas/runtime/schemas/` pour les définitions JSON Schema:
 
 ---
 
+## Document & Clear Pattern (ATLAS 2.0)
+
+Workflow optimisé pour la gestion du contexte et la récupération entre sessions.
+
+### Principe
+
+```
+Session Active → /0-compact → État sauvegardé → /0-resume → Session restaurée
+```
+
+### Structure Sessions
+
+```
+.atlas/sessions/
+├── current.md             # Session active (auto-updated)
+├── compact-{timestamp}.md # Snapshots avant compact
+├── archive/               # Sessions terminées
+└── templates/             # Templates de fichiers
+```
+
+### Workflow Standard
+
+**Pendant la session:**
+```
+1. /0-new-session ou /0-next → Démarre/continue
+2. Travail en cours → current.md mis à jour
+3. /0-tokens → Vérifier utilisation contexte
+4. Si >50% → /0-compact
+```
+
+**Fin de session:**
+```
+1. /0-compact → Sauvegarde état
+2. Fermer → Contexte préservé dans compact-{ts}.md
+```
+
+**Reprise:**
+```
+# Même conversation après /compact
+/0-resume
+
+# Nouvelle conversation
+@CLAUDE.md @.atlas/sessions/compact-{latest}.md
+Continue
+```
+
+### Commandes
+
+| Commande | Action | Quand |
+|----------|--------|-------|
+| `/0-compact` | Sauvegarde + compress | Contexte >50% |
+| `/0-resume` | Restaure état | Après compact |
+| `/0-tokens` | Affiche usage | Régulièrement |
+
+### Ce qui est Préservé
+
+- TodoWrite state (tâches pending/in_progress)
+- Fichiers en cours de modification
+- Branche git + uncommitted changes
+- Erreurs/résultats de tests récents
+- App/répertoire de focus
+
+### Ce qui est Supprimé
+
+- Contenu de fichiers déjà commités
+- Résultats d'exploration/recherche
+- Outputs verbeux des outils
+- Historique de conversation redondant
+
+### Configuration
+
+Voir `.atlas/config.yml` section `token_optimization.compact`:
+```yaml
+token_optimization:
+  compact:
+    threshold_percent: 50
+    auto_compact: false
+```
+
+---
+
 ## Règles Critiques
 
 1. **Documents protégés** - JAMAIS modifier sans validation (règle 20)
