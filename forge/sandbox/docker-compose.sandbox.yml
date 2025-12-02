@@ -1,0 +1,112 @@
+# ATLAS 2.0 - Sandbox Pool Docker Compose
+#
+# Provides pre-warmed containers for parallel agent execution
+#
+# Usage:
+#   docker compose -f docker-compose.sandbox.yml up -d
+#   docker compose -f docker-compose.sandbox.yml up -d --scale sandbox=3
+#
+
+version: "3.8"
+
+services:
+  # Base sandbox service - can be scaled
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    image: axiom-agent-sandbox:latest
+
+    # Resource limits per container
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+    # Mount workspace (read-write for agent work)
+    volumes:
+      - type: bind
+        source: ${AXIOM_ROOT:-../..}
+        target: /workspace
+        read_only: false
+      # Shared cache for pip/npm
+      - sandbox-pip-cache:/home/agent/.cache/pip
+      - sandbox-npm-cache:/home/agent/.npm
+
+    # Environment
+    environment:
+      - AGENT_NAME=${AGENT_NAME:-sandbox}
+      - CONTAINER_START_TIME=${CONTAINER_START_TIME:-}
+      - PYTHONPATH=/workspace
+      - NODE_PATH=/workspace/node_modules
+
+    # Network
+    networks:
+      - forge-network
+
+    # Labels for identification
+    labels:
+      - "atlas.sandbox=true"
+      - "atlas.pool=default"
+      - "atlas.version=2.0"
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Security
+    security_opt:
+      - no-new-privileges:true
+
+    # Don't allocate TTY (background container)
+    tty: false
+    stdin_open: false
+
+  # Pre-warmed backend builder sandbox
+  sandbox-backend:
+    extends:
+      service: sandbox
+    environment:
+      - AGENT_NAME=backend-builder
+    labels:
+      - "atlas.sandbox=true"
+      - "atlas.pool=backend"
+      - "atlas.agent=backend-builder"
+
+  # Pre-warmed frontend builder sandbox
+  sandbox-frontend:
+    extends:
+      service: sandbox
+    environment:
+      - AGENT_NAME=frontend-builder
+    labels:
+      - "atlas.sandbox=true"
+      - "atlas.pool=frontend"
+      - "atlas.agent=frontend-builder"
+
+  # Pre-warmed QA tester sandbox
+  sandbox-qa:
+    extends:
+      service: sandbox
+    environment:
+      - AGENT_NAME=qa-tester
+    labels:
+      - "atlas.sandbox=true"
+      - "atlas.pool=qa"
+      - "atlas.agent=qa-tester"
+
+# Shared volumes for caching
+volumes:
+  sandbox-pip-cache:
+    name: atlas-sandbox-pip-cache
+  sandbox-npm-cache:
+    name: atlas-sandbox-npm-cache
+
+# Use existing forge network
+networks:
+  forge-network:
+    external: true
+    name: forge_default

@@ -42,11 +42,11 @@ Lis .atlas/ATLAS-2.0-PLAN.md pour les détails.
 Phase 0: Migration Symlinks    [██████████] 100%  ✅ COMPLETE
 Phase 1: Parallel Agents       [██████████] 100%  ✅ COMPLETE
 Phase 2: Git Worktrees         [██████████] 100%  ✅ COMPLETE
-Phase 3: Sandbox Pool          [░░░░░░░░░░]   0%  ← PROCHAINE
-Phase 4: Monorepo Layers       [░░░░░░░░░░]   0%
+Phase 3: Sandbox Pool          [██████████] 100%  ✅ COMPLETE
+Phase 4: Monorepo Layers       [░░░░░░░░░░]   0%  ← PROCHAINE
 Phase 5: Inter-Agent Comms     [░░░░░░░░░░]   0%
 ─────────────────────────────────────────────────
-TOTAL                          [█████░░░░░]  50%
+TOTAL                          [██████░░░░]  67%
 ```
 
 ---
@@ -140,25 +140,35 @@ TOTAL                          [█████░░░░░]  50%
 
 ---
 
-### Phase 3: Sandbox Pool (FORGE)
-**Status:** NOT STARTED
-**Dépendance:** Phase 1, 2
+### Phase 3: Sandbox Pool (FORGE) ✅ COMPLETE
+**Status:** COMPLETE (2025-12-02)
+**Dépendance:** Phase 1, 2 ✅
 
 | Tâche | Status | Notes |
 |-------|--------|-------|
-| Créer forge/sandbox/ directory | [ ] | |
-| Créer Dockerfile.agent | [ ] | |
-| Créer docker-compose.sandbox.yml | [ ] | |
-| Créer sandbox-config.yml | [ ] | |
-| Créer pool-manager.py | [ ] | |
-| Build image | [ ] | |
-| Test pool status | [ ] | |
+| Créer forge/sandbox/ directory | [x] | Directory créé |
+| Créer Dockerfile.agent | [x] | Python 3.11 + Node.js 20 |
+| Créer docker-compose.sandbox.yml | [x] | 3 pre-warmed sandboxes |
+| Créer sandbox-config.yml | [x] | Pool config complète |
+| Créer pool-manager.py | [x] | ~300 lignes, CLI complet |
+| Créer README.md | [x] | Documentation usage |
 
-**Fichiers à créer:**
-- `forge/sandbox/Dockerfile.agent`
-- `forge/sandbox/docker-compose.sandbox.yml`
-- `forge/sandbox/sandbox-config.yml`
-- `forge/sandbox/pool-manager.py`
+**Fichiers créés:**
+- `forge/sandbox/Dockerfile.agent` ✅
+- `forge/sandbox/docker-compose.sandbox.yml` ✅
+- `forge/sandbox/sandbox-config.yml` ✅
+- `forge/sandbox/pool-manager.py` ✅
+- `forge/sandbox/README.md` ✅
+
+**Commandes pool-manager:**
+```bash
+python pool-manager.py status          # Pool status
+python pool-manager.py acquire <agent> # Get sandbox
+python pool-manager.py release <agent> # Release sandbox
+python pool-manager.py exec <agent> <cmd> # Run command
+python pool-manager.py warm            # Pre-warm pool
+python pool-manager.py cleanup         # Cleanup idle
+```
 
 ---
 
@@ -199,6 +209,27 @@ TOTAL                          [█████░░░░░]  50%
 ---
 
 ## Historique des Sessions
+
+### 2025-12-02 - Session 5: Phase 3 Complete
+**Durée:** ~10 minutes
+**Accomplissements:**
+- Créé infrastructure sandbox complète dans forge/
+- Dockerfile.agent: Python 3.11 + Node.js 20 + outils dev
+- docker-compose.sandbox.yml: 3 sandboxes pré-chauffés
+- pool-manager.py: CLI pour gestion du pool
+- Documentation README.md
+
+**Fichiers créés:**
+- `forge/sandbox/Dockerfile.agent`
+- `forge/sandbox/docker-compose.sandbox.yml`
+- `forge/sandbox/sandbox-config.yml`
+- `forge/sandbox/pool-manager.py`
+- `forge/sandbox/README.md`
+
+**Prochaine action:**
+Phase 4 - Monorepo Layers ou Phase 5 - Inter-Agent Comms
+
+---
 
 ### 2025-12-02 - Session 4: Phase 2 Complete
 **Durée:** ~5 minutes

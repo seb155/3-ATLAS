@@ -1,0 +1,104 @@
+# ATLAS 2.0 - Agent Sandbox
+#
+# Lightweight container for isolated AI agent execution
+# Optimized for fast startup and minimal footprint
+#
+
+FROM python:3.11-slim
+
+LABEL maintainer="AXIOM Team"
+LABEL description="ATLAS 2.0 Agent Sandbox - Isolated execution environment"
+LABEL version="1.0"
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    wget \
+    jq \
+    # Node.js (via nodesource for latest LTS)
+    ca-certificates \
+    gnupg \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    # Cleanup
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Python tools for backend development
+RUN pip install --no-cache-dir \
+    # FastAPI stack
+    fastapi \
+    uvicorn[standard] \
+    pydantic \
+    # Database
+    sqlalchemy \
+    alembic \
+    asyncpg \
+    psycopg2-binary \
+    # Testing
+    pytest \
+    pytest-asyncio \
+    pytest-cov \
+    httpx \
+    # Code quality
+    ruff \
+    black \
+    mypy \
+    # Utilities
+    python-dotenv \
+    pyyaml \
+    httpx
+
+# Install Node.js tools for frontend development
+RUN npm install -g \
+    typescript \
+    vitest \
+    eslint \
+    prettier \
+    @types/node
+
+# Create non-root user for security
+RUN useradd -m -s /bin/bash agent \
+    && mkdir -p /workspace \
+    && chown -R agent:agent /workspace
+
+# Create workspace directory
+WORKDIR /workspace
+
+# Health check endpoint script
+COPY --chown=agent:agent <<EOF /usr/local/bin/healthcheck.sh
+#!/bin/bash
+echo '{"status": "healthy", "timestamp": "'$(date -Iseconds)'"}'
+exit 0
+EOF
+RUN chmod +x /usr/local/bin/healthcheck.sh
+
+# Agent status script
+COPY --chown=agent:agent <<EOF /usr/local/bin/agent-status.sh
+#!/bin/bash
+echo '{"agent": "'$AGENT_NAME'", "status": "idle", "workspace": "/workspace", "started": "'$CONTAINER_START_TIME'"}'
+EOF
+RUN chmod +x /usr/local/bin/agent-status.sh
+
+# Set environment variables
+ENV AGENT_NAME="unnamed"
+ENV CONTAINER_START_TIME=""
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh
+
+# Switch to non-root user
+USER agent
+
+# Default: keep container running (idle wait for commands)
+CMD ["tail", "-f", "/dev/null"]
