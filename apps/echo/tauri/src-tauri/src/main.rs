@@ -6,7 +6,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod audio_capture;
+mod hotkeys;
 mod tray;
+#[cfg(windows)]
+mod wasapi_loopback;
 
 use audio_capture::{AudioCapture, AudioSource};
 use std::sync::{Arc, Mutex};
@@ -107,6 +110,7 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             // Initialize audio capture
             let audio_capture = AudioCapture::new();
@@ -121,6 +125,14 @@ fn main() {
             {
                 let handle = app.handle();
                 tray::setup_tray(handle)?;
+            }
+
+            // Setup global hotkeys
+            #[cfg(desktop)]
+            {
+                if let Err(e) = hotkeys::setup_hotkeys(app.handle()) {
+                    log::warn!("Failed to setup global hotkeys: {}", e);
+                }
             }
 
             Ok(())

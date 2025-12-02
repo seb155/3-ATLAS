@@ -12,7 +12,7 @@ import logging
 
 from .config import get_settings
 from .database import init_db, check_db_connection
-from .api.endpoints import recordings, transcriptions, audio, health
+from .api.endpoints import recordings, transcriptions, audio, health, settings as settings_router
 
 settings = get_settings()
 
@@ -98,6 +98,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # =============================================================================
 
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])
+app.include_router(settings_router.router, prefix="/api/v1", tags=["Settings"])
 app.include_router(recordings.router, prefix="/api/v1/recordings", tags=["Recordings"])
 app.include_router(transcriptions.router, prefix="/api/v1/transcriptions", tags=["Transcriptions"])
 app.include_router(audio.router, prefix="/api/v1/audio", tags=["Audio"])

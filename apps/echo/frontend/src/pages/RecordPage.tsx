@@ -6,6 +6,7 @@ import { audioApi, recordingsApi } from '@/services/api';
 import { cn, formatDuration } from '@/lib/utils';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { AudioVisualizer } from '@/components/AudioVisualizer';
+import { useTauriEnvironment } from '@/hooks/useTauriEnvironment';
 
 type RecordingPhase = 'idle' | 'recording' | 'uploading' | 'transcribing' | 'done' | 'error';
 
@@ -29,6 +30,9 @@ export function RecordPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [completedRecordingId, setCompletedRecordingId] = useState<string | null>(null);
+
+  // Detect Tauri environment for desktop features
+  const { isTauri, capabilities } = useTauriEnvironment();
 
   // Use the audio recorder hook
   const {
@@ -292,8 +296,8 @@ export function RecordPage() {
           label="System Audio"
           active={source === 'system'}
           onClick={() => setSource('system')}
-          disabled={true}
-          tooltip="Requires desktop app"
+          disabled={!capabilities.systemAudio || isRecording || isDisabled}
+          tooltip={capabilities.systemAudio ? undefined : "Requires desktop app"}
         />
         <SourceButton
           icon={
@@ -305,8 +309,8 @@ export function RecordPage() {
           label="Both"
           active={source === 'both'}
           onClick={() => setSource('both')}
-          disabled={true}
-          tooltip="Requires desktop app"
+          disabled={!capabilities.systemAudio || isRecording || isDisabled}
+          tooltip={capabilities.systemAudio ? undefined : "Requires desktop app"}
         />
       </div>
 

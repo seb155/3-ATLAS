@@ -53,6 +53,37 @@ Transcription segments are color-coded by detected language:
 
 **Note**: AMD Radeon 890M (gfx1150) is NOT supported by ROCm - GPU skipped for this hardware.
 
+## Model & Device Selection (NEW 2025-12-01)
+
+### API Endpoints
+```
+GET  /api/v1/settings/whisper         # Get current config + available devices
+POST /api/v1/settings/whisper         # Change model and/or device
+GET  /api/v1/settings/whisper/devices # Detailed device info
+POST /api/v1/settings/whisper/reload  # Force reload model
+```
+
+### Available Models
+| Model | Size | Quality | Speed |
+|-------|------|---------|-------|
+| base | 74M | Basic | Fast |
+| small | 244M | Good | Medium |
+| medium | 764M | Better | Slow |
+| large-v3 | 1.5B | Best (default) | Slowest |
+
+### Device Selection
+- **auto** (default): NPU > GPU > CPU
+- **npu**: Force AMD Ryzen AI NPU
+- **gpu**: Force CUDA GPU
+- **cpu**: Force CPU (always available)
+
+### Settings UI
+Navigate to Settings page to:
+- Select Whisper model (base/small/medium/large-v3)
+- Choose compute device (Auto/NPU/GPU/CPU)
+- View device status and availability
+- Reload model on demand
+
 ## Quick Start
 
 ### Development Mode (Docker)
@@ -353,15 +384,47 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 
 4. **NPU in Docker**: NPU access from Docker containers requires special configuration. Consider running backend locally for NPU acceleration.
 
-## Next Steps (Phase 2)
+## Transcription Quality (NEW 2025-12-01)
+
+### Quebec French Optimization
+- **Initial prompts**: Whisper is conditioned with Quebec vocabulary ("tsé", "faque", "ben", "tiguidou")
+- **Audio padding**: 500ms silence added before audio to prevent word cutoff
+- **VAD tuning**: Optimized for conversational French (threshold=0.35, min_speech=100ms)
+- **Code-switching**: 15% threshold (reduced from 5% to avoid false positives)
+
+### Files
+- `backend/app/services/audio_preprocessor.py` - Audio padding
+- `backend/app/services/whisper_local.py` - Initial prompts + VAD params
+
+## Desktop Features (NEW 2025-12-01)
+
+### WASAPI Loopback (Windows)
+System audio capture via Windows Audio Session API:
+- `tauri/src-tauri/src/wasapi_loopback.rs` - Native WASAPI capture
+- Memory-limited buffer (10 minutes max)
+- Automatic mixing with microphone in "Both" mode
+
+### Global Hotkeys
+- `Ctrl+Shift+R` - Toggle recording
+- `Ctrl+Shift+P` - Pause/Resume
+- `Ctrl+Shift+S` - Stop recording
+
+### Tauri Detection
+Frontend detects desktop environment:
+- `frontend/src/hooks/useTauriEnvironment.ts`
+- System Audio/Both buttons enabled only in desktop app
+
+## Next Steps (Phase 3)
 
 - [x] **Bilingual transcription (FR + EN code-switching)** - DONE
-- [ ] Complete WASAPI loopback implementation
+- [x] **WASAPI loopback implementation** - DONE
+- [x] **Global hotkeys** - DONE
+- [x] **Model/Device selection UI** - DONE
+- [x] **Quebec French optimization** - DONE
 - [ ] Tags system
 - [ ] Full-text search
-- [ ] Export functionality
 - [ ] Transcription editor
-- [ ] Global hotkeys
+- [ ] System tray improvements
 - [ ] NEXUS integration
 
 ---

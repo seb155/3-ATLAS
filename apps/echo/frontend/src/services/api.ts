@@ -168,3 +168,64 @@ export const healthApi = {
     return data;
   },
 };
+
+// Whisper Settings Types
+export interface WhisperModelInfo {
+  name: string;
+  size: string;
+  vram: string;
+  speed: string;
+  quality: string;
+}
+
+export interface DeviceStatus {
+  name: string;
+  status: 'available' | 'unavailable' | 'error';
+  details?: string;
+}
+
+export interface WhisperSettings {
+  model: string;
+  device: string;
+  active_device: string;
+  model_loaded: boolean;
+  available_models: WhisperModelInfo[];
+  available_devices: string[];
+  device_info: Record<string, DeviceStatus>;
+}
+
+export interface WhisperSettingsUpdate {
+  model?: string;
+  device?: string;
+}
+
+export interface WhisperSettingsUpdateResponse {
+  success: boolean;
+  message: string;
+  model: string;
+  device: string;
+  active_device: string;
+  reload_required: boolean;
+}
+
+export const settingsApi = {
+  getWhisperSettings: async (): Promise<WhisperSettings> => {
+    const { data } = await api.get<WhisperSettings>('/settings/whisper');
+    return data;
+  },
+
+  updateWhisperSettings: async (update: WhisperSettingsUpdate): Promise<WhisperSettingsUpdateResponse> => {
+    const { data } = await api.post<WhisperSettingsUpdateResponse>('/settings/whisper', update);
+    return data;
+  },
+
+  getDevices: async () => {
+    const { data } = await api.get('/settings/whisper/devices');
+    return data;
+  },
+
+  reloadModel: async () => {
+    const { data } = await api.post('/settings/whisper/reload');
+    return data;
+  },
+};

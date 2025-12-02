@@ -1,6 +1,62 @@
 # ECHO Feature Status
 
-> Last Updated: 2025-12-01
+> Last Updated: 2025-12-01 (Session 2)
+
+---
+
+## SESSION 2025-12-01 - MAJOR UPDATE
+
+### Qualité Transcription FR-QC - NOUVEAU
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Initial prompts québécois | ✅ Done | "tsé", "faque", "tiguidou", "ben"... |
+| Audio padding 500ms | ✅ Done | Évite mots coupés au début |
+| VAD optimisé | ✅ Done | threshold=0.35, min_speech=100ms |
+| Seuil code-switching 15% | ✅ Done | Était 5%, réduit faux positifs |
+| Modèle large-v3 défaut | ✅ Done | Meilleure qualité FR-QC |
+
+### Sélecteur Modèle/Device - NOUVEAU
+| Feature | Status | Description |
+|---------|--------|-------------|
+| API GET/POST /settings/whisper | ✅ Done | Runtime model change |
+| Device detector | ✅ Done | NPU/GPU/CPU auto-detection |
+| UI SettingsPage | ✅ Done | Dropdown modèle + device |
+| Reload model | ✅ Done | POST /settings/whisper/reload |
+
+### Desktop App (Tauri) - NOUVEAU
+| Feature | Status | Description |
+|---------|--------|-------------|
+| WASAPI loopback | ✅ Done | wasapi_loopback.rs capture système |
+| Global hotkeys | ✅ Done | Ctrl+Shift+R/P/S |
+| Tauri detection frontend | ✅ Done | useTauriEnvironment hook |
+| Boutons System/Both | ✅ Done | Activés en mode desktop |
+| Buffer mémoire | ✅ Done | Limité 10 min max |
+
+### Fichiers Créés
+| Fichier | Description |
+|---------|-------------|
+| `backend/app/services/device_detector.py` | Détection NPU/GPU/CPU |
+| `backend/app/services/audio_preprocessor.py` | Padding audio |
+| `backend/app/api/endpoints/settings.py` | API settings Whisper |
+| `tauri/src-tauri/src/wasapi_loopback.rs` | Capture WASAPI Windows |
+| `tauri/src-tauri/src/hotkeys.rs` | Hotkeys globaux |
+| `frontend/src/hooks/useTauriEnvironment.ts` | Détection Tauri |
+
+### Fichiers Modifiés
+| Fichier | Changements |
+|---------|-------------|
+| `backend/app/config.py` | WHISPER_MODELS, WHISPER_DEVICES, large-v3 |
+| `backend/app/services/whisper_local.py` | Prompts, VAD, preprocessing |
+| `backend/app/services/whisper_npu.py` | Seuil 15% |
+| `backend/app/main.py` | Router settings |
+| `tauri/src-tauri/Cargo.toml` | windows, global-shortcut |
+| `tauri/src-tauri/src/main.rs` | Modules, plugins |
+| `tauri/src-tauri/src/audio_capture.rs` | WASAPI integration |
+| `frontend/src/services/api.ts` | settingsApi |
+| `frontend/src/pages/SettingsPage.tsx` | UI sélecteur |
+| `frontend/src/pages/RecordPage.tsx` | Tauri detection |
+
+---
 
 ## Latest Test Results (2025-12-01)
 

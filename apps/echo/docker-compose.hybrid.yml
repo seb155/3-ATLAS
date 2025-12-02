@@ -1,0 +1,90 @@
+# ==============================================================================
+# ECHO - Hybrid Mode (Frontend Docker + Backend Native Windows NPU)
+# ==============================================================================
+# Frontend stays in Docker, Backend runs natively on Windows for NPU access.
+#
+# Usage:
+#   docker-compose -f docker-compose.hybrid.yml up -d
+#   Then: .\.dev\scripts\echo-backend-manager.ps1 -Action start
+#
+# Or use the mode switcher:
+#   .\.dev\scripts\echo-mode.ps1 -Mode hybrid -Action start
+#
+# Prerequisites:
+#   - forge-network must exist (created by FORGE)
+#   - forge-postgres must be running (port 5433)
+#   - Ryzen AI SDK 1.6.1 installed on Windows host
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # FRONTEND - React + Vite Development Server
+  # ============================================================================
+  # Backend runs NATIVELY on Windows for NPU access (not in this compose file)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: echo-frontend
+    ports:
+      - "7200:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+      # Shared data directory (read-only from frontend)
+      - ./data:/app/data:ro
+    environment:
+      # Connect to Windows native backend via host.docker.internal
+      VITE_API_URL: http://host.docker.internal:7201
+      VITE_WS_URL: ws://host.docker.internal:7201
+      NODE_ENV: development
+      VITE_APP_NAME: ECHO
+      VITE_APP_VERSION: 0.1.0
+      VITE_HYBRID_MODE: "true"
+
+    labels:
+      logging: "promtail"
+      logging_jobname: "echo-frontend"
+
+    networks:
+      - forge-network
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+networks:
+  forge-network:
+    external: true
+    name: forge-network
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+# 1. This compose file runs FRONTEND ONLY
+#    Backend must be started separately with NPU support:
+#    .\.dev\scripts\echo-backend-manager.ps1 -Action start
+#
+# 2. Backend connects to:
+#    - PostgreSQL: localhost:5433 (FORGE)
+#    - Redis: localhost:6379 (FORGE)
+#
+# 3. Expected performance with NPU:
+#    - base: ~2s (was ~5s on CPU)
+#    - medium: ~5s (was ~15s on CPU)
+#    - large-v3: ~10s (was ~45s on CPU)
+#
+# 4. To switch back to full Docker mode:
+#    docker-compose -f docker-compose.dev.yml up -d
+# ==============================================================================

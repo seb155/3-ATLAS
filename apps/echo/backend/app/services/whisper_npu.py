@@ -594,8 +594,10 @@ class NPUWhisperService:
         fr_ratio = french_count / total_words
         en_ratio = english_count / total_words
 
-        # Code-switching: both languages have significant presence (>5%)
-        is_code_switched = fr_ratio >= 0.05 and en_ratio >= 0.05
+        # Code-switching: both languages have significant presence
+        # Threshold raised from 5% to 15% to reduce false positives
+        # (e.g., a single "meeting" or "email" in French speech)
+        is_code_switched = fr_ratio >= 0.15 and en_ratio >= 0.15
 
         if is_code_switched:
             confidence = min(fr_ratio + en_ratio, 1.0)

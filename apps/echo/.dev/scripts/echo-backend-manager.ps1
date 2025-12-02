@@ -42,16 +42,17 @@ $NPU_ENV = @{
 # ECHO Backend Environment Variables
 $ECHO_ENV = @{
     "WHISPER_DEVICE" = "auto"
-    "WHISPER_MODEL" = "base"
+    "WHISPER_MODEL" = "large-v3"
     "WHISPER_MODEL_NPU" = "medium"
     "WHISPER_COMPUTE_TYPE" = "int8"
     "WHISPER_PRECISION" = "bfp16"
     "DATABASE_URL" = "postgresql://postgres:postgres@localhost:5433/echo"
     "REDIS_URL" = "redis://localhost:6379"
     "AUDIO_STORAGE_PATH" = "D:/Projects/AXIOM/apps/echo/data"
-    "CORS_ORIGINS" = "http://localhost:7200,http://localhost:5173"
+    "CORS_ORIGINS" = "http://localhost:7200,http://localhost:5173,http://host.docker.internal:7200"
     "ENVIRONMENT" = "development"
     "DEBUG" = "true"
+    "ECHO_HYBRID_MODE" = "true"
 }
 
 # Ensure directories exist

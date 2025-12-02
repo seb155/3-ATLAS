@@ -6,7 +6,19 @@ Environment variables with defaults for development.
 
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, Dict, Any
+
+
+# Available Whisper models with their characteristics
+WHISPER_MODELS: Dict[str, Dict[str, Any]] = {
+    "base": {"size": "74M", "vram": "1GB", "speed": "fast", "quality": "basic"},
+    "small": {"size": "244M", "vram": "2GB", "speed": "medium", "quality": "good"},
+    "medium": {"size": "764M", "vram": "5GB", "speed": "slow", "quality": "better"},
+    "large-v3": {"size": "1.5B", "vram": "10GB", "speed": "slowest", "quality": "best"},
+}
+
+# Available devices
+WHISPER_DEVICES = ["auto", "npu", "gpu", "cpu"]
 
 
 class Settings(BaseSettings):
@@ -40,7 +52,7 @@ class Settings(BaseSettings):
 
     # Whisper Configuration
     whisper_device: str = "auto"  # auto, npu, gpu, cpu
-    whisper_model: str = "base"  # CPU fallback model
+    whisper_model: str = "large-v3"  # Default: best quality for QC-FR
     whisper_model_npu: str = "medium"  # NPU model (faster with BFP16)
     whisper_compute_type: str = "int8"  # float16 for GPU, int8 for CPU, bfp16 for NPU
     whisper_precision: str = "bfp16"  # NPU native precision
@@ -48,7 +60,7 @@ class Settings(BaseSettings):
     # Audio Configuration
     audio_storage_path: str = "/app/data"
     default_sample_rate: int = 44100
-    default_language: str = "auto"  # auto, fr, en
+    default_language: str = "auto"  # auto, fr, en, bilingual
 
     # Logging
     loki_url: Optional[str] = "http://loki:3100"

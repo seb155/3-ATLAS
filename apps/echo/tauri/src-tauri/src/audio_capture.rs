@@ -13,6 +13,9 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
+#[cfg(windows)]
+use crate::wasapi_loopback::LoopbackCapture;
+
 /// Audio source type
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AudioSource {
@@ -55,7 +58,7 @@ struct CaptureState {
     source: AudioSource,
     output_path: PathBuf,
     start_time: Instant,
-    samples: Vec<f32>,
+    input_samples: Arc<Mutex<Vec<f32>>>,
 }
 
 /// Main audio capture struct
@@ -63,6 +66,9 @@ pub struct AudioCapture {
     state: Option<CaptureState>,
     #[allow(dead_code)]
     input_stream: Option<cpal::Stream>,
+    #[cfg(windows)]
+    loopback_capture: Option<LoopbackCapture>,
+    #[cfg(not(windows))]
     #[allow(dead_code)]
     output_stream: Option<cpal::Stream>,
 }
@@ -72,6 +78,9 @@ impl AudioCapture {
         Self {
             state: None,
             input_stream: None,
+            #[cfg(windows)]
+            loopback_capture: None,
+            #[cfg(not(windows))]
             output_stream: None,
         }
     }
@@ -142,13 +151,15 @@ impl AudioCapture {
 
         let host = cpal::default_host();
 
-        // Create capture state
+        // Create capture state with shared sample buffer
+        let input_samples = Arc::new(Mutex::new(Vec::with_capacity(44100 * 2 * 60))); // 1 min capacity
+
         self.state = Some(CaptureState {
             recording_id,
             source,
             output_path: PathBuf::from(&output_path),
             start_time: Instant::now(),
-            samples: Vec::new(),
+            input_samples: input_samples.clone(),
         });
 
         // Setup streams based on source
@@ -184,16 +195,27 @@ impl AudioCapture {
         log::info!("Input device: {}", device.name()?);
         log::info!("Input config: {:?}", config);
 
-        // For now, we'll collect samples in memory
-        // In production, we'd stream to disk
-        let samples: Arc<Mutex<Vec<f32>>> = Arc::new(Mutex::new(Vec::new()));
-        let samples_clone = samples.clone();
+        // Get the shared sample buffer from state
+        let samples = self
+            .state
+            .as_ref()
+            .map(|s| s.input_samples.clone())
+            .ok_or("No capture state")?;
+
+        // Memory limit: 10 minutes at 44.1kHz stereo
+        const MAX_SAMPLES: usize = 44100 * 2 * 60 * 10;
 
         let stream = device.build_input_stream(
             &config.into(),
             move |data: &[f32], _: &cpal::InputCallbackInfo| {
-                if let Ok(mut samples) = samples_clone.lock() {
-                    samples.extend_from_slice(data);
+                if let Ok(mut samples_guard) = samples.lock() {
+                    // Check memory limit
+                    if samples_guard.len() + data.len() > MAX_SAMPLES {
+                        // Remove oldest samples to make room
+                        let remove = (samples_guard.len() + data.len()) - MAX_SAMPLES;
+                        samples_guard.drain(0..remove.min(samples_guard.len()));
+                    }
+                    samples_guard.extend_from_slice(data);
                 }
             },
             |err| {
@@ -209,25 +231,31 @@ impl AudioCapture {
     }
 
     /// Setup WASAPI loopback stream (system audio)
-    fn setup_loopback_stream(&mut self, host: &cpal::Host) -> Result<(), Box<dyn std::error::Error>> {
-        // On Windows, we need to use WASAPI loopback
-        // This captures system audio output
+    #[cfg(windows)]
+    fn setup_loopback_stream(&mut self, _host: &cpal::Host) -> Result<(), Box<dyn std::error::Error>> {
+        // Use native WASAPI loopback capture
+        let mut loopback = LoopbackCapture::new()
+            .map_err(|e| format!("Failed to create loopback capture: {}", e))?;
 
+        loopback
+            .start()
+            .map_err(|e| format!("Failed to start loopback capture: {}", e))?;
+
+        self.loopback_capture = Some(loopback);
+        log::info!("WASAPI loopback capture started");
+
+        Ok(())
+    }
+
+    /// Setup WASAPI loopback stream (system audio) - non-Windows stub
+    #[cfg(not(windows))]
+    fn setup_loopback_stream(&mut self, host: &cpal::Host) -> Result<(), Box<dyn std::error::Error>> {
         let device = host
             .default_output_device()
             .ok_or("No output device available")?;
 
         log::info!("Loopback device: {}", device.name()?);
-
-        // Note: cpal doesn't directly support loopback capture
-        // On Windows, you'd typically use the Windows Audio Session API (WASAPI)
-        // directly for loopback capture.
-        //
-        // For now, this is a placeholder that would need to be implemented
-        // using the windows crate for proper WASAPI loopback support.
-
-        log::warn!("WASAPI loopback capture requires native Windows API integration");
-        log::warn!("This is a placeholder implementation");
+        log::warn!("WASAPI loopback is only available on Windows");
 
         Ok(())
     }
@@ -238,9 +266,58 @@ impl AudioCapture {
 
         // Stop streams
         self.input_stream = None;
-        self.output_stream = None;
+
+        // Get input samples
+        let input_samples = if let Ok(samples) = state.input_samples.lock() {
+            samples.clone()
+        } else {
+            Vec::new()
+        };
+
+        // Get loopback samples if available
+        #[cfg(windows)]
+        let loopback_samples = if let Some(ref mut loopback) = self.loopback_capture {
+            loopback.stop();
+            loopback.take_samples()
+        } else {
+            Vec::new()
+        };
+
+        #[cfg(not(windows))]
+        let loopback_samples: Vec<f32> = Vec::new();
+
+        #[cfg(windows)]
+        {
+            self.loopback_capture = None;
+        }
+
+        #[cfg(not(windows))]
+        {
+            self.output_stream = None;
+        }
 
         let duration = state.start_time.elapsed().as_secs_f64();
+
+        // Combine samples (if both sources)
+        let combined_samples = match state.source {
+            AudioSource::Microphone => input_samples,
+            AudioSource::System => loopback_samples,
+            AudioSource::Both => {
+                // Mix both sources
+                let max_len = input_samples.len().max(loopback_samples.len());
+                let mut mixed = Vec::with_capacity(max_len);
+
+                for i in 0..max_len {
+                    let input = input_samples.get(i).copied().unwrap_or(0.0);
+                    let loopback = loopback_samples.get(i).copied().unwrap_or(0.0);
+                    // Simple mix: average both sources, clamp to prevent clipping
+                    let mixed_sample = ((input + loopback) / 2.0).clamp(-1.0, 1.0);
+                    mixed.push(mixed_sample);
+                }
+
+                mixed
+            }
+        };
 
         // Write WAV file
         let spec = WavSpec {
@@ -255,8 +332,8 @@ impl AudioCapture {
         let mut wav_writer = WavWriter::new(writer, spec)?;
 
         // Convert f32 samples to i16 and write
-        for &sample in &state.samples {
-            let sample_i16 = (sample * i16::MAX as f32) as i16;
+        for &sample in &combined_samples {
+            let sample_i16 = (sample.clamp(-1.0, 1.0) * i16::MAX as f32) as i16;
             wav_writer.write_sample(sample_i16)?;
         }
 
@@ -266,10 +343,11 @@ impl AudioCapture {
         let file_size = std::fs::metadata(&state.output_path)?.len();
 
         log::info!(
-            "Stopped recording: {} ({:.2}s, {} bytes)",
+            "Stopped recording: {} ({:.2}s, {} bytes, {} samples)",
             state.recording_id,
             duration,
-            file_size
+            file_size,
+            combined_samples.len()
         );
 
         Ok(RecordingResult {
