@@ -256,6 +256,42 @@ curl http://localhost:3202/summary
 
 **Note:** Le cache read coûte 90% moins cher que l'input standard!
 
+## Monorepo Support
+
+L'exporter détecte automatiquement les monorepos et groupe les métriques intelligemment.
+
+### Configuration
+
+```yaml
+# docker-compose.observability.yml
+environment:
+  - MONOREPO_ROOTS=AXIOM  # Comma-separated: AXIOM,OTHER_MONOREPO
+```
+
+### Comportement
+
+| Répertoire de travail | Projet détecté |
+|-----------------------|----------------|
+| `/projects/AXIOM` | `AXIOM` |
+| `/projects/AXIOM/apps/synapse` | `AXIOM/synapse` |
+| `/projects/AXIOM/apps/synapse/backend` | `AXIOM/synapse` |
+| `/projects/AXIOM/apps/nexus` | `AXIOM/nexus` |
+| `/projects/AXIOM/forge` | `AXIOM/forge` |
+| `/projects/AXIOM/.dev` | `AXIOM` |
+| `/projects/other-project` | `other-project` |
+
+### Dossiers "app" reconnus
+
+Ces dossiers indiquent une limite d'application dans le monorepo:
+- `apps/`
+- `packages/`
+- `services/`
+- `libs/`
+- `modules/`
+- `projects/`
+
+Si tu travailles dans `/AXIOM/apps/synapse/backend/api`, le projet sera `AXIOM/synapse`.
+
 ## Troubleshooting
 
 ### Pas de données dans Grafana

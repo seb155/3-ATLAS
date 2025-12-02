@@ -83,6 +83,7 @@ services:
       - METRICS_PORT=9091
       - CLAUDE_MONTHLY_BUDGET=300  # Max plan budget
       - EXPORTER_VERSION=pro  # Use 'standard' for legacy exporter
+      - MONOREPO_ROOTS=AXIOM  # Comma-separated list of monorepo names for smart project detection
     ports:
       - "3202:9091"
     networks:

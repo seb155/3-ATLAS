@@ -62,6 +62,14 @@ PRICING = {
 
 MONTHLY_BUDGET = float(os.environ.get('CLAUDE_MONTHLY_BUDGET', '300'))
 
+# Monorepo configuration - comma-separated list of monorepo root names
+# When detected, will show subproject paths like "AXIOM/synapse" instead of just "synapse"
+MONOREPO_ROOTS = os.environ.get('MONOREPO_ROOTS', 'AXIOM').split(',')
+MONOREPO_ROOTS = [r.strip() for r in MONOREPO_ROOTS if r.strip()]
+
+# Subfolders that indicate app boundaries in a monorepo
+APP_FOLDERS = {'apps', 'packages', 'services', 'libs', 'modules', 'projects'}
+
 # =============================================================================
 # ATLAS COMMAND PATTERNS
 # =============================================================================
@@ -139,16 +147,56 @@ class MetricsCollectorPro:
         return model
 
     def extract_project_name(self, entry: dict, filepath: Path) -> str:
+        """
+        Extract project name with monorepo awareness.
+
+        Examples for AXIOM monorepo:
+        - /home/seb/projects/AXIOM → "AXIOM"
+        - /home/seb/projects/AXIOM/apps/synapse → "AXIOM/synapse"
+        - /home/seb/projects/AXIOM/apps/synapse/backend → "AXIOM/synapse"
+        - /home/seb/projects/AXIOM/forge → "AXIOM/forge"
+        - /home/seb/projects/other-project → "other-project"
+        """
         cwd = entry.get('cwd', '')
         if cwd:
             parts = cwd.rstrip('/').split('/')
+
+            # Check if this is a known monorepo
+            for i, part in enumerate(parts):
+                if part in MONOREPO_ROOTS:
+                    monorepo_name = part
+                    remaining = parts[i+1:]  # Everything after the monorepo root
+
+                    if not remaining:
+                        # At monorepo root: /AXIOM → "AXIOM"
+                        return monorepo_name
+
+                    # Check if next part is an app folder (apps, packages, etc.)
+                    if remaining[0] in APP_FOLDERS and len(remaining) > 1:
+                        # /AXIOM/apps/synapse/... → "AXIOM/synapse"
+                        return f"{monorepo_name}/{remaining[1]}"
+                    else:
+                        # /AXIOM/forge/... → "AXIOM/forge"
+                        # /AXIOM/.dev/... → "AXIOM" (hidden folders = root)
+                        if remaining[0].startswith('.'):
+                            return monorepo_name
+                        return f"{monorepo_name}/{remaining[0]}"
+
+            # Not a monorepo, return last segment
             if parts:
                 return parts[-1]
+
+        # Fallback: decode folder name from filepath
         folder_name = filepath.parent.name
         if folder_name.startswith('-'):
             parts = folder_name.split('-')
+            # Check for monorepo in encoded path
+            for i, part in enumerate(parts):
+                if part in MONOREPO_ROOTS and i + 1 < len(parts):
+                    return f"{part}/{parts[i+1]}"
             if parts:
                 return parts[-1]
+
         return "unknown"
 
     def detect_atlas_command(self, content: str) -> Optional[str]:
