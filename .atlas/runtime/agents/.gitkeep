@@ -1,0 +1,3 @@
+# This directory contains agent status files
+# Files are named: {agent-name}.json
+# See ../schemas/agent-status.schema.json for format

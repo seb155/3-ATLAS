@@ -313,6 +313,92 @@ Retourne ton résultat au format YAML spécifié dans ton protocole.
 
 ---
 
+## Inter-Agent Communication (ATLAS 2.0)
+
+Les agents parallèles communiquent via fichiers dans `.atlas/runtime/`.
+
+### Structure Runtime
+
+```
+.atlas/runtime/
+├── status.json         # État global orchestration
+├── tasks/              # Tâches en attente/actives
+│   └── task-{id}.json
+├── results/            # Résultats complétés
+│   └── task-{id}-result.json
+└── agents/             # Status par agent
+    └── {agent-name}.json
+```
+
+### Créer une Tâche
+
+```json
+// .atlas/runtime/tasks/task-001.json
+{
+  "id": "task-001",
+  "agent": "backend-builder",
+  "action": "create_endpoint",
+  "status": "pending",
+  "created_at": "2025-12-02T10:00:00Z",
+  "input": {
+    "app": "synapse",
+    "description": "Create CRUD for assets",
+    "files": ["app/models/asset.py"]
+  }
+}
+```
+
+### Écrire un Résultat
+
+```json
+// .atlas/runtime/results/task-001-result.json
+{
+  "task_id": "task-001",
+  "status": "success",
+  "completed_at": "2025-12-02T10:05:00Z",
+  "summary": "Created 4 CRUD endpoints",
+  "output": {
+    "files_created": [
+      {"path": "app/api/endpoints/assets.py", "description": "CRUD endpoints"}
+    ],
+    "commands_to_run": [
+      {"command": "pytest tests/", "reason": "Verify implementation"}
+    ]
+  },
+  "next_steps": ["Frontend needs to consume API"]
+}
+```
+
+### Workflow Multi-Agent
+
+```
+ATLAS Orchestrator
+      │
+      ├─ Crée task-001.json (backend-builder)
+      ├─ Crée task-002.json (frontend-builder)
+      └─ Crée task-003.json (qa-tester)
+           │
+           ▼
+    [Agents travaillent en parallèle]
+           │
+           ▼
+      ├─ Lit task-001-result.json
+      ├─ Lit task-002-result.json
+      └─ Lit task-003-result.json
+           │
+           ▼
+    Synthèse des résultats
+```
+
+### Schemas
+
+Voir `.atlas/runtime/schemas/` pour les définitions JSON Schema:
+- `task.schema.json` - Format des tâches
+- `result.schema.json` - Format des résultats
+- `agent-status.schema.json` - Format status agent
+
+---
+
 ## Règles Critiques
 
 1. **Documents protégés** - JAMAIS modifier sans validation (règle 20)
