@@ -5,6 +5,11 @@ from app.api.deps import get_current_active_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
 from app.models.auth import Client, Project, User
+from app.models.models import Asset
+from app.models.cables import Cable
+from app.models.metamodel import MetamodelNode
+from app.models.workflow import BatchOperation, WorkflowEvent
+from app.models.action_log import ActionLog
 from app.schemas.project import ClientCreate, ClientResponse, ProjectCreate, ProjectResponse
 
 router = APIRouter()
@@ -70,3 +75,47 @@ def get_project(
     if not project:
         raise NotFoundError("Project", project_id)
     return project
+
+
+@router.delete("/projects/{project_id}")
+def delete_project(
+    project_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: User = Depends(get_current_active_user),  # noqa: B008
+):
+    """Delete a project and all its related data (cascade delete)."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise NotFoundError("Project", project_id)
+
+    # Cascade delete in correct FK order
+    db.query(WorkflowEvent).filter(WorkflowEvent.project_id == project_id).delete()
+    db.query(BatchOperation).filter(BatchOperation.project_id == project_id).delete()
+    db.query(ActionLog).filter(ActionLog.project_id == project_id).delete()
+    db.query(Cable).filter(Cable.project_id == project_id).delete()
+    db.query(MetamodelNode).filter(MetamodelNode.project_id == project_id).delete()
+    db.query(Asset).filter(Asset.project_id == project_id).delete()
+    db.query(Project).filter(Project.id == project_id).delete()
+
+    db.commit()
+    return {"status": "deleted", "project_id": project_id}
+
+
+@router.delete("/projects/{project_id}/assets")
+def clear_project_assets(
+    project_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: User = Depends(get_current_active_user),  # noqa: B008
+):
+    """Clear all assets from a project (keeps project, rules, etc.)."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise NotFoundError("Project", project_id)
+
+    # Delete related data first
+    db.query(Cable).filter(Cable.project_id == project_id).delete()
+    db.query(MetamodelNode).filter(MetamodelNode.project_id == project_id).delete()
+    count = db.query(Asset).filter(Asset.project_id == project_id).delete()
+
+    db.commit()
+    return {"status": "cleared", "assets_deleted": count, "project_id": project_id}

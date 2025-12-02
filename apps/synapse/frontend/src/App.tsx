@@ -21,6 +21,8 @@ const Ingestion = lazy(() => import('./pages/Ingestion'));
 const ModernIngestion = lazy(() => import('./pages/ModernIngestion'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const ValidationResults = lazy(() => import('./pages/ValidationResults'));
+const AdminActivity = lazy(() => import('./pages/AdminActivity'));
+const AdminTools = lazy(() => import('./pages/AdminTools'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -139,6 +141,22 @@ function AppContent() {
           <Layout currentView="validation-results" setView={() => { }}>
             <Suspense fallback={<LoadingFallback />}>
               <ValidationResults />
+            </Suspense>
+          </Layout>
+        } />
+
+        <Route path="/admin/activity" element={
+          <Layout currentView="admin/activity" setView={() => { }}>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminActivity />
+            </Suspense>
+          </Layout>
+        } />
+
+        <Route path="/admin/tools" element={
+          <Layout currentView="admin/tools" setView={() => { }}>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminTools />
             </Suspense>
           </Layout>
         } />

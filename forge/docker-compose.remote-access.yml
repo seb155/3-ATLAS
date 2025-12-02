@@ -1,0 +1,131 @@
+# =============================================================================
+# Remote Access Hub - RustDesk + Sshwifty
+# =============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.remote-access.yml up -d
+#
+# Services:
+#   - RustDesk Server (hbbs + hbbr) - Self-hosted remote desktop
+#   - Sshwifty - SSH WebUI
+#
+# Security:
+#   - Encrypted key pair for RustDesk
+#   - Traefik HTTPS routing
+#   - Network isolation
+#
+# Documentation: .dev/context/remote-access-setup.md
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # RustDesk ID/Rendezvous Server (hbbs)
+  # ===========================================================================
+  rustdesk-hbbs:
+    image: rustdesk/rustdesk-server:latest
+    container_name: forge-rustdesk-hbbs
+    hostname: rustdesk-hbbs
+    command: hbbs
+    environment:
+      # Encrypted mode - clients need the public key
+      - ENCRYPTED_ONLY=1
+      # Relay server address (for NAT traversal)
+      - RELAY=${RUSTDESK_RELAY:-forge-rustdesk-hbbr:21117}
+    ports:
+      # NAT type test
+      - "21115:21115"
+      # ID registration + heartbeat (TCP + UDP)
+      - "21116:21116"
+      - "21116:21116/udp"
+      # Web client WebSocket
+      - "21118:21118"
+    volumes:
+      - rustdesk-data:/root
+    networks:
+      - forge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "21116"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      # WebSocket route for web client
+      - "traefik.http.routers.rustdesk-ws.rule=Host(`rustdesk-ws.axoiq.com`)"
+      - "traefik.http.routers.rustdesk-ws.entrypoints=websecure"
+      - "traefik.http.routers.rustdesk-ws.tls=true"
+      - "traefik.http.routers.rustdesk-ws.service=rustdesk-ws"
+      - "traefik.http.services.rustdesk-ws.loadbalancer.server.port=21118"
+
+  # ===========================================================================
+  # RustDesk Relay Server (hbbr)
+  # ===========================================================================
+  rustdesk-hbbr:
+    image: rustdesk/rustdesk-server:latest
+    container_name: forge-rustdesk-hbbr
+    hostname: rustdesk-hbbr
+    command: hbbr
+    ports:
+      # Relay port
+      - "21117:21117"
+      # Web client WebSocket relay
+      - "21119:21119"
+    volumes:
+      - rustdesk-data:/root
+    networks:
+      - forge-network
+    restart: unless-stopped
+    depends_on:
+      - rustdesk-hbbs
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "21117"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================================================
+  # Sshwifty - SSH Web Terminal
+  # ===========================================================================
+  sshwifty:
+    image: niruix/sshwifty:latest
+    container_name: forge-sshwifty
+    hostname: sshwifty
+    ports:
+      - "3053:8182"
+    environment:
+      # Shared key for authentication (change this!)
+      - SSHWIFTY_SHAREDKEY=${SSHWIFTY_SHARED_KEY:-}
+      # Listen address
+      - SSHWIFTY_LISTENINTERFACE=0.0.0.0
+      - SSHWIFTY_LISTENPORT=8182
+      # Dial timeout
+      - SSHWIFTY_DIALTIMEOUT=10
+    volumes:
+      # Optional: custom config
+      - ./config/sshwifty/sshwifty.conf.json:/home/sshwifty/.config/sshwifty.conf.json:ro
+    networks:
+      - forge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8182"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      # Production route (HTTPS)
+      - "traefik.http.routers.sshwifty.rule=Host(`ssh.axoiq.com`)"
+      - "traefik.http.routers.sshwifty.entrypoints=websecure"
+      - "traefik.http.routers.sshwifty.tls=true"
+      - "traefik.http.routers.sshwifty.middlewares=security-headers@file"
+      - "traefik.http.services.sshwifty.loadbalancer.server.port=8182"
+      # Development route (HTTP)
+      - "traefik.http.routers.sshwifty-dev.rule=Host(`ssh.localhost`)"
+      - "traefik.http.routers.sshwifty-dev.entrypoints=web"
+
+volumes:
+  rustdesk-data:
+    name: forge-rustdesk-data
+
+networks:
+  forge-network:
+    external: true

@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Network, Database, FileJson, Menu, LogOut,
   BookOpen, User, ChevronRight, Settings, Terminal, Zap,
   Sun, Moon, ChevronDown, Upload, CheckCircle2, Cable, Layers,
-  Folder, FolderInput, FolderCog, FolderGit2, FolderOutput, FolderLock, Keyboard
+  Folder, FolderInput, FolderCog, FolderOutput, FolderLock, Keyboard,
+  Activity, Wrench
 } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { useThemeStore } from '../store/useThemeStore';
@@ -116,12 +117,11 @@ export const Layout = ({ children, currentView, setView }: LayoutProps) => {
     },
     {
       id: 'data',
-      label: 'Data Ingestion',
+      label: 'Data',
       icon: FolderInput,
       children: [
-        { id: 'modern-ingestion', label: 'Import Wizard', icon: Upload, view: 'modern-ingestion' },
-        { id: 'ingestion', label: 'Legacy Import', icon: Database, view: 'ingestion' },
-        { id: 'validation-results', label: 'Validation Results', icon: CheckCircle2, view: 'validation-results' }
+        { id: 'modern-ingestion', label: 'Import', icon: Upload, view: 'modern-ingestion' },
+        { id: 'validation-results', label: 'Validation', icon: CheckCircle2, view: 'validation-results' }
       ]
     },
     {
@@ -130,16 +130,15 @@ export const Layout = ({ children, currentView, setView }: LayoutProps) => {
       icon: FolderCog,
       children: [
         { id: 'explorer', label: 'Asset Explorer', icon: Network, view: 'engineering' },
-        { id: 'locations', label: 'Location Hierarchy', icon: Layers, view: 'locations' }
+        { id: 'locations', label: 'Locations', icon: Layers, view: 'locations' }
       ]
     },
     {
       id: 'automation',
       label: 'Automation',
-      icon: FolderGit2,
+      icon: Zap,
       children: [
-        { id: 'rules', label: 'Rules Library', icon: BookOpen, view: 'rules' },
-        { id: 'rule-executor', label: 'Rule Executor', icon: Zap, view: 'rule-executor' }
+        { id: 'rules', label: 'Rules Library', icon: BookOpen, view: 'rules' }
       ]
     },
     {
@@ -155,7 +154,10 @@ export const Layout = ({ children, currentView, setView }: LayoutProps) => {
       label: 'Admin',
       icon: FolderLock,
       children: [
-        { id: 'metamodel', label: 'Metamodel Editor', icon: Database, view: 'metamodel' }
+        { id: 'activity', label: 'Activity Log', icon: Activity, view: 'admin/activity' },
+        { id: 'rule-executor', label: 'Rule Executor', icon: Zap, view: 'rule-executor' },
+        { id: 'admin-tools', label: 'Admin Tools', icon: Wrench, view: 'admin/tools' },
+        { id: 'metamodel', label: 'Metamodel', icon: Database, view: 'metamodel' }
       ]
     }
   ];

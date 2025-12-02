@@ -1,0 +1,328 @@
+# =============================================================================
+# HOMELAB INVENTORY - Discovered 2025-12-01
+# =============================================================================
+# Auto-discovered by ATLAS via SSH exploration of NPM containers
+# This file documents the homelab infrastructure for AI context persistence
+# =============================================================================
+
+---
+metadata:
+  discovered_date: "2025-12-01"
+  discovered_by: "ATLAS AI"
+  source: "SSH exploration of pihole01/pihole02.home.s-gagnon.com (NPM containers)"
+  owner: "seb"
+
+# =============================================================================
+# NETWORK TOPOLOGY
+# =============================================================================
+networks:
+  main_lan:
+    subnet: "192.168.1.0/24"
+    description: "Main home network"
+    gateway: "192.168.1.1"
+
+  containers:
+    subnet: "192.168.5.0/24"
+    description: "LXC/Container network (Proxmox)"
+
+  services:
+    subnet: "192.168.10.0/24"
+    description: "Services VLAN"
+
+# =============================================================================
+# PROXMOX HOSTS
+# =============================================================================
+proxmox_hosts:
+  pve1:
+    hostname: "pve1"
+    ip: "192.168.1.20"
+    port: 8006
+    type: "Proxmox VE"
+    urls:
+      - "pve1.home.s-gagnon.com"
+      - "pve1.s-gagnon.com"
+    containers:
+      - npm1 (Nginx Proxy Manager)
+      - pihole (actual Pi-hole at 192.168.1.10)
+
+  pve2:
+    hostname: "pve2"
+    ip: null  # To discover
+    port: 8006
+    type: "Proxmox VE"
+    urls:
+      - "pve2.home.s-gagnon.com"
+    containers:
+      - npm2 (Nginx Proxy Manager backup)
+
+# =============================================================================
+# CORE INFRASTRUCTURE
+# =============================================================================
+infrastructure:
+  # Nginx Proxy Manager (Primary)
+  npm1:
+    hostname: "Nginx"
+    ip: "192.168.5.20"
+    type: "LXC Container"
+    host: "pve1"
+    service: "Nginx Proxy Manager"
+    ports:
+      - 80   # HTTP
+      - 443  # HTTPS
+      - 81   # Admin UI
+      - 3000 # Node backend
+    ssh_user: "root"
+    ssh_access: true
+    urls:
+      - "npm.home.s-gagnon.com"
+      - "pihole01.home.s-gagnon.com"  # Proxies to actual pihole
+      - "pihole02.home.s-gagnon.com"  # Proxies to actual pihole
+
+  # Nginx Proxy Manager (Secondary/HA)
+  npm2:
+    hostname: "Nginx"
+    ip: "192.168.5.20"  # Same VIP as npm1 (keepalived/HA)
+    type: "LXC Container"
+    host: "pve2"
+    service: "Nginx Proxy Manager (HA)"
+    ssh_user: "root"
+    ssh_access: true
+
+  # Pi-hole (Actual DNS)
+  pihole:
+    hostname: null  # To discover
+    ip: "192.168.1.10"
+    type: "LXC Container or VM"
+    host: "pve1"
+    service: "Pi-hole DNS"
+    ports:
+      - 53   # DNS
+      - 80   # Web UI
+    urls:
+      - "pihole-local.s-gagnon.com"
+      - "pihole.local.s-gagnon.com"
+    notes: "Actual Pi-hole server, proxied through NPM"
+
+# =============================================================================
+# STORAGE
+# =============================================================================
+storage:
+  truenas:
+    hostname: null
+    ip: "192.168.1.59"  # Discovered from NPM database
+    port: 443
+    type: "TrueNAS"
+    urls:
+      - "truenas.home.s-gagnon.com"
+      - "truenas.s-gagnon.com"
+      - "truenas-local.s-gagnon.com"
+
+# =============================================================================
+# SERVICES DISCOVERED (via NPM proxy hosts)
+# =============================================================================
+services:
+  # Security
+  vaultwarden:
+    ip: "192.168.1.123"
+    type: "Password Manager"
+    urls:
+      - "vaultwarden.home.s-gagnon.com"
+      - "vaultwarden.s-gagnon.com"
+      - "vaultwarden-local.s-gagnon.com"
+
+  # Home Automation
+  homeassistant:
+    ip: null  # To discover
+    type: "Home Automation"
+    urls:
+      - "ha.home.s-gagnon.com"
+      - "ha.s-gagnon.com"
+
+  # Network
+  udm:
+    ip: null  # To discover
+    type: "Unifi Dream Machine"
+    urls:
+      - "udm.home.s-gagnon.com"
+
+  # Container Management
+  portainer:
+    ip: null  # To discover
+    type: "Container Management"
+    urls:
+      - "portainer.home.s-gagnon.com"
+      - "portainer.s-gagnon.com"
+      - "portainer.axoiq.com"
+
+  # Monitoring
+  grafana:
+    ip: null
+    type: "Monitoring Dashboard"
+    urls:
+      - "grafana.home.s-gagnon.com"
+
+  influxdb:
+    ip: null
+    type: "Time Series Database"
+    urls:
+      - "influxdb.home.s-gagnon.com"
+
+  uptime_kuma:
+    ip: null
+    type: "Uptime Monitoring"
+    urls:
+      - "upkuma.home.s-gagnon.com"
+
+  # Productivity
+  n8n:
+    ip: null
+    type: "Workflow Automation"
+    urls:
+      - "n8n.home.s-gagnon.com"
+      - "n8n.s-gagnon.com"
+
+  outline:
+    ip: null
+    type: "Wiki/Documentation"
+    urls:
+      - "outline.home.s-gagnon.com"
+      - "outline.s-gagnon.com"
+
+  # Cloud/Files
+  nextcloud:
+    ip: null
+    type: "Cloud Storage"
+    urls:
+      - "cloud.home.s-gagnon.com"
+      - "cloud.s-gagnon.com"
+
+  syncthing:
+    ip: null
+    type: "File Sync"
+    urls:
+      - "syncthing-nas.home.s-gagnon.com"
+
+  # Development
+  vscode:
+    ip: null
+    type: "VS Code Web"
+    urls:
+      - "vscode.home.s-gagnon.com"
+
+  # AI
+  ollama:
+    ip: null
+    type: "LLM Server"
+    urls:
+      - "ollama.axoiq.com"
+      - "ollama.home.axoiq.com"
+
+  webai:
+    ip: null
+    type: "AI Web Interface"
+    urls:
+      - "webai.home.s-gagnon.com"
+      - "webai.s-gagnon.com"
+
+  # RustDesk (Already deployed!)
+  rustdesk:
+    ip: null
+    type: "Remote Desktop Server"
+    urls:
+      - "rustdesk.home.s-gagnon.com"
+      - "rustdesk.s-gagnon.com"
+      - "id.rustdesk.home.s-gagnon.com"
+      - "relay.rustdesk.home.s-gagnon.com"
+    notes: "Already deployed in homelab - can potentially reuse!"
+
+  # Backup
+  pbs:
+    ip: null
+    type: "Proxmox Backup Server"
+    urls:
+      - "pbs.home.s-gagnon.com"
+
+  # Network Boot
+  netbootxyz:
+    ip: null
+    type: "Network Boot"
+    urls:
+      - "netbootxyz.home.s-gagnon.com"
+
+  # Dashboard
+  homepage:
+    ip: "192.168.10.10"
+    port: 3000
+    type: "Dashboard"
+    urls:
+      - "homepage.hl.s-gagnon.com"
+      - "homepage-local.s-gagnon.com"
+
+# =============================================================================
+# CLIENT AI PROJECTS (via NPM)
+# =============================================================================
+ai_projects:
+  bba_ai:
+    urls: ["bba-ai.home.s-gagnon.com", "bba-ai.s-gagnon.com"]
+
+  boralex_ai:
+    urls: ["boralex-ai.home.s-gagnon.com", "boralex-ai.s-gagnon.com"]
+
+  domtar_ai:
+    urls: ["domtar-ai.home.s-gagnon.com", "domtar-ai.sgagnon.com"]
+
+  laporte_ai:
+    urls: ["laporte-ai.home.s-gagnon.com", "laporte-ai.s-gagnon.com"]
+
+  ews_ai:
+    urls: ["ews-ai.home.s-gagnon.com", "ews-ai.s-gagnon.com"]
+    portainer: "port-ews.home.s-gagnon.com"
+
+# =============================================================================
+# DOMAINS
+# =============================================================================
+domains:
+  primary:
+    - s-gagnon.com          # Personal/homelab
+    - axoiq.com             # ATLAS/AXIOM project (laptop)
+
+  subdomains:
+    home.s-gagnon.com: "Homelab services (internal)"
+    local.s-gagnon.com: "Local network only"
+    hl.s-gagnon.com: "Homelab (short)"
+    home.axoiq.com: "AXIOM homelab"
+
+# =============================================================================
+# SSH ACCESS CONFIGURED
+# =============================================================================
+ssh_access:
+  npm1:
+    host: "pihole01.home.s-gagnon.com"
+    user: "root"
+    key: "~/.ssh/id_ed25519"
+    status: "working"
+
+  npm2:
+    host: "pihole02.home.s-gagnon.com"
+    user: "root"
+    key: "~/.ssh/id_ed25519"
+    status: "working"
+
+# =============================================================================
+# NOTES
+# =============================================================================
+notes:
+  - "pihole01/pihole02.home.s-gagnon.com are actually NPM containers, not Pi-hole"
+  - "Real Pi-hole is at 192.168.1.10 (pihole-local.s-gagnon.com)"
+  - "Both NPM containers share IP 192.168.5.20 (likely keepalived VIP)"
+  - "RustDesk is already deployed in homelab - can reuse instead of deploying in FORGE"
+  - "Many services discovered but IPs not yet mapped - to complete later"
+
+# =============================================================================
+# TODO: Complete Discovery
+# =============================================================================
+to_discover:
+  - "SSH into actual Pi-hole (192.168.1.10) to configure DNS"
+  - "Get IPs for all services from NPM database"
+  - "Map PVE1/PVE2 container IDs"
+  - "Document Tailscale configuration"

@@ -1,0 +1,41 @@
+{
+  "HostName": "ssh.axoiq.com",
+  "SharedKey": "",
+  "Servers": [
+    {
+      "ListenInterface": "0.0.0.0",
+      "ListenPort": 8182,
+      "InitialTimeout": 3,
+      "ReadTimeout": 60,
+      "WriteTimeout": 60,
+      "HeartbeatTimeout": 20
+    }
+  ],
+  "Presets": [
+    {
+      "Title": "NPM1 (Nginx Proxy Manager)",
+      "Type": "SSH",
+      "Host": "pihole01.home.s-gagnon.com:22",
+      "Meta": {
+        "User": "root"
+      }
+    },
+    {
+      "Title": "NPM2 (Nginx Proxy Manager)",
+      "Type": "SSH",
+      "Host": "pihole02.home.s-gagnon.com:22",
+      "Meta": {
+        "User": "root"
+      }
+    },
+    {
+      "Title": "PVE1 (Proxmox)",
+      "Type": "SSH",
+      "Host": "192.168.1.20:22",
+      "Meta": {
+        "User": "root"
+      }
+    }
+  ],
+  "OnlyAllowPresetRemotes": false
+}

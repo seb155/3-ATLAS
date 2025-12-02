@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.api.endpoints import (
     actions,
+    admin,
     assets,
     auth,
     import_export,
@@ -205,6 +206,7 @@ app.include_router(owner_portal.router, prefix="/api/v1/owner", tags=["owner"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["ai"])
 app.include_router(search.router, prefix="/api/v1/search", tags=["search"])
 app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["workflow"])
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 
 
 @app.get("/")

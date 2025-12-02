@@ -374,9 +374,74 @@ port_registry:
       networks: ["forge-network"]
       traefik_domain: "code-user2.axoiq.com"
 
+    # ========================================================================
+    # REMOTE ACCESS HUB - Sshwifty + RustDesk
+    # ========================================================================
+    3053:
+      service: "forge-sshwifty"
+      app: "forge"
+      type: "web"
+      internal_port: 8182
+      protocol: "http"
+      description: "Sshwifty - SSH WebUI Terminal"
+      networks: ["forge-network"]
+      traefik_domain: "ssh.axoiq.com"
+      compose_file: "forge/docker-compose.remote-access.yml"
+
+    21115:
+      service: "forge-rustdesk-hbbs"
+      app: "forge"
+      type: "tcp"
+      internal_port: 21115
+      protocol: "tcp"
+      description: "RustDesk - NAT type test"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.remote-access.yml"
+
+    21116:
+      service: "forge-rustdesk-hbbs"
+      app: "forge"
+      type: "tcp/udp"
+      internal_port: 21116
+      protocol: "tcp+udp"
+      description: "RustDesk - ID registration + heartbeat"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.remote-access.yml"
+
+    21117:
+      service: "forge-rustdesk-hbbr"
+      app: "forge"
+      type: "tcp"
+      internal_port: 21117
+      protocol: "tcp"
+      description: "RustDesk - Relay server"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.remote-access.yml"
+
+    21118:
+      service: "forge-rustdesk-hbbs"
+      app: "forge"
+      type: "tcp"
+      internal_port: 21118
+      protocol: "tcp"
+      description: "RustDesk - WebSocket (web client)"
+      networks: ["forge-network"]
+      traefik_domain: "rustdesk-ws.axoiq.com"
+      compose_file: "forge/docker-compose.remote-access.yml"
+
+    21119:
+      service: "forge-rustdesk-hbbr"
+      app: "forge"
+      type: "tcp"
+      internal_port: 21119
+      protocol: "tcp"
+      description: "RustDesk - WebSocket relay"
+      networks: ["forge-network"]
+      compose_file: "forge/docker-compose.remote-access.yml"
+
   # Available ports for future allocation
   available:
-    forge: "3053-3089 (code-server: 3050-3052 allocated)"
+    forge: "3054-3089 (code-server: 3050-3052, sshwifty: 3053, rustdesk: 21115-21119)"
     synapse: "4002-4999"
     nexus: "5174-5999"
     apex: "6402-6999 (personal projects: 6100-6401 allocated)"

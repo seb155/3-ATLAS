@@ -212,17 +212,27 @@ async def import_assets_csv(
             d = d.setdefault(key, {})
         d[keys[-1]] = value
 
-    # Helper to get value from row using mapping
+    # Helper to get value from row using mapping (case-insensitive)
     def get_mapped_value(row, system_field):
+        # Build case-insensitive lookup for row keys
+        row_lower = {k.lower(): k for k in row.keys() if k}
+
         # 1. Try mapped column
         if system_field in column_map:
             csv_header = column_map[system_field]
             if csv_header in row:
                 return row[csv_header]
+            # Try case-insensitive match for mapped column
+            if csv_header.lower() in row_lower:
+                return row[row_lower[csv_header.lower()]]
 
-        # 2. Try direct match
+        # 2. Try direct match (exact)
         if system_field in row:
             return row[system_field]
+
+        # 3. Try case-insensitive direct match
+        if system_field.lower() in row_lower:
+            return row[row_lower[system_field.lower()]]
 
         return None
 
