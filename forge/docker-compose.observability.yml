@@ -1,10 +1,18 @@
-# FORGE - Claude Code Observability Stack
+# FORGE - Claude Code Observability Stack PRO
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.observability.yml up -d
 #
 # Services:
 #   - Prometheus: Time-series metrics storage (port 3090)
 #   - OpenTelemetry Collector: Receives telemetry from Claude Code (ports 3200/3201)
-#   - ccusage-exporter: Parses local JSONL files for historical data (port 3202)
+#   - ccusage-exporter PRO: Advanced metrics with optimization insights (port 3202)
+#
+# Endpoints:
+#   - http://localhost:3202/metrics  - Prometheus metrics
+#   - http://localhost:3202/health   - Health check
+#   - http://localhost:3202/insights - Optimization insights (JSON)
+#   - http://localhost:3202/summary  - Quick usage summary (JSON)
+#
+# Dashboard: https://grafana.axoiq.com -> Claude Code PRO
 
 services:
   # Prometheus - Time-series metrics storage
@@ -58,7 +66,12 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # ccusage-exporter - Parses local JSONL files for Prometheus metrics
+  # ccusage-exporter PRO - Advanced Claude Code metrics
+  # Endpoints:
+  #   /metrics  - Prometheus-compatible metrics
+  #   /health   - Health check (JSON)
+  #   /insights - Optimization recommendations (JSON)
+  #   /summary  - Quick usage summary (JSON)
   ccusage-exporter:
     build: ./services/ccusage-exporter
     container_name: forge-ccusage-exporter
@@ -69,6 +82,8 @@ services:
       - SCRAPE_INTERVAL=60
       - METRICS_PORT=9091
       - CLAUDE_MONTHLY_BUDGET=300  # Max plan budget
+      - EXPORTER_VERSION=pro  # Use 'standard' for legacy exporter
+      - MONOREPO_ROOTS=AXIOM  # Comma-separated list of monorepo names for smart project detection
     ports:
       - "3202:9091"
     networks:
@@ -79,6 +94,11 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ccusage.rule=Host(`ccusage.axoiq.com`)"
+      - "traefik.http.routers.ccusage.tls=true"
+      - "traefik.http.services.ccusage.loadbalancer.server.port=9091"
 
 volumes:
   prometheus-data:
