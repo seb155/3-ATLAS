@@ -4,7 +4,7 @@
 
 **Start every session:** `/0-new-session` (full) | `/0-next` (quick) | `/0-resume` (after /compact)
 
-**Commands:** `/0-progress` | `/0-dashboard` | `/0-ship`
+**Commands:** `/0-progress` | `/0-dashboard` | `/0-ship` | `/0-tokens` | `/0-compact`
 
 ## ATLAS 2.0
 
@@ -20,9 +20,12 @@
 
 ## Token Optimization
 
+**Workflow:** `/0-tokens` (check) → `/0-compact` (at 50%) → `/0-resume` (restore)
+
 - `/compact` at ~50% capacity, then `/0-resume`
 - Max 5 concurrent agents (Sonnet builders, Haiku QA)
 - Runtime excluded via `.claudeignore`
+- MCP servers: `/0-mcp` to manage (can use 30k+ tokens)
 
 ## Conventions
 
