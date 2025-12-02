@@ -18,6 +18,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `/0-dashboard` - Current session status
 - `/0-ship` - Git workflow (test + commit + push)
 
+### ATLAS 2.0 Development (In Progress)
+
+**Plan complet:** `.atlas/ATLAS-2.0-PLAN.md`
+**Progression:** `.atlas/ATLAS-2.0-PROGRESS.md`
+
+Pour continuer le développement ATLAS 2.0:
+```bash
+# Voir où on en est
+cat .atlas/ATLAS-2.0-PROGRESS.md
+
+# Puis dire:
+"Continue ATLAS 2.0 depuis Phase [X]"
+```
+
+**Phases:**
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 0 | Migration Symlinks → Local | En attente |
+| 1 | Parallel Agent Framework | En attente |
+| 2 | Git Worktrees Integration | En attente |
+| 3 | Sandbox Pool (FORGE) | En attente |
+| 4 | Monorepo Layer System | En attente |
+| 5 | Inter-Agent Communication | En attente |
+
 ---
 
 ## Platform Overview
