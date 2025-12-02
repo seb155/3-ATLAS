@@ -198,6 +198,37 @@ Ces tâches sont indépendantes car [raison].
 Je les lance TOUS dans ce message."
 ```
 
+### Git Worktrees for Isolation (ATLAS 2.0)
+
+Pour une isolation complète quand plusieurs agents travaillent en parallèle:
+
+```bash
+# Créer worktree isolé pour un agent
+.atlas/scripts/worktree-manager.sh create backend-builder
+# → /home/user/AXIOM-worktrees/agent-backend-builder
+
+# Voir tous les worktrees
+.atlas/scripts/worktree-manager.sh list
+
+# Vérifier status d'un worktree
+.atlas/scripts/worktree-manager.sh status backend-builder
+
+# Merger et cleanup après travail terminé
+.atlas/scripts/worktree-manager.sh merge backend-builder
+```
+
+**Quand utiliser les worktrees:**
+- Plusieurs agents modifient le MÊME fichier
+- Opérations longues avec risque de conflits
+- Tests destructifs ou expérimentaux
+
+**Quand NE PAS utiliser les worktrees:**
+- Agents travaillent sur fichiers différents
+- Tâches rapides et atomiques
+- Exploration/lecture seule
+
+---
+
 ### Prompts pour Builders
 
 **Backend Builder:**

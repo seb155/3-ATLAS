@@ -41,12 +41,12 @@ Lis .atlas/ATLAS-2.0-PLAN.md pour les détails.
 ```
 Phase 0: Migration Symlinks    [██████████] 100%  ✅ COMPLETE
 Phase 1: Parallel Agents       [██████████] 100%  ✅ COMPLETE
-Phase 2: Git Worktrees         [░░░░░░░░░░]   0%  ← PROCHAINE
-Phase 3: Sandbox Pool          [░░░░░░░░░░]   0%
+Phase 2: Git Worktrees         [██████████] 100%  ✅ COMPLETE
+Phase 3: Sandbox Pool          [░░░░░░░░░░]   0%  ← PROCHAINE
 Phase 4: Monorepo Layers       [░░░░░░░░░░]   0%
 Phase 5: Inter-Agent Comms     [░░░░░░░░░░]   0%
 ─────────────────────────────────────────────────
-TOTAL                          [███░░░░░░░]  33%
+TOTAL                          [█████░░░░░]  50%
 ```
 
 ---
@@ -99,11 +99,36 @@ TOTAL                          [███░░░░░░░]  33%
 
 ---
 
-### Phase 2: Git Worktrees Integration
-**Status:** NOT STARTED
-**Dépendance:** Phase 1
+### Phase 2: Git Worktrees Integration ✅ COMPLETE
+**Status:** COMPLETE (2025-12-02)
+**Dépendance:** Phase 1 ✅
 
 | Tâche | Status | Notes |
+|-------|--------|-------|
+| Créer .atlas/scripts/ | [x] | Directory créé |
+| Créer worktree-manager.sh | [x] | ~300 lignes, full-featured |
+| Test create/list/status/merge/cleanup | [x] | Toutes commandes fonctionnelles |
+| Update atlas.md | [x] | Section Git Worktrees |
+
+**Fichiers créés:**
+- `.atlas/scripts/worktree-manager.sh` ✅
+
+**Commandes disponibles:**
+```bash
+.atlas/scripts/worktree-manager.sh create <agent>
+.atlas/scripts/worktree-manager.sh list
+.atlas/scripts/worktree-manager.sh status <agent>
+.atlas/scripts/worktree-manager.sh merge <agent>
+.atlas/scripts/worktree-manager.sh cleanup <agent>
+.atlas/scripts/worktree-manager.sh cleanup-all
+```
+
+---
+
+### Phase 2 (Original): Git Worktrees Integration
+**Status:** MERGED INTO ABOVE
+
+| Tâche | Status | Notes (Original) |
 |-------|--------|-------|
 | Créer worktree-manager.sh | [ ] | |
 | Tester create worktree | [ ] | |
@@ -174,6 +199,22 @@ TOTAL                          [███░░░░░░░]  33%
 ---
 
 ## Historique des Sessions
+
+### 2025-12-02 - Session 4: Phase 2 Complete
+**Durée:** ~5 minutes
+**Accomplissements:**
+- Créé worktree-manager.sh (~300 lignes)
+- Commandes: create, list, status, merge, cleanup, cleanup-all
+- Testé et fonctionnel
+- Documentation ajoutée à atlas.md
+
+**Fichiers créés:**
+- `.atlas/scripts/worktree-manager.sh`
+
+**Prochaine action:**
+Phase 3 - Sandbox Pool (FORGE) ou Phase 4 - Monorepo Layers
+
+---
 
 ### 2025-12-02 - Session 3: Phase 1 Complete
 **Durée:** ~10 minutes
