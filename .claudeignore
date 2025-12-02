@@ -1,0 +1,37 @@
+# ATLAS 2.0 - Token Optimization
+# Exclude runtime files from auto-context loading
+
+# Runtime directory (task queues, results, agent status)
+.atlas/runtime/
+.atlas/runtime/**
+
+# Temporary worktree directories
+/AXIOM-worktrees/
+
+# Sandbox build artifacts
+forge/sandbox/__pycache__/
+forge/sandbox/*.pyc
+
+# Large generated files
+*.log
+*.tmp
+
+# Node modules (if any)
+node_modules/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE directories
+.idea/
+.vscode/
+
+# Git internals
+.git/
+
+# Build outputs
+dist/
+build/
+*.egg-info/

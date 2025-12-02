@@ -18,29 +18,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `/0-dashboard` - Current session status
 - `/0-ship` - Git workflow (test + commit + push)
 
-### ATLAS 2.0 Development (In Progress)
+### ATLAS 2.0 (Complete)
 
-**Plan complet:** `.atlas/ATLAS-2.0-PLAN.md`
-**Progression:** `.atlas/ATLAS-2.0-PROGRESS.md`
+**Documentation:** `.atlas/ATLAS-2.0-PLAN.md` | `.atlas/ATLAS-2.0-PROGRESS.md`
 
-Pour continuer le développement ATLAS 2.0:
-```bash
-# Voir où on en est
-cat .atlas/ATLAS-2.0-PROGRESS.md
-
-# Puis dire:
-"Continue ATLAS 2.0 depuis Phase [X]"
-```
-
-**Phases:**
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 0 | Migration Symlinks → Local | En attente |
-| 1 | Parallel Agent Framework | En attente |
-| 2 | Git Worktrees Integration | En attente |
-| 3 | Sandbox Pool (FORGE) | En attente |
-| 4 | Monorepo Layer System | En attente |
-| 5 | Inter-Agent Communication | En attente |
+| 0 | Migration Symlinks → Local | ✅ Complete |
+| 1 | Parallel Agent Framework | ✅ Complete |
+| 2 | Git Worktrees Integration | ✅ Complete |
+| 3 | Sandbox Pool (FORGE) | ✅ Complete |
+| 4 | Monorepo Layer System | ✅ Complete |
+| 5 | Inter-Agent Communication | ✅ Complete |
+
+**Key Features:**
+- **Parallel Execution**: Multiple Task tools in ONE message = simultaneous agents
+- **Git Worktrees**: Isolated directories per agent (`/AXIOM-worktrees/agent-{name}`)
+- **Sandbox Pool**: 3 pre-warmed Docker containers in FORGE
+- **Layer System**: Root `.claude/` + app-specific `apps/{app}/.claude/`
+- **Builder Agents**: `backend-builder`, `frontend-builder`, `qa-tester`
+
+### Token Optimization
+
+**Context Management:**
+- Use `/compact` when context reaches ~50% capacity
+- Use `/0-resume` after `/compact` to restore session state
+- Runtime files excluded via `.claudeignore`
+
+**Parallel Agent Limits:**
+- Max 5 concurrent agents (configurable in `.atlas/config.yml`)
+- Each builder uses Sonnet model (efficient tokens)
+- QA-tester uses Haiku (minimal tokens)
 
 ---
 
