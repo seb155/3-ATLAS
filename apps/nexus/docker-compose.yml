@@ -1,0 +1,57 @@
+# NEXUS Standalone Mode - Independent Deployment
+# Use this for isolated testing or production deployment without FORGE
+# For development, use docker-compose.dev.yml (FORGE integration)
+
+services:
+  postgres-standalone:
+    image: postgres:15
+    container_name: nexus-postgres-standalone
+    environment:
+      POSTGRES_DB: nexus_dev
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: nexus_dev_password
+    ports:
+      - "5500:5432"  # External: 5500 (NEXUS range), Internal: 5432
+    volumes:
+      - postgres_standalone_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-standalone:
+    image: redis:7-alpine
+    container_name: nexus-redis-standalone
+    ports:
+      - "5501:6379"  # External: 5501 (NEXUS range), Internal: 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend-standalone:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexus-backend-standalone
+    environment:
+      # Standalone mode - uses local postgres-standalone
+      DATABASE_URL: postgresql://nexus:nexus_dev_password@postgres-standalone:5432/nexus_dev
+      REDIS_URL: redis://redis-standalone:6379
+      ENVIRONMENT: standalone
+      DEBUG: "true"
+    ports:
+      - "5000:8000"  # External: 5000 (NEXUS range), Internal: 8000
+    depends_on:
+      postgres-standalone:
+        condition: service_healthy
+      redis-standalone:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_standalone_data:

@@ -1,0 +1,148 @@
+# ==============================================================================
+# TRAEFIK LABELS FOR NEXUS APPLICATION
+# ==============================================================================
+# Enables reverse proxy routing via Traefik with automatic SSL
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml \
+#                  -f docker-compose.traefik-labels.yml up -d
+#
+# Access:
+#   Frontend: https://nexus.localhost (or https://nexus.yourdomain.com)
+#   Backend:  https://api-nexus.localhost (or https://api-nexus.yourdomain.com)
+#
+# Prerequisites:
+#   - Traefik must be running (workspace/docker-compose.traefik.yml)
+#   - DOMAIN environment variable set in workspace/.env
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # NEXUS BACKEND API - Traefik Configuration
+  # ============================================================================
+  backend:
+    labels:
+      # Enable Traefik for this container
+      - "traefik.enable=true"
+
+      # ------------------------------------------------------------------------
+      # HTTP ROUTER CONFIGURATION
+      # ------------------------------------------------------------------------
+      # Route: api-nexus.localhost or api-nexus.yourdomain.com
+      - "traefik.http.routers.nexus-api.rule=Host(`api-nexus.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.nexus-api.entrypoints=websecure"
+      - "traefik.http.routers.nexus-api.tls.certresolver=letsencrypt"
+
+      # Service configuration (backend listens on port 8000)
+      - "traefik.http.services.nexus-api.loadbalancer.server.port=8000"
+
+      # ------------------------------------------------------------------------
+      # CORS MIDDLEWARE
+      # ------------------------------------------------------------------------
+      # Allow frontend to call API from different domain
+      - "traefik.http.middlewares.nexus-api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.nexus-api-cors.headers.accesscontrolalloworiginlist=https://nexus.${DOMAIN:-localhost},http://localhost:5173"
+      - "traefik.http.middlewares.nexus-api-cors.headers.accesscontrolallowcredentials=true"
+      - "traefik.http.middlewares.nexus-api-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.nexus-api-cors.headers.accesscontrolmaxage=100"
+
+      # ------------------------------------------------------------------------
+      # SECURITY HEADERS
+      # ------------------------------------------------------------------------
+      - "traefik.http.middlewares.nexus-api-security.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.nexus-api-security.headers.customrequestheaders.X-Real-IP="
+      - "traefik.http.middlewares.nexus-api-security.headers.sslredirect=true"
+
+      # ------------------------------------------------------------------------
+      # APPLY MIDDLEWARES
+      # ------------------------------------------------------------------------
+      - "traefik.http.routers.nexus-api.middlewares=nexus-api-cors,nexus-api-security"
+
+  # ============================================================================
+  # NEXUS FRONTEND - Traefik Configuration
+  # ============================================================================
+  frontend:
+    labels:
+      # Enable Traefik for this container
+      - "traefik.enable=true"
+
+      # ------------------------------------------------------------------------
+      # HTTP ROUTER CONFIGURATION
+      # ------------------------------------------------------------------------
+      # Route: nexus.localhost or nexus.yourdomain.com
+      - "traefik.http.routers.nexus.rule=Host(`nexus.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.nexus.entrypoints=websecure"
+      - "traefik.http.routers.nexus.tls.certresolver=letsencrypt"
+
+      # Service configuration (frontend Vite dev server on port 5173)
+      - "traefik.http.services.nexus.loadbalancer.server.port=5173"
+
+      # ------------------------------------------------------------------------
+      # SECURITY HEADERS
+      # ------------------------------------------------------------------------
+      # HSTS (HTTP Strict Transport Security)
+      - "traefik.http.middlewares.nexus-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.nexus-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.nexus-headers.headers.stsPreload=true"
+
+      # Security headers
+      - "traefik.http.middlewares.nexus-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.nexus-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.nexus-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.nexus-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+
+      # Content Security Policy (adjust as needed)
+      - "traefik.http.middlewares.nexus-headers.headers.customResponseHeaders.X-Frame-Options=SAMEORIGIN"
+
+      # ------------------------------------------------------------------------
+      # APPLY MIDDLEWARES
+      # ------------------------------------------------------------------------
+      - "traefik.http.routers.nexus.middlewares=nexus-headers"
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+networks:
+  forge-network:
+    external: true
+    name: forge-network
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+# 1. SSL Certificates:
+#    - .localhost domains: Automatic self-signed (Traefik built-in)
+#    - Production domains: Let's Encrypt (automatic via letsencrypt resolver)
+#
+# 2. Domain Configuration:
+#    - Development: DOMAIN=localhost (in workspace/.env)
+#    - Production: DOMAIN=yourdomain.com
+#    - Update DNS A records to point to your server IP
+#
+# 3. Access URLs:
+#    Development:
+#      - Frontend: https://nexus.localhost
+#      - Backend: https://api-nexus.localhost/docs
+#
+#    Production:
+#      - Frontend: https://nexus.yourdomain.com
+#      - Backend: https://api-nexus.yourdomain.com/docs
+#
+# 4. Traefik Dashboard:
+#    - Access: http://localhost:8888
+#    - View routes, services, middlewares
+#
+# 5. Direct Port Access (bypasses Traefik):
+#    - Frontend: http://localhost:5173
+#    - Backend: http://localhost:8000
+#
+# 6. CORS Configuration:
+#    - API allows requests from frontend domain
+#    - Adjust accesscontrolalloworiginlist if using custom domains
+#
+# 7. Security:
+#    - HSTS enabled (1 year, include subdomains, preload)
+#    - XSS protection enabled
+#    - Frame deny enabled (prevents clickjacking)
+#    - Content type sniffing disabled
+# ==============================================================================
