@@ -1,12 +1,19 @@
 # Task Queue
 
-**Last Updated:** 2025-11-29 18:30
+**Last Updated:** 2025-12-03 14:50
 
 ---
 
 ## In Progress
 
-*No active tasks*
+- [ ] [TASK-002] **Finaliser migration monorepo + import historique** (Started: 2025-12-03)
+  - **Contexte:** Session avec Claude Opus - Architecture AI Ecosystem
+  - **Branch:** `claude/ai-ecosystem-architecture-01PpZTSnLJPMtxh15tmyUh4p`
+  - **À faire sur machine locale:**
+    1. `git checkout claude/ai-ecosystem-architecture-01PpZTSnLJPMtxh15tmyUh4p && git pull`
+    2. `./scripts/migration/import-all-history.sh` (importe historique atlas-framework + nexus)
+    3. Merger la branche dans main
+  - **Docs créés:** `.dev/design/ai-ecosystem-architecture.md`, `.dev/design/monorepo-pure-architecture.md`
 
 ## Next Up (Priority)
 
