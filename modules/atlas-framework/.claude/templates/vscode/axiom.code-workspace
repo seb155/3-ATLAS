@@ -1,0 +1,33 @@
+{
+  "folders": [
+    { "path": ".", "name": "AXIOM" },
+    { "path": "apps/synapse", "name": "SYNAPSE" },
+    { "path": "apps/nexus", "name": "NEXUS" },
+    { "path": "forge", "name": "FORGE" },
+    { "path": ".claude", "name": "ATLAS Framework" }
+  ],
+  "settings": {
+    "claudeCode.useTerminal": false,
+    "files.watcherExclude": {
+      "**/forge/data/**": true,
+      "**/node_modules/**": true,
+      "**/__pycache__/**": true
+    },
+    "search.exclude": {
+      "**/forge/data/**": true,
+      "**/node_modules/**": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code",
+      "ms-python.python",
+      "ms-azuretools.vscode-docker"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "compounds": [],
+    "configurations": []
+  }
+}

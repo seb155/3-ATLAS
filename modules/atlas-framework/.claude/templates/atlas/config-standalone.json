@@ -1,0 +1,23 @@
+{
+  "$schema": "atlas-config-schema",
+  "version": "2.1",
+  "project": {
+    "id": "{{PROJECT_ID}}",
+    "name": "{{PROJECT_NAME}}",
+    "type": "standalone"
+  },
+  "framework": {
+    "source": "symlink",
+    "path": "~/atlas-framework/.claude",
+    "version": "2.1.0"
+  },
+  "layering": {
+    "mode": "merge",
+    "priority": ["framework", "overrides", "local"]
+  },
+  "overrides": {
+    "agents": {},
+    "commands": {},
+    "settings": {}
+  }
+}

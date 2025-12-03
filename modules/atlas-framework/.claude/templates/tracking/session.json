@@ -1,0 +1,19 @@
+{
+  "framework_version": "1.0.0",
+  "current_session": {
+    "id": null,
+    "started": null,
+    "mode": null,
+    "project": null,
+    "branch": null
+  },
+  "micro_sessions": [],
+  "stats": {
+    "total_sessions": 0,
+    "total_time_minutes": 0,
+    "total_commits": 0,
+    "last_activity": null
+  },
+  "recent_files": [],
+  "recent_commands": []
+}

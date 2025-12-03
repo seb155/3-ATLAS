@@ -1,0 +1,22 @@
+{
+  "$schema": "dev-manifest-schema",
+  "version": "1.0",
+  "context_type": "child",
+  "project": {
+    "id": "{{PROJECT_ID}}",
+    "name": "{{PROJECT_NAME}}",
+    "path": "{{PROJECT_PATH}}"
+  },
+  "parent": {
+    "id": "{{PARENT_ID}}",
+    "path": "{{PARENT_DEV_PATH}}"
+  },
+  "inherit_from_parent": [
+    "credentials",
+    "infrastructure"
+  ],
+  "metadata": {
+    "created": "{{TIMESTAMP}}",
+    "last_updated": "{{TIMESTAMP}}"
+  }
+}

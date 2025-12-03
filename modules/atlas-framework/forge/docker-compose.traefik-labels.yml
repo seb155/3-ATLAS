@@ -1,0 +1,56 @@
+# Traefik Labels for all workspace services
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.traefik.yml -f docker-compose.traefik-labels.yml up -d
+
+services:
+  # ============================================================================
+  # DATABASES
+  # ============================================================================
+  forge-postgres:
+    labels:
+      - "traefik.enable=false"  # Internal only, no external access
+
+  forge-redis:
+    labels:
+      - "traefik.enable=false"  # Internal only
+
+  # pgAdmin
+  pgadmin:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+
+  # Prisma Studio
+  prisma-studio:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prisma.rule=Host(`prisma.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.prisma.entrypoints=websecure"
+      - "traefik.http.routers.prisma.tls.certresolver=letsencrypt"
+      - "traefik.http.services.prisma.loadbalancer.server.port=5555"
+
+  # ============================================================================
+  # MONITORING & LOGGING
+  # ============================================================================
+  loki:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.loki.entrypoints=websecure"
+      - "traefik.http.routers.loki.tls.certresolver=letsencrypt"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+  promtail:
+    labels:
+      - "traefik.enable=false"  # Internal log shipper
+
+  grafana:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+

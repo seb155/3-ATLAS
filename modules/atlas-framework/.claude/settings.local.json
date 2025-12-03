@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash",
+      "WebSearch",
+      "WebFetch",
+      "Task",
+      "TodoWrite",
+      "NotebookEdit",
+      "SlashCommand(*)",
+      "Skill(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf /)",
+      "Bash(sudo rm -rf /*)",
+      "Bash(mkfs:*)",
+      "Bash(dd if=/dev/zero of=/dev/sd:*)",
+      "Bash(chmod -R 777 /*)",
+      "Bash(> /dev/sda)",
+      "Bash(mv /* /dev/null)",
+      "Bash(wget -O- | sh)",
+      "Bash(curl | sh)"
+    ],
+    "ask": [
+      "Bash(rm -rf:*)",
+      "Bash(rm -r:*)",
+      "Bash(sudo:*)",
+      "Bash(apt remove:*)",
+      "Bash(apt purge:*)",
+      "Bash(apt-get remove:*)",
+      "Bash(apt-get purge:*)"
+    ]
+  },
+  "outputStyle": "default"
+}

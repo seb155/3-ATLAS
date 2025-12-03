@@ -1,0 +1,173 @@
+{
+  "model": "claude-opus-4-5-20251101",
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(pwsh:*)",
+      "Bash(python:*)",
+      "Bash(py:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm:*)",
+      "Bash(yarn:*)",
+      "Bash(bun:*)",
+      "Bash(pip:*)",
+      "Bash(uv:*)",
+      "Bash(uvicorn:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(black:*)",
+      "Bash(mypy:*)",
+      "Bash(eslint:*)",
+      "Bash(prettier:*)",
+      "Bash(tsc:*)",
+      "Bash(vitest:*)",
+      "Bash(jest:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(type:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(where:*)",
+      "Bash(which:*)",
+      "Bash(echo:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
+      "Bash(copy:*)",
+      "Bash(xcopy:*)",
+      "Bash(robocopy:*)",
+      "Bash(move:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(del:*)",
+      "Bash(rmdir:*)",
+      "Bash(rd:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ping:*)",
+      "Bash(ipconfig:*)",
+      "Bash(nslookup:*)",
+      "Bash(alembic:*)",
+      "Bash(prisma:*)",
+      "Bash(dotenv:*)",
+      "Bash(timeout:*)",
+      "Bash(sleep:*)",
+      "Bash(test:*)",
+      "Bash(cd:*)",
+      "Bash(pwd:*)",
+      "Bash(clear:*)",
+      "Bash(cls:*)",
+      "Bash(code:*)",
+      "Bash(cursor:*)",
+      "Bash(winget:*)",
+      "Bash(choco:*)",
+      "Bash(scoop:*)",
+      "Bash(wsl:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+      "Bash(tar:*)",
+      "Bash(unzip:*)",
+      "Bash(7z:*)",
+      "Bash(jq:*)",
+      "Bash(yq:*)",
+      "Bash(az:*)",
+      "Bash(aws:*)",
+      "Bash(gcloud:*)",
+      "Bash(kubectl:*)",
+      "Bash(helm:*)",
+      "Bash(terraform:*)",
+      "Bash(ansible:*)",
+      "WebSearch",
+      "WebFetch",
+      "Bash(Select-Object FullName)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/seb/atlas-framework/.claude/scripts/statusline.sh"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/PreToolUse-Task.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/PostToolUse-Edit.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/Stop.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/SessionStart.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/SessionEnd.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/SubagentStop.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

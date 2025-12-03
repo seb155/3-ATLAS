@@ -1,0 +1,20 @@
+{
+  "$schema": "dev-manifest-schema",
+  "version": "1.0",
+  "context_type": "parent",
+  "project": {
+    "id": "{{PROJECT_ID}}",
+    "name": "{{PROJECT_NAME}}",
+    "path": "{{PROJECT_PATH}}"
+  },
+  "children": [],
+  "shared_resources": {
+    "credentials": "context/credentials.md",
+    "infrastructure": "infra/registry.yml",
+    "decisions": "context/decisions.md"
+  },
+  "metadata": {
+    "created": "{{TIMESTAMP}}",
+    "last_updated": "{{TIMESTAMP}}"
+  }
+}

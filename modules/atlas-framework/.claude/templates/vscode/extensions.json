@@ -1,0 +1,32 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+
+    "gruntfuggly.todo-tree",
+    "alefragnani.project-manager"
+  ],
+  "unwantedRecommendations": []
+}

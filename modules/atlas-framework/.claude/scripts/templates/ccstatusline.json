@@ -1,0 +1,88 @@
+{
+  "powerlineMode": true,
+  "powerlineOptions": {
+    "separator": "\ue0b0",
+    "leftCap": "\ue0b6",
+    "rightCap": "\ue0b4"
+  },
+  "globalOptions": {
+    "padding": true,
+    "bold": false,
+    "useBackground": true
+  },
+  "widgets": [
+    {
+      "type": "customText",
+      "text": "⚡ ATLAS",
+      "foreground": "#FFFFFF",
+      "background": "#2D3436",
+      "bold": true
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "model",
+      "label": "🧠",
+      "foreground": "#FFFFFF",
+      "background": "#6C5CE7"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "customCommand",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File {{USERPROFILE}}\\.claude\\detect-project.ps1",
+      "label": "📦",
+      "foreground": "#FFFFFF",
+      "background": "#00B894"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "gitBranch",
+      "label": "🌿",
+      "foreground": "#FFFFFF",
+      "background": "#FDCB6E"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "customCommand",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File {{USERPROFILE}}\\.claude\\atlas-agent.ps1",
+      "label": "🤖",
+      "foreground": "#FFFFFF",
+      "background": "#E17055"
+    },
+    {
+      "type": "flexSeparator"
+    },
+    {
+      "type": "contextPercentage",
+      "label": "📊",
+      "foreground": "#FFFFFF",
+      "background": "#0984E3",
+      "showRemaining": true
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "sessionCost",
+      "label": "💰",
+      "foreground": "#FFFFFF",
+      "background": "#00CEC9"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "tokenTotal",
+      "label": "📝",
+      "foreground": "#FFFFFF",
+      "background": "#636E72"
+    }
+  ]
+}
