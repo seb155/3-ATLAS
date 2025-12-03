@@ -1,0 +1,28 @@
+{
+  "$schema": "atlas-config-schema",
+  "version": "2.1",
+  "project": {
+    "id": "{{PROJECT_ID}}",
+    "name": "{{PROJECT_NAME}}",
+    "type": "parent"
+  },
+  "framework": {
+    "source": "symlink",
+    "path": "~/atlas-framework/.claude",
+    "version": "2.1.0"
+  },
+  "layering": {
+    "mode": "merge",
+    "priority": ["framework", "overrides", "local"]
+  },
+  "children": [],
+  "shared_resources": {
+    "credentials": "context/credentials.md",
+    "infrastructure": "infra/registry.yml"
+  },
+  "overrides": {
+    "agents": {},
+    "commands": {},
+    "settings": {}
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: FastAPI (SYNAPSE)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
+      "cwd": "${workspaceFolder}/apps/synapse/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/apps/synapse/backend"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Pytest (SYNAPSE)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-v", "-s"],
+      "cwd": "${workspaceFolder}/apps/synapse/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Chrome: SYNAPSE Frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://synapse.axoiq.com",
+      "webRoot": "${workspaceFolder}/apps/synapse/frontend/src"
+    },
+    {
+      "name": "Chrome: code-server",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://code.axoiq.com",
+      "webRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: SYNAPSE",
+      "configurations": ["Python: FastAPI (SYNAPSE)", "Chrome: SYNAPSE Frontend"]
+    }
+  ]
+}

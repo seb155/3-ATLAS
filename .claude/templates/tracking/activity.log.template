@@ -1,0 +1,20 @@
+# Atlas Activity Log
+# Format: [YYYY-MM-DD HH:MM] EVENT_TYPE details
+#
+# Event Types:
+#   SESSION_START    - New session started
+#   SESSION_END      - Session ended
+#   COMMAND          - Slash command executed
+#   PHASE_START      - Workshop phase started
+#   PHASE_END        - Workshop phase completed
+#   COMMIT           - Git commit made
+#   BRANCH           - Branch created/switched
+#   ERROR            - Error occurred
+#
+# Example entries:
+# [2025-11-29 14:30] SESSION_START mode=FULL project=myapp branch=main
+# [2025-11-29 14:32] COMMAND /0-workshop new fitness-app
+# [2025-11-29 14:35] PHASE_START workshop=fitness-app phase=1
+# [2025-11-29 15:00] PHASE_END workshop=fitness-app phase=1 duration=25m
+# [2025-11-29 15:30] COMMIT hash=abc1234 message="feat: Add user auth"
+# [2025-11-29 16:45] SESSION_END commits=2 duration=2h15m

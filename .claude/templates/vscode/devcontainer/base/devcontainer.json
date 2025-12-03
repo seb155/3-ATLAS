@@ -1,0 +1,48 @@
+{
+  "name": "ATLAS Development (axoiq.com)",
+  "image": "mcr.microsoft.com/devcontainers/base:debian-12",
+
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.11" },
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,readonly,type=bind",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,readonly,type=bind"
+  ],
+
+  "runArgs": [
+    "--network=forge-network",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+
+  "containerEnv": {
+    "DOMAIN": "axoiq.com",
+    "TZ": "America/New_York"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true
+      }
+    }
+  },
+
+  "postCreateCommand": "echo 'ATLAS devcontainer ready - axoiq.com'",
+  "remoteUser": "vscode"
+}

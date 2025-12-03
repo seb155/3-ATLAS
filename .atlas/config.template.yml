@@ -1,0 +1,60 @@
+# ATLAS 2.0 Configuration
+version: "2.0"
+
+monorepo:
+  name: "AXIOM"
+  apps:
+    synapse:
+      path: "apps/synapse"
+      status: "active"
+      builders: [backend-builder, frontend-builder, qa-tester]
+      test: {backend: "pytest", frontend: "npm test"}
+    nexus:
+      path: "apps/nexus"
+      status: "development"
+      builders: [frontend-builder, qa-tester]
+    cortex:
+      path: "apps/cortex"
+      status: "planning"
+      builders: [backend-builder]
+    apex:
+      path: "apps/apex"
+      status: "planning"
+      builders: [backend-builder, frontend-builder]
+
+layers:
+  root: {path: ".claude", priority: 1}
+  app: {path: "apps/{app}/.claude", priority: 2}
+
+parallel_agents:
+  enabled: true
+  max_concurrent: 5
+  worktree_base: "../AXIOM-worktrees"
+  sandbox_pool_size: 3
+  models: {orchestrator: opus, builders: sonnet, validators: haiku}
+
+context:
+  hot_files: [CLAUDE.md, .atlas/config.yml]
+  protected: [.dev/infra/registry.yml, .claude/agents/rules/]
+  modes:
+    full: {load_all: true, show_review: true}
+    quick: {load_all: false, load_last: true}
+    recovery: {reconstruct: true}
+
+infrastructure:
+  forge: "forge"
+  network: "forge_default"
+  registry: ".dev/infra/registry.yml"
+
+token_optimization:
+  compact: {threshold: 50, auto: false}
+  limits:
+    orchestrator: {model: opus, tokens: 16000}
+    builders: {model: sonnet, tokens: 8000}
+    validators: {model: haiku, tokens: 4000}
+  mcp: {max_servers: 2, warn_tokens: 30000}
+  budget: {max: 500000, warn: 80, critical: 95}
+
+git:
+  branch: "main"
+  prefixes: {feature: "feat/", fix: "fix/"}

@@ -1,0 +1,79 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FORGE: Start All",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d",
+      "options": { "cwd": "${workspaceFolder}/forge" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "FORGE: Start with code-server",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.yml -f docker-compose.traefik.yml -f docker-compose.code-server.yml up -d",
+      "options": { "cwd": "${workspaceFolder}/forge" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "FORGE: Stop All",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.yml -f docker-compose.traefik.yml down",
+      "options": { "cwd": "${workspaceFolder}/forge" },
+      "problemMatcher": []
+    },
+    {
+      "label": "FORGE: View Logs",
+      "type": "shell",
+      "command": "docker compose logs -f --tail 100",
+      "options": { "cwd": "${workspaceFolder}/forge" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "SYNAPSE: Dev Backend",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.dev.yml up synapse-backend",
+      "options": { "cwd": "${workspaceFolder}/apps/synapse" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "SYNAPSE: Dev Frontend",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/apps/synapse/frontend" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "SYNAPSE: Test Backend",
+      "type": "shell",
+      "command": "pytest -v",
+      "options": { "cwd": "${workspaceFolder}/apps/synapse/backend" },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "SYNAPSE: Migrations",
+      "type": "shell",
+      "command": "alembic upgrade head",
+      "options": { "cwd": "${workspaceFolder}/apps/synapse/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Open: code.axoiq.com",
+      "type": "shell",
+      "command": "xdg-open https://code.axoiq.com || start https://code.axoiq.com",
+      "problemMatcher": []
+    },
+    {
+      "label": "Open: synapse.axoiq.com",
+      "type": "shell",
+      "command": "xdg-open https://synapse.axoiq.com || start https://synapse.axoiq.com",
+      "problemMatcher": []
+    }
+  ]
+}

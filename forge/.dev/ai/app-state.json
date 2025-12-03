@@ -1,0 +1,79 @@
+{
+  "$schema": "app-state-schema",
+  "version": "1.0",
+  "app": "forge",
+  "last_updated": "2025-11-30T00:00:00Z",
+
+  "status": {
+    "phase": "Stable",
+    "version": "1.0",
+    "progress_percent": 95,
+    "target_date": null,
+    "days_remaining": null
+  },
+
+  "current_focus": {
+    "sprint": null,
+    "primary_task": "Maintenance",
+    "blockers": []
+  },
+
+  "description": "Shared Infrastructure - Docker services for all AXIOM applications",
+
+  "services": {
+    "postgresql": {
+      "container": "forge-postgres",
+      "port": 5433,
+      "status": "stable"
+    },
+    "redis": {
+      "container": "forge-redis",
+      "port": 6379,
+      "status": "stable"
+    },
+    "meilisearch": {
+      "container": "forge-meilisearch",
+      "port": 7700,
+      "status": "stable"
+    },
+    "grafana": {
+      "container": "forge-grafana",
+      "port": 3000,
+      "status": "stable"
+    },
+    "loki": {
+      "container": "forge-loki",
+      "port": 3100,
+      "status": "stable"
+    },
+    "traefik": {
+      "container": "forge-traefik",
+      "ports": [80, 443, 8888],
+      "status": "stable"
+    },
+    "pgadmin": {
+      "container": "forge-pgadmin",
+      "port": 5050,
+      "status": "stable"
+    },
+    "prisma": {
+      "container": "forge-prisma",
+      "port": 5555,
+      "status": "stable"
+    },
+    "wiki": {
+      "container": "forge-wiki",
+      "port": 3080,
+      "status": "stable"
+    }
+  },
+
+  "network": "forge-network",
+
+  "commands": {
+    "start": "docker compose up -d",
+    "stop": "docker compose down",
+    "logs": "docker compose logs -f",
+    "status": "docker compose ps"
+  }
+}

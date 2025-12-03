@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model action_logs {
+  id                String          @id @db.Uuid
+  project_id        String?         @db.VarChar
+  parent_id         String?         @db.Uuid
+  action_type       actiontype
+  entity_type       String?         @db.VarChar
+  entity_id         String?         @db.Uuid
+  discipline        disciplinetype?
+  description       String          @db.VarChar
+  details           Json?           @db.Json
+  status            actionstatus?
+  timestamp         DateTime?       @db.Timestamp(6)
+  action_logs       action_logs?    @relation("action_logsToaction_logs", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_action_logs action_logs[]   @relation("action_logsToaction_logs")
+}
+
+model assets {
+  id                                  String           @id @db.VarChar
+  tag                                 String           @db.VarChar
+  description                         String?          @db.VarChar
+  type                                String           @db.VarChar
+  project_id                          String           @db.VarChar
+  area                                String?          @db.VarChar
+  system                              String?          @db.VarChar
+  io_type                             iotype?
+  mechanical                          Json?            @db.Json
+  electrical                          Json?            @db.Json
+  process                             Json?            @db.Json
+  purchasing                          Json?            @db.Json
+  manufacturer_part_id                String?          @db.VarChar
+  data_status                         assetdatastatus?
+  confidence_score                    Float?
+  data_source_id                      String?          @db.VarChar
+  discipline                          String?          @db.VarChar
+  semantic_type                       String?          @db.VarChar
+  lod                                 Int?
+  isa95_level                         Int?
+  properties                          Json?            @db.Json
+  location_id                         String?          @db.VarChar
+  package_id                          String?          @db.VarChar
+  lbs_nodes                           lbs_nodes?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  packages                            packages?        @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects                            projects         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cables_cables_from_asset_idToassets cables[]         @relation("cables_from_asset_idToassets")
+  cables_cables_to_asset_idToassets   cables[]         @relation("cables_to_asset_idToassets")
+
+  @@unique([tag, project_id], map: "uix_project_tag")
+  @@index([data_status], map: "ix_assets_data_status")
+  @@index([discipline], map: "ix_assets_discipline")
+  @@index([package_id], map: "ix_assets_package_id")
+  @@index([semantic_type], map: "ix_assets_semantic_type")
+  @@index([tag], map: "ix_assets_tag")
+}
+
+model audit_logs {
+  id          String    @id @db.VarChar
+  user_id     String    @db.VarChar
+  action      String    @db.VarChar
+  target_type String    @db.VarChar
+  target_id   String    @db.VarChar
+  details     Json?     @db.Json
+  timestamp   DateTime? @default(now()) @db.Timestamptz(6)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model cable_sizing_rules {
+  id                       String    @id @db.Uuid
+  code_standard            String    @db.VarChar(50)
+  voltage_level            String?   @db.VarChar(20)
+  application              String?   @db.VarChar(50)
+  conductor_size           String    @db.VarChar(20)
+  conductor_material       String?   @db.VarChar(20)
+  insulation_type          String?   @db.VarChar(50)
+  temperature_rating       String?   @db.VarChar(20)
+  ampacity_amps            Float
+  derating_factors         Json?     @db.Json
+  max_voltage_drop_percent Float?
+  resistance_ohm_per_km    Float?
+  reactance_ohm_per_km     Float?
+  code_reference           String?   @db.VarChar(200)
+  table_number             String?   @db.VarChar(50)
+  notes                    String?
+  properties               Json?     @db.Json
+  created_at               DateTime? @db.Timestamp(6)
+  is_active                Boolean?
+
+  @@index([application], map: "ix_cable_sizing_rules_application")
+  @@index([code_standard], map: "ix_cable_sizing_rules_code_standard")
+  @@index([voltage_level], map: "ix_cable_sizing_rules_voltage_level")
+}
+
+model cable_types {
+  id                   String    @id @db.Uuid
+  manufacturer         String?   @db.VarChar(100)
+  part_number          String?   @db.VarChar(100)
+  description          String?
+  cable_family         String?   @db.VarChar(100)
+  cable_type           String?   @db.VarChar(50)
+  conductor_material   String?   @db.VarChar(20)
+  conductor_size       String?   @db.VarChar(20)
+  number_of_conductors Int?
+  construction         String?   @db.VarChar(100)
+  insulation_type      String?   @db.VarChar(50)
+  armor_type           String?   @db.VarChar(50)
+  sheath_material      String?   @db.VarChar(50)
+  voltage_rating       String?   @db.VarChar(20)
+  current_rating_amps  Float?
+  temperature_rating   String?   @db.VarChar(20)
+  standards            Json?     @db.Json
+  outer_diameter_mm    Float?
+  weight_kg_per_m      Float?
+  min_bend_radius_mm   Float?
+  temp_range_celsius   String?   @db.VarChar(50)
+  flame_rating         String?   @db.VarChar(50)
+  outdoor_rated        Boolean?
+  sunlight_resistant   Boolean?
+  oil_resistant        Boolean?
+  unit_price_per_m     Float?
+  currency             String?   @db.VarChar(10)
+  lead_time_days       Int?
+  properties           Json?     @db.Json
+  created_at           DateTime? @db.Timestamp(6)
+  updated_at           DateTime? @db.Timestamp(6)
+  is_active            Boolean?
+  cables               cables[]
+
+  @@index([cable_type], map: "ix_cable_types_cable_type")
+  @@index([manufacturer], map: "ix_cable_types_manufacturer")
+  @@index([part_number], map: "ix_cable_types_part_number")
+}
+
+model cables {
+  id                                  String            @id @db.Uuid
+  project_id                          String            @db.VarChar
+  tag                                 String            @db.VarChar(50)
+  cable_type                          String?           @db.VarChar(50)
+  description                         String?
+  from_asset_id                       String?           @db.VarChar
+  from_terminal                       String?           @db.VarChar(50)
+  to_asset_id                         String?           @db.VarChar
+  to_terminal                         String?           @db.VarChar(50)
+  conductor_size                      String?           @db.VarChar(20)
+  construction                        String?           @db.VarChar(100)
+  conductor_material                  String?           @db.VarChar(20)
+  insulation_type                     String?           @db.VarChar(50)
+  armor_type                          String?           @db.VarChar(50)
+  sheath_material                     String?           @db.VarChar(50)
+  length_meters                       Float?
+  route_description                   String?
+  installation_method                 String?           @db.VarChar(50)
+  conduit_size                        String?           @db.VarChar(20)
+  voltage_rating                      String?           @db.VarChar(20)
+  current_rating_amps                 Float?
+  voltage_drop_volts                  Float?
+  voltage_drop_percent                Float?
+  power_loss_watts                    Float?
+  code_standard                       String?           @db.VarChar(50)
+  temperature_rating                  String?           @db.VarChar(20)
+  flame_rating                        String?           @db.VarChar(50)
+  cable_type_id                       String?           @db.Uuid
+  manufacturer                        String?           @db.VarChar(100)
+  part_number                         String?           @db.VarChar(100)
+  properties                          Json?             @db.Json
+  created_by_rule_id                  String?           @db.VarChar
+  is_active                           Boolean?
+  status                              String?           @db.VarChar(20)
+  created_at                          DateTime?         @db.Timestamp(6)
+  updated_at                          DateTime?         @db.Timestamp(6)
+  created_by                          String?           @db.VarChar(100)
+  notes                               String?
+  cable_types                         cable_types?      @relation(fields: [cable_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rule_definitions                    rule_definitions? @relation(fields: [created_by_rule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assets_cables_from_asset_idToassets assets?           @relation("cables_from_asset_idToassets", fields: [from_asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects                            projects          @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assets_cables_to_asset_idToassets   assets?           @relation("cables_to_asset_idToassets", fields: [to_asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([cable_type], map: "ix_cables_cable_type")
+  @@index([from_asset_id], map: "ix_cables_from_asset_id")
+  @@index([project_id], map: "ix_cables_project_id")
+  @@index([tag], map: "ix_cables_tag")
+  @@index([to_asset_id], map: "ix_cables_to_asset_id")
+}
+
+model clients {
+  id            String     @id @db.VarChar
+  name          String     @unique @db.VarChar
+  contact_email String?    @db.VarChar
+  projects      projects[]
+}
+
+model connections {
+  id         String   @id @db.VarChar
+  from_id    String   @db.VarChar
+  to_id      String   @db.VarChar
+  project_id String   @db.VarChar
+  type       String?  @db.VarChar
+  cable_tag  String?  @db.VarChar
+  projects   projects @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model data_sources {
+  id            String        @id @db.VarChar
+  project_id    String        @db.VarChar
+  filename      String        @db.VarChar
+  file_hash     String?       @db.VarChar
+  ingest_status ingeststatus?
+  detected_type detectedtype?
+  metadata_json Json?
+  created_at    DateTime?     @db.Timestamp(6)
+  updated_at    DateTime?     @db.Timestamp(6)
+  staged_rows   staged_rows[]
+}
+
+model lbs_nodes {
+  id                      String       @id @db.VarChar
+  name                    String       @db.VarChar
+  type                    locationtype
+  project_id              String       @db.VarChar
+  parent_id               String?      @db.VarChar
+  capacity_slots          Int?
+  design_heat_dissipation Float?
+  ip_rating               String?      @db.VarChar
+  assets                  assets[]
+  lbs_nodes               lbs_nodes?   @relation("lbs_nodesTolbs_nodes", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_lbs_nodes         lbs_nodes[]  @relation("lbs_nodesTolbs_nodes")
+  projects                projects     @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model metamodel_edges {
+  id             String          @id @db.VarChar
+  source_node_id String          @db.VarChar
+  target_node_id String          @db.VarChar
+  relation_type  String          @db.VarChar
+  cardinality    String?         @db.VarChar
+  discipline     disciplinetype?
+  properties     Json?           @db.Json
+
+  @@unique([source_node_id, target_node_id, relation_type], map: "uix_metamodel_edge")
+}
+
+model metamodel_nodes {
+  id               String           @id @db.VarChar
+  name             String           @db.VarChar
+  project_id       String?          @db.VarChar
+  type             String           @db.VarChar
+  discipline       disciplinetype?
+  semantic_type    semantictype?
+  lod              Int?
+  isa95_level      Int?
+  description      String?          @db.VarChar
+  properties       Json?            @db.Json
+  data_status      assetdatastatus?
+  confidence_score Float?
+  data_source_id   String?          @db.VarChar
+
+  @@index([data_status], map: "ix_metamodel_nodes_data_status")
+}
+
+model packages {
+  id          String         @id @db.VarChar
+  name        String         @db.VarChar
+  description String?        @db.VarChar
+  project_id  String         @db.VarChar
+  status      packagestatus?
+  created_at  DateTime?      @db.Timestamp(6)
+  updated_at  DateTime?      @db.Timestamp(6)
+  assets      assets[]
+  projects    projects       @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([project_id], map: "ix_packages_project_id")
+}
+
+model projects {
+  id              String            @id @db.VarChar
+  name            String            @db.VarChar
+  client_id       String            @db.VarChar
+  description     String?           @db.VarChar
+  status          String?           @db.VarChar
+  created_at      DateTime?         @default(now()) @db.Timestamptz(6)
+  assets          assets[]
+  cables          cables[]
+  connections     connections[]
+  lbs_nodes       lbs_nodes[]
+  packages        packages[]
+  clients         clients           @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rule_executions rule_executions[]
+}
+
+model rule_definitions {
+  id                     String                @id @db.VarChar
+  name                   String                @db.VarChar(255)
+  description            String?
+  source                 rulesource
+  source_id              String?               @db.VarChar
+  priority               Int
+  discipline             String?               @db.VarChar
+  category               String?               @db.VarChar
+  action_type            ruleactiontype
+  is_enforced            Boolean?
+  condition              Json                  @db.Json
+  action                 Json                  @db.Json
+  overrides_rule_id      String?               @db.VarChar
+  conflicts_with         Json?                 @db.Json
+  validation_status      rulevalidationstatus?
+  is_active              Boolean?
+  created_by             String?               @db.VarChar
+  created_at             DateTime?             @db.Timestamp(6)
+  updated_at             DateTime?             @db.Timestamp(6)
+  version                Int?
+  execution_count        Int?
+  last_executed_at       DateTime?             @db.Timestamp(6)
+  success_count          Int?
+  failure_count          Int?
+  cables                 cables[]
+  users                  users?                @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rule_definitions       rule_definitions?     @relation("rule_definitionsTorule_definitions", fields: [overrides_rule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_rule_definitions rule_definitions[]    @relation("rule_definitionsTorule_definitions")
+  rule_executions        rule_executions[]
+
+  @@index([action_type], map: "ix_rule_definitions_action_type")
+  @@index([category], map: "ix_rule_definitions_category")
+  @@index([discipline], map: "ix_rule_definitions_discipline")
+  @@index([is_active], map: "ix_rule_definitions_is_active")
+  @@index([is_enforced], map: "ix_rule_definitions_is_enforced")
+  @@index([name], map: "ix_rule_definitions_name")
+  @@index([priority], map: "ix_rule_definitions_priority")
+  @@index([source], map: "ix_rule_definitions_source")
+  @@index([validation_status], map: "ix_rule_definitions_validation_status")
+}
+
+model rule_executions {
+  id                  String           @id @db.VarChar
+  rule_id             String           @db.VarChar
+  project_id          String           @db.VarChar
+  asset_id            String?          @db.VarChar
+  action_type         String           @db.VarChar
+  action_taken        String
+  condition_matched   Boolean?
+  created_entity_id   String?          @db.VarChar
+  created_entity_type String?          @db.VarChar
+  timestamp           DateTime?        @db.Timestamp(6)
+  execution_time_ms   Int?
+  error_message       String?
+  stack_trace         String?
+  projects            projects         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rule_definitions    rule_definitions @relation(fields: [rule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([asset_id], map: "ix_rule_executions_asset_id")
+  @@index([project_id], map: "ix_rule_executions_project_id")
+  @@index([rule_id], map: "ix_rule_executions_rule_id")
+  @@index([timestamp], map: "ix_rule_executions_timestamp")
+}
+
+model staged_rows {
+  id             String        @id @db.VarChar
+  data_source_id String        @db.VarChar
+  row_index      Int
+  raw_data       Json
+  import_status  importstatus?
+  asset_id       String?       @db.VarChar
+  created_at     DateTime?     @db.Timestamp(6)
+  data_sources   data_sources  @relation(fields: [data_source_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id               String             @id @db.VarChar
+  email            String             @unique(map: "ix_users_email") @db.VarChar
+  hashed_password  String             @db.VarChar
+  full_name        String?            @db.VarChar
+  role             userrole?
+  is_active        Boolean?
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  audit_logs       audit_logs[]
+  rule_definitions rule_definitions[]
+}
+
+enum actionstatus {
+  COMPLETED
+  ROLLED_BACK
+  FAILED
+}
+
+enum actiontype {
+  RULE_EXECUTION
+  CREATE
+  UPDATE
+  LINK
+  ERROR
+}
+
+enum assetdatastatus {
+  FRESH_IMPORT
+  IN_REVIEW
+  VALIDATED
+  ERROR
+}
+
+enum detectedtype {
+  BBA_INSTRUMENT_LIST
+  CABLE_SCHEDULE
+  GENERIC_LIST
+  UNKNOWN
+}
+
+enum disciplinetype {
+  PROCESS
+  ELECTRICAL
+  AUTOMATION
+  MECHANICAL
+  PROJECT
+  PROCUREMENT
+  GENERAL
+}
+
+enum importstatus {
+  PENDING
+  SKIPPED
+  IMPORTED
+  ERROR
+}
+
+enum ingeststatus {
+  PENDING
+  STAGED
+  MAPPED
+  IMPORTED
+  ERROR
+}
+
+enum iotype {
+  AI
+  AO
+  DI
+  DO
+  PROFIBUS
+  ETHERNET
+  HARDWIRED
+  PROFINET
+  ETHERNET_IP
+  MODBUS_TCP
+}
+
+enum locationtype {
+  SITE
+  AREA
+  EHOUSE
+  ROOM
+  CABINET
+  JUNCTION_BOX
+}
+
+enum packagestatus {
+  OPEN
+  ISSUED
+  CLOSED
+}
+
+enum ruleactiontype {
+  CREATE_CHILD
+  CREATE_CABLE
+  CREATE_RELATIONSHIP
+  SET_PROPERTY
+  CREATE_PACKAGE
+  ALLOCATE_IO
+  VALIDATE
+}
+
+enum rulesource {
+  FIRM
+  COUNTRY
+  PROJECT
+  CLIENT
+}
+
+enum rulevalidationstatus {
+  DRAFT
+  DEV_VALIDATED
+  PROD_READY
+  DEPRECATED
+}
+
+enum semantictype {
+  CONTAINER
+  ASSET
+  LINK
+}
+
+enum userrole {
+  ADMIN
+  ENGINEER
+  VIEWER
+  CLIENT
+}
