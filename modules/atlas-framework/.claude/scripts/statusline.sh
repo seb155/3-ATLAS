@@ -147,46 +147,140 @@ else
 fi
 
 # ============================================================================
-# Token Estimation from Cost (Claude Code doesn't expose token counts)
-# Opus 4.5: $5/M input, $25/M output → avg ~$9/M with 80/20 ratio
-# Formula: tokens ≈ cost × 111111 (1M / 9)
+# ACCURATE Token Counting from Transcript JSONL
+# Replaces inaccurate cost-based estimation with real token counts!
+#
+# Pricing (Opus 4.5):
+#   - Input:       $5.00/M
+#   - Output:      $25.00/M
+#   - Cache Write: $6.25/M
+#   - Cache Read:  $0.50/M (90% cheaper!)
 # ============================================================================
-TOKEN_DISPLAY=""
-if command -v awk &> /dev/null && [ -n "$SESSION_COST" ]; then
-    ESTIMATED_TOKENS=$(awk "BEGIN {printf \"%.0f\", $SESSION_COST * 111111}")
-    if [ "$ESTIMATED_TOKENS" -gt 0 ] 2>/dev/null; then
-        if [ "$ESTIMATED_TOKENS" -ge 1000000 ]; then
-            # Millions: ~1.2M
-            TOKEN_DISPLAY=$(awk "BEGIN {printf \"~%.1fM\", $ESTIMATED_TOKENS/1000000}")
-        elif [ "$ESTIMATED_TOKENS" -ge 1000 ]; then
-            # Thousands: ~57K
-            TOKEN_DISPLAY=$(awk "BEGIN {printf \"~%.0fK\", $ESTIMATED_TOKENS/1000}")
-        else
-            # Under 1K: ~500
-            TOKEN_DISPLAY="~${ESTIMATED_TOKENS}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+INPUT_TOKENS=0
+OUTPUT_TOKENS=0
+CACHE_TOKENS=0
+TOTAL_TOKENS=0
+CONTEXT_PCT=0
+CALCULATED_COST="0"
+
+# Parse real token data from transcript
+if [ -f "$SCRIPT_DIR/parse-tokens.sh" ] && command -v jq &> /dev/null; then
+    TOKEN_DATA=$(bash "$SCRIPT_DIR/parse-tokens.sh" 2>/dev/null)
+
+    if [ -n "$TOKEN_DATA" ] && [ "$(echo "$TOKEN_DATA" | jq -r '.error // empty')" = "" ]; then
+        INPUT_TOKENS=$(echo "$TOKEN_DATA" | jq -r '.input // 0')
+        OUTPUT_TOKENS=$(echo "$TOKEN_DATA" | jq -r '.output // 0')
+        CACHE_WRITE=$(echo "$TOKEN_DATA" | jq -r '.cache_write // 0')
+        CACHE_READ=$(echo "$TOKEN_DATA" | jq -r '.cache_read // 0')
+        CACHE_TOKENS=$((CACHE_WRITE + CACHE_READ))
+        TOTAL_TOKENS=$(echo "$TOKEN_DATA" | jq -r '.total // 0')
+        CONTEXT_PCT=$(echo "$TOKEN_DATA" | jq -r '.context_pct // 0')
+        CALCULATED_COST=$(echo "$TOKEN_DATA" | jq -r '.cost_total // 0')
+
+        # Use calculated cost if available (more accurate than API cost)
+        if [ "$CALCULATED_COST" != "0" ] && [ "$CALCULATED_COST" != "null" ]; then
+            COST_DISPLAY=$(echo "$CALCULATED_COST" | awk '{
+                if ($1 < 0.01) printf "%.3f", $1
+                else if ($1 < 0.1) printf "%.2f", $1
+                else if ($1 == int($1)) printf "%.0f", $1
+                else printf "%.1f", $1
+            }')
         fi
     fi
 fi
 
-# ============================================================================
-# Build Final Status Line
-# Format: 🏛️ ATLAS │ 🧠 Opus │ 🏗️ AXIOM/backend │ 🌿 main*3 │ 🔧 BACKEND │ 💰 $1.2 │ 📝 75.6K │ ⏱️ 0:12
-# ============================================================================
+# Format token values for display (K or M suffix)
+format_tokens() {
+    local tokens=$1
+    if [ "$tokens" -ge 1000000 ] 2>/dev/null; then
+        awk "BEGIN {printf \"%.1fM\", $tokens/1000000}"
+    elif [ "$tokens" -ge 1000 ] 2>/dev/null; then
+        awk "BEGIN {printf \"%.0fK\", $tokens/1000}"
+    else
+        echo "$tokens"
+    fi
+}
 
-OUTPUT="🏛️ ATLAS │ $MODEL_DISPLAY │ $PROJECT_DISPLAY"
+INPUT_K=$(format_tokens $INPUT_TOKENS)
+OUTPUT_K=$(format_tokens $OUTPUT_TOKENS)
+CACHE_K=$(format_tokens $CACHE_TOKENS)
+TOTAL_K=$(format_tokens $TOTAL_TOKENS)
 
-if [ -n "$GIT_DISPLAY" ]; then
-    OUTPUT="$OUTPUT │ $GIT_DISPLAY"
+# Context status indicator based on percentage
+if [ "$CONTEXT_PCT" -ge 85 ]; then
+    CONTEXT_DISPLAY="🔴 ${CONTEXT_PCT}%"
+elif [ "$CONTEXT_PCT" -ge 70 ]; then
+    CONTEXT_DISPLAY="🟠 ${CONTEXT_PCT}%"
+elif [ "$CONTEXT_PCT" -ge 50 ]; then
+    CONTEXT_DISPLAY="🟡 ${CONTEXT_PCT}%"
+else
+    CONTEXT_DISPLAY="🟢 ${CONTEXT_PCT}%"
 fi
 
-OUTPUT="$OUTPUT │ $AGENT_DISPLAY │ 💰 \$${COST_DISPLAY}"
+# ============================================================================
+# Build Final Status Line - RESPONSIVE MODE
+# Adapts to terminal width for split terminal support
+#
+# Modes:
+#   < 60:   Ultra Compact - 💰 $0.45 │ 🟢 37%
+#   60-89:  Compact       - 🏛️ ATLAS │ 🧠 Opus │ 💰 $0.45 │ 🟢 37%
+#   90-119: Standard      - + 📝 75K (total tokens)
+#   >= 120: Full          - + 📥 5K │ 📤 2K │ 💾 68K (breakdown)
+# ============================================================================
 
-if [ -n "$TOKEN_DISPLAY" ]; then
-    OUTPUT="$OUTPUT │ 📝 ${TOKEN_DISPLAY}"
+# Detect terminal width
+# When piped (like from Claude Code), tput returns 80 by default which is wrong
+# Try multiple methods, default to 150 (FULL mode) if detection fails
+if [ -n "$COLUMNS" ]; then
+    TERM_WIDTH=$COLUMNS
+elif [ -t 1 ]; then
+    # stdout is a terminal, tput should work
+    TERM_WIDTH=$(tput cols 2>/dev/null || echo 150)
+else
+    # Piped context (Claude Code) - default to FULL mode
+    # Override with ATLAS_TERM_WIDTH env var if needed
+    TERM_WIDTH=${ATLAS_TERM_WIDTH:-150}
 fi
 
-if [ -n "$DURATION_STR" ]; then
-    OUTPUT="$OUTPUT │ $DURATION_STR"
+if [ "$TERM_WIDTH" -lt 60 ]; then
+    # ULTRA COMPACT: Cost + Context only (for very narrow splits)
+    OUTPUT="💰 \$${COST_DISPLAY} │ ${CONTEXT_DISPLAY}"
+
+elif [ "$TERM_WIDTH" -lt 90 ]; then
+    # COMPACT: Essential info without token details
+    OUTPUT="🏛️ ATLAS │ $MODEL_DISPLAY │ 💰 \$${COST_DISPLAY} │ ${CONTEXT_DISPLAY}"
+
+elif [ "$TERM_WIDTH" -lt 120 ]; then
+    # STANDARD: With total tokens grouped
+    OUTPUT="🏛️ ATLAS │ $MODEL_DISPLAY │ $PROJECT_DISPLAY"
+
+    if [ -n "$GIT_DISPLAY" ]; then
+        OUTPUT="$OUTPUT │ $GIT_DISPLAY"
+    fi
+
+    OUTPUT="$OUTPUT │ 📝 ${TOTAL_K} │ 💰 \$${COST_DISPLAY} │ ${CONTEXT_DISPLAY}"
+
+else
+    # FULL: Complete breakdown with Input/Output/Cache
+    OUTPUT="🏛️ ATLAS │ $MODEL_DISPLAY │ $PROJECT_DISPLAY"
+
+    if [ -n "$GIT_DISPLAY" ]; then
+        OUTPUT="$OUTPUT │ $GIT_DISPLAY"
+    fi
+
+    OUTPUT="$OUTPUT │ $AGENT_DISPLAY"
+
+    # Token breakdown: Input | Output | Cache
+    if [ "$TOTAL_TOKENS" -gt 0 ] 2>/dev/null; then
+        OUTPUT="$OUTPUT │ 📥 ${INPUT_K} │ 📤 ${OUTPUT_K} │ 💾 ${CACHE_K}"
+    fi
+
+    OUTPUT="$OUTPUT │ 💰 \$${COST_DISPLAY} │ ${CONTEXT_DISPLAY}"
+
+    if [ -n "$DURATION_STR" ]; then
+        OUTPUT="$OUTPUT │ $DURATION_STR"
+    fi
 fi
 
 echo -n "$OUTPUT"

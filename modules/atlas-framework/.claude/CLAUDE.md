@@ -2,9 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with this agent framework.
 
-## Atlas Agent Framework v2.1
+## Atlas Agent Framework v2.2
 
 This is a reusable Claude Code agent framework. Use it as `.claude/` in your projects.
+
+### What's New in V2.2
+
+- **Accurate Token Monitoring**: Real token counts from JSONL transcripts (not estimates!)
+- **Token Breakdown**: Separate Input/Output/Cache tracking with Opus 4.5 pricing
+- **Responsive Status Line**: Adapts to terminal width (Full/Standard/Compact/Ultra)
+- **Tool Analytics**: `/0-analyze` identifies expensive patterns
+- **Cache Savings**: Track savings from prompt caching (up to 90%!)
 
 ### What's New in V2.1
 
@@ -62,12 +70,21 @@ End sessions with:
 | `/1-init-atlas` | Init .atlas/ layering structure |
 | `/1-init-cli` | Init CLI customization |
 
-### Token Management (NEW)
+### Token Management (UPDATED v2.2)
 | Command | Purpose |
 |---------|---------|
-| `/0-tokens` | Check token usage |
+| `/0-tokens` | Dashboard with REAL token counts (Input/Output/Cache breakdown) |
+| `/0-analyze` | Analyze tool usage patterns to optimize consumption |
 | `/0-compact` | Compress context at 50% |
 | `/0-mcp` | Manage MCP servers |
+
+**Token Monitoring Features:**
+- Real token counts from JSONL transcripts (not estimates!)
+- Separate Input ($5/M) / Output ($25/M) / Cache ($0.50/M) tracking
+- Responsive status line adapts to terminal width
+- Cache savings calculator (up to 90% savings!)
+
+See: `.claude/docs/token-monitoring.md`
 
 ### End Commands (9-*)
 | Command | Purpose |
