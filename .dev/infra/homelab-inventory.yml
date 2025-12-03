@@ -1,5 +1,5 @@
 # =============================================================================
-# HOMELAB INVENTORY - Discovered 2025-12-01
+# HOMELAB INVENTORY - Updated 2025-12-02
 # =============================================================================
 # Auto-discovered by ATLAS via SSH exploration of NPM containers
 # This file documents the homelab infrastructure for AI context persistence
@@ -8,6 +8,7 @@
 ---
 metadata:
   discovered_date: "2025-12-01"
+  updated_date: "2025-12-02"
   discovered_by: "ATLAS AI"
   source: "SSH exploration of pihole01/pihole02.home.s-gagnon.com (NPM containers)"
   owner: "seb"
@@ -41,9 +42,63 @@ proxmox_hosts:
     urls:
       - "pve1.home.s-gagnon.com"
       - "pve1.s-gagnon.com"
-    containers:
-      - npm1 (Nginx Proxy Manager)
-      - pihole (actual Pi-hole at 192.168.1.10)
+    lxc_containers:
+      - id: 100
+        name: "homarr"
+        docker: false
+      - id: 101
+        name: "unknown"
+        docker: false
+      - id: 102
+        name: "unknown"
+        docker: false
+      - id: 210
+        name: "pihole"
+        ip: "192.168.5.10"
+        service: "Pi-hole DNS v6"
+        docker: false
+      - id: 220
+        name: "npm"
+        ip: "192.168.5.20"
+        service: "Nginx Proxy Manager"
+        docker: false
+      - id: 230
+        name: "cloudflared"
+        service: "Cloudflare Tunnel"
+        docker: false
+      - id: 405
+        name: "unknown"
+        docker: false
+      - id: 461
+        name: "unknown"
+        docker: false
+      - id: 462
+        name: "unknown"
+        docker: false
+      - id: 470
+        name: "wud"
+        ip: "192.168.10.70"
+        service: "What's Up Docker"
+        docker: true
+        containers:
+          - wud
+    virtual_machines:
+      - id: 500
+        name: "docker-00"
+        ip: "192.168.10.50"
+        service: "Docker Host"
+        docker: true
+        docker_tcp: 2375
+        ssh_access: true
+        containers:
+          - portainer
+          - grafana
+          - prometheus
+          - homepage
+          - uptime-kuma
+          - vscode-server
+          - hbbs (RustDesk ID server)
+          - hbbr (RustDesk relay)
 
   pve2:
     hostname: "pve2"
@@ -90,18 +145,67 @@ infrastructure:
 
   # Pi-hole (Actual DNS)
   pihole:
-    hostname: null  # To discover
-    ip: "192.168.1.10"
-    type: "LXC Container or VM"
+    hostname: "pihole"
+    ip: "192.168.5.10"
+    lxc_id: 210
+    type: "LXC Container"
     host: "pve1"
-    service: "Pi-hole DNS"
+    service: "Pi-hole DNS v6"
     ports:
       - 53   # DNS
       - 80   # Web UI
     urls:
       - "pihole-local.s-gagnon.com"
       - "pihole.local.s-gagnon.com"
-    notes: "Actual Pi-hole server, proxied through NPM"
+    config:
+      etc_dnsmasq_d: true  # Required for custom DNS entries
+      custom_dns: "/etc/dnsmasq.d/05-custom-*.conf"
+    notes: "Pi-hole v6 - Custom DNS via dnsmasq.d"
+
+  # WUD (What's Up Docker)
+  wud:
+    hostname: "wud"
+    ip: "192.168.10.70"
+    lxc_id: 470
+    type: "LXC Container (privileged)"
+    host: "pve1"
+    service: "What's Up Docker v8.1.1"
+    ports:
+      - 3000  # Web UI
+    urls:
+      - "wud.home.s-gagnon.com"
+    docker: true
+    watchers:
+      - name: "local"
+        type: "socket"
+        target: "/var/run/docker.sock"
+      - name: "docker00"
+        type: "tcp"
+        target: "192.168.10.50:2375"
+    notes: "Auto-update manager for all Docker hosts"
+
+  # Docker-00 (VM 500)
+  docker00:
+    hostname: "docker-00"
+    ip: "192.168.10.50"
+    vm_id: 500
+    type: "Virtual Machine"
+    host: "pve1"
+    service: "Docker Host"
+    docker_tcp: 2375
+    ssh_access: true
+    containers:
+      - portainer
+      - grafana
+      - prometheus
+      - homepage
+      - uptime-kuma
+      - vscode-server
+      - hbbs
+      - hbbr
+    urls:
+      - "portainer.home.s-gagnon.com"
+    notes: "Main Docker host with TCP API exposed for WUD"
 
 # =============================================================================
 # STORAGE
@@ -312,17 +416,19 @@ ssh_access:
 # NOTES
 # =============================================================================
 notes:
-  - "pihole01/pihole02.home.s-gagnon.com are actually NPM containers, not Pi-hole"
-  - "Real Pi-hole is at 192.168.1.10 (pihole-local.s-gagnon.com)"
+  - "pihole01/pihole02.home.s-gagnon.com are actually NPM proxy entries, not Pi-hole"
+  - "Real Pi-hole is LXC 210 at 192.168.5.10"
   - "Both NPM containers share IP 192.168.5.20 (likely keepalived VIP)"
-  - "RustDesk is already deployed in homelab - can reuse instead of deploying in FORGE"
-  - "Many services discovered but IPs not yet mapped - to complete later"
+  - "RustDesk (hbbs/hbbr) deployed on VM 500 Docker-00"
+  - "WUD monitors all Docker hosts and auto-updates containers every 6 hours"
+  - "VM 500 Docker TCP exposed on port 2375 (no TLS - internal network only)"
+  - "Pi-hole v6 requires etc_dnsmasq_d=true in pihole.toml for custom DNS"
 
 # =============================================================================
 # TODO: Complete Discovery
 # =============================================================================
 to_discover:
-  - "SSH into actual Pi-hole (192.168.1.10) to configure DNS"
-  - "Get IPs for all services from NPM database"
-  - "Map PVE1/PVE2 container IDs"
-  - "Document Tailscale configuration"
+  - "Get IPs for remaining services from NPM database"
+  - "Map PVE2 container IDs and VMs"
+  - "Document Tailscale/Headscale configuration"
+  - "Identify LXC 100, 101, 102, 405, 461, 462 services"
