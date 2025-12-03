@@ -1,0 +1,290 @@
+# LiteLLM Configuration - Écosystème d'IA Hybride
+# Documentation: https://docs.litellm.ai/
+#
+# Stratégie de routage:
+# 1. LOCAL par défaut (gratuit, privé)
+# 2. CLOUD si complexité élevée + données publiques + budget OK
+
+# ============================================
+# MODÈLES DISPONIBLES
+# ============================================
+
+model_list:
+  # ----------------------------------------
+  # MODÈLES LOCAUX (Ollama)
+  # ----------------------------------------
+
+  # Fast - Pour requêtes simples
+  - model_name: "local/fast"
+    litellm_params:
+      model: "ollama/mistral:7b-instruct"
+      api_base: "http://ollama:11434"
+      timeout: 30
+    model_info:
+      description: "Fast local model for simple queries"
+      max_tokens: 32000
+      cost_per_1k_input: 0
+      cost_per_1k_output: 0
+
+  # Quality - Pour raisonnement modéré
+  - model_name: "local/quality"
+    litellm_params:
+      model: "ollama/llama3.1:70b-instruct-q4_K_M"
+      api_base: "http://ollama:11434"
+      timeout: 120
+    model_info:
+      description: "High quality local model for complex reasoning"
+      max_tokens: 128000
+      cost_per_1k_input: 0
+      cost_per_1k_output: 0
+
+  # Code - Pour génération/analyse de code
+  - model_name: "local/code"
+    litellm_params:
+      model: "ollama/codellama:34b-instruct"
+      api_base: "http://ollama:11434"
+      timeout: 90
+    model_info:
+      description: "Code-specialized local model"
+      max_tokens: 16000
+      cost_per_1k_input: 0
+      cost_per_1k_output: 0
+
+  # Qwen - Alternative polyvalente
+  - model_name: "local/qwen"
+    litellm_params:
+      model: "ollama/qwen2.5:72b-instruct-q4_K_M"
+      api_base: "http://ollama:11434"
+      timeout: 120
+    model_info:
+      description: "Qwen 2.5 for multilingual and reasoning"
+      max_tokens: 128000
+      cost_per_1k_input: 0
+      cost_per_1k_output: 0
+
+  # Embedding local
+  - model_name: "local/embed"
+    litellm_params:
+      model: "ollama/nomic-embed-text"
+      api_base: "http://ollama:11434"
+    model_info:
+      description: "Local embedding model"
+      embedding_dimension: 768
+
+  # ----------------------------------------
+  # MODÈLES CLOUD (Optionnels)
+  # ----------------------------------------
+
+  # Claude Opus - Raisonnement avancé
+  - model_name: "cloud/opus"
+    litellm_params:
+      model: "claude-opus-4-20250514"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+      timeout: 300
+    model_info:
+      description: "Best reasoning, complex multi-step tasks"
+      max_tokens: 200000
+      cost_per_1k_input: 15.0
+      cost_per_1k_output: 75.0
+
+  # Claude Sonnet - Équilibre coût/performance
+  - model_name: "cloud/sonnet"
+    litellm_params:
+      model: "claude-sonnet-4-20250514"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+      timeout: 180
+    model_info:
+      description: "Best for code generation and general tasks"
+      max_tokens: 200000
+      cost_per_1k_input: 3.0
+      cost_per_1k_output: 15.0
+
+  # Claude Haiku - Rapide et économique
+  - model_name: "cloud/haiku"
+    litellm_params:
+      model: "claude-3-5-haiku-20241022"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+      timeout: 60
+    model_info:
+      description: "Fast and cheap for simple cloud tasks"
+      max_tokens: 200000
+      cost_per_1k_input: 0.80
+      cost_per_1k_output: 4.0
+
+  # GPT-4 Turbo - Fallback
+  - model_name: "cloud/gpt4"
+    litellm_params:
+      model: "gpt-4-turbo"
+      api_key: "os.environ/OPENAI_API_KEY"
+      timeout: 180
+    model_info:
+      description: "OpenAI GPT-4 Turbo fallback"
+      max_tokens: 128000
+      cost_per_1k_input: 10.0
+      cost_per_1k_output: 30.0
+
+  # Gemini 2.0 Flash - Économique
+  - model_name: "cloud/gemini"
+    litellm_params:
+      model: "gemini/gemini-2.0-flash-exp"
+      api_key: "os.environ/GOOGLE_API_KEY"
+      timeout: 120
+    model_info:
+      description: "Google Gemini - cost effective"
+      max_tokens: 1000000
+      cost_per_1k_input: 0.075
+      cost_per_1k_output: 0.30
+
+  # DeepSeek V3 - Alternative économique
+  - model_name: "cloud/deepseek"
+    litellm_params:
+      model: "deepseek/deepseek-chat"
+      api_key: "os.environ/DEEPSEEK_API_KEY"
+      timeout: 120
+    model_info:
+      description: "DeepSeek V3 - very cost effective"
+      max_tokens: 64000
+      cost_per_1k_input: 0.14
+      cost_per_1k_output: 0.28
+
+# ============================================
+# ALIAS POUR SIMPLIFICATION
+# ============================================
+
+model_alias:
+  # Alias par usage
+  fast: "local/fast"
+  quality: "local/quality"
+  code: "local/code"
+  embed: "local/embed"
+
+  # Alias cloud
+  opus: "cloud/opus"
+  sonnet: "cloud/sonnet"
+  haiku: "cloud/haiku"
+  gpt4: "cloud/gpt4"
+  gemini: "cloud/gemini"
+
+  # Alias par complexité (utilisé par le router)
+  simple: "local/fast"
+  medium: "local/quality"
+  complex: "cloud/opus"
+
+# ============================================
+# CONFIGURATION DU ROUTEUR
+# ============================================
+
+router_settings:
+  # Modèle par défaut (toujours local)
+  default_model: "local/quality"
+
+  # Timeout global
+  timeout: 300
+
+  # Retry configuration
+  num_retries: 3
+  retry_after: 5
+
+  # Routing strategy
+  routing_strategy: "usage-based-routing"
+
+  # Cooldown après erreur (secondes)
+  cooldown_time: 60
+
+  # Activer le caching
+  enable_caching: true
+  cache_params:
+    type: "redis"
+    host: "redis"
+    port: 6379
+    db: 2
+    ttl: 3600  # 1 heure
+
+# ============================================
+# FALLBACK CHAINS
+# ============================================
+
+fallbacks:
+  # Si cloud/opus échoue
+  - model: "cloud/opus"
+    fallback_models:
+      - "cloud/sonnet"
+      - "local/quality"
+      - "local/fast"
+
+  # Si cloud/sonnet échoue
+  - model: "cloud/sonnet"
+    fallback_models:
+      - "cloud/gpt4"
+      - "local/quality"
+
+  # Si local/quality échoue
+  - model: "local/quality"
+    fallback_models:
+      - "local/qwen"
+      - "local/fast"
+
+# ============================================
+# BUDGET & LIMITES
+# ============================================
+
+general_settings:
+  # Budget mensuel en USD
+  max_budget: 50.0
+  budget_duration: "monthly"
+
+  # Alertes
+  budget_alerts:
+    - percentage: 50
+      webhook: "http://cortex-api:7100/webhooks/budget-alert"
+    - percentage: 80
+      webhook: "http://cortex-api:7100/webhooks/budget-alert"
+    - percentage: 95
+      webhook: "http://cortex-api:7100/webhooks/budget-critical"
+
+  # Limites de rate
+  rate_limits:
+    - model: "cloud/*"
+      rpm: 60  # Requests per minute
+      tpm: 100000  # Tokens per minute
+
+# ============================================
+# LOGS & OBSERVABILITÉ
+# ============================================
+
+litellm_settings:
+  # Logging
+  success_callback: ["prometheus", "langfuse"]
+  failure_callback: ["prometheus", "langfuse"]
+
+  # Prometheus metrics
+  prometheus_port: 9090
+
+  # Logs détaillés
+  set_verbose: false
+  json_logs: true
+
+  # Headers personnalisés pour tracking
+  default_headers:
+    X-Service: "cortex-orchestrator"
+    X-Environment: "production"
+
+# ============================================
+# VARIABLES D'ENVIRONNEMENT REQUISES
+# ============================================
+#
+# ANTHROPIC_API_KEY=sk-ant-xxx
+# OPENAI_API_KEY=sk-xxx
+# GOOGLE_API_KEY=xxx
+# DEEPSEEK_API_KEY=xxx
+#
+# Optionnel:
+# LANGFUSE_PUBLIC_KEY=xxx
+# LANGFUSE_SECRET_KEY=xxx
+# LANGFUSE_HOST=https://langfuse.axoiq.com
+
+environment_variables:
+  - ANTHROPIC_API_KEY
+  - OPENAI_API_KEY
+  - GOOGLE_API_KEY
+  - DEEPSEEK_API_KEY
