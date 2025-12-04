@@ -27,7 +27,41 @@ else
     echo '{"agent_stack":["ATLAS"],"current_agent":"ATLAS","last_updated":"'"$(date -Iseconds)"'"}' > "$STATE_FILE"
 fi
 
+# ============================================================================
+# Generate temporal context (date actuelle pour Atlas)
+# ============================================================================
+CONTEXT_DIR="$SCRIPT_DIR/../context"
+TEMPORAL_FILE="$CONTEXT_DIR/temporal.md"
+
+if [ -d "$CONTEXT_DIR" ]; then
+    cat > "$TEMPORAL_FILE" << EOF
+# Contexte Temporel
+
+> **IMPORTANT**: Toujours utiliser cette date pour les références temporelles,
+> JAMAIS ta date de coupure de connaissances (janvier 2025).
+
+## Date Actuelle
+
+- **Aujourd'hui**: $(date +"%A %d %B %Y")
+- **Heure**: $(date +"%H:%M %Z")
+- **Timestamp**: $(date -Iseconds)
+- **Semaine**: $(date +"%V")
+
+## Implications
+
+- Quand on parle de "récent" = derniers mois par rapport à $(date +"%B %Y")
+- "Nouvelles versions" = vérifier via WebSearch si doute
+- "Actualités" = toujours proposer WebSearch
+- Ta date de coupure (janvier 2025) est OBSOLÈTE pour les infos récentes
+
+---
+*Fichier auto-généré par SessionStart.sh - $(date +"%Y-%m-%d %H:%M")*
+EOF
+fi
+
+# ============================================================================
 # Log session start
+# ============================================================================
 SESSION_ID="session-$(date +%Y%m%d-%H%M)"
 LOG_DIR="$HOME/.claude/logs"
 mkdir -p "$LOG_DIR"

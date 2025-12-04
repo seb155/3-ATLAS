@@ -1,0 +1,15 @@
+{
+  "web_search": {
+    "auto_tech": false,
+    "auto_temporal": false,
+    "retry_threshold": 2,
+    "propose_on_failure": true
+  },
+  "_description": {
+    "auto_tech": "Recherche automatique pour tech/dev (versions, docs, best practices)",
+    "auto_temporal": "Recherche automatique pour dates récentes (2024-2025, actualités)",
+    "retry_threshold": "Nombre d'échecs avant de proposer une recherche web",
+    "propose_on_failure": "Proposer recherche si incertain sur info récente"
+  },
+  "_usage": "Modifier avec /0-web-toggle ou éditer ce fichier directement"
+}

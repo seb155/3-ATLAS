@@ -1,12 +1,10 @@
-# CLAUDE.md
+# Atlas Framework - Core Reference (Static)
 
-This file provides guidance to Claude Code (claude.ai/code) when working with this agent framework.
+> **CACHE OPTIMIZATION**: This file contains stable content that rarely changes.
+> Place this content FIRST in any context to maximize prompt cache hits.
+> Minimum 1024 tokens required for caching - this file exceeds that threshold.
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     STATIC SECTION - DO NOT MODIFY FREQUENTLY
-     This section is optimized for prompt caching (>1024 tokens stable content)
-     Place all rarely-changing content here to maximize cache hits
-     ═══════════════════════════════════════════════════════════════════════════ -->
+---
 
 ## Commands Reference
 
@@ -67,7 +65,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 | `/opus [task]` | Maximum intelligence, no agent overhead | Opus 4.5 |
 | `/sonnet [task]` | Balanced performance, no agent overhead | Sonnet 4.5 |
 
-## Agents
+---
+
+## Agents Reference
 
 | Agent | Purpose | Model |
 |-------|---------|-------|
@@ -101,7 +101,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 - 20% tasks → Sonnet (équilibré)
 - 10% tasks → Opus (critique)
 
-## Skills
+---
+
+## Skills Reference
 
 | Skill | Purpose |
 |-------|---------|
@@ -115,6 +117,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 | `zz-init-cli` | CLI customization templates |
 
 **Optional:** `optional/homeassistant.md` - Home Assistant MCP integration (60 tools)
+
+---
 
 ## Response Protocol
 
@@ -161,7 +165,9 @@ Use for structured questions BEFORE starting work:
 - Use `multiSelect: true` for checkbox selection
 - NOT for end-of-response choices (use text format)
 
-## Session Management & Context Persistence
+---
+
+## Session Management
 
 Atlas auto-documents work to `.dev/` to prevent context loss.
 
@@ -205,6 +211,8 @@ project/
 
 **Reference:** `.claude/agents/rules/session-management.md`
 
+---
+
 ## Workspace Navigation (Monorepos)
 
 Atlas supports hierarchical `.dev/` structures for monorepos and multi-project workspaces.
@@ -237,6 +245,8 @@ Children inherit shared resources from parent:
 
 **Reference:** `.claude/agents/rules/30-workspace-navigation.md`
 
+---
+
 ## CLI Customization
 
 Status line Powerline affichant en bas du CLI:
@@ -256,6 +266,8 @@ Status line Powerline affichant en bas du CLI:
 | `~/.config/ccstatusline/settings.json` | Powerline widgets |
 
 **Reference:** `.claude/docs/cli-customization.md`
+
+---
 
 ## Layering System
 
@@ -284,68 +296,3 @@ Priority 1 (base):    .claude/agents/{name}.md     # Framework
 ```
 
 **Reference:** `.claude/agents/rules/40-layering.md`
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     DYNAMIC SECTION - OK TO MODIFY
-     Content below this line may change frequently without breaking cache
-     ═══════════════════════════════════════════════════════════════════════════ -->
-
-## Atlas Agent Framework v2.3
-
-This is a reusable Claude Code agent framework. Use it as `.claude/` in your projects.
-
-### What's New in V2.3
-
-- **Temporal Context**: Auto-generated date awareness (no more knowledge cutoff confusion!)
-- **Configurable Web Search**: `/0-web-toggle` for economic or auto mode
-- **Cost Documentation**: Full cost analysis per feature in `docs/cost-optimization.md`
-- **Web Search Rules**: Smart triggers for when to search vs propose
-- **Cache Optimization**: Static/dynamic content separation for better prompt caching
-
-### What's New in V2.2
-
-- **Accurate Token Monitoring**: Real token counts from JSONL transcripts (not estimates!)
-- **Token Breakdown**: Separate Input/Output/Cache tracking with Opus 4.5 pricing
-- **Responsive Status Line**: Adapts to terminal width (Full/Standard/Compact/Ultra)
-- **Tool Analytics**: `/0-analyze` identifies expensive patterns
-- **Cache Savings**: Track savings from prompt caching (up to 90%!)
-
-### What's New in V2.1
-
-- **Layering System**: Projects can override framework components via `.atlas/`
-- **Token Optimization**: `/0-tokens`, `/0-compact` commands
-- **MCP Management**: `/0-mcp` for managing MCP servers
-- **QA Tester Agent**: Automated testing with pytest/vitest
-- **Context System**: Hot-files, thresholds, smart loading
-- **Infrastructure Rules**: Traefik, Docker networking, URL registry
-
-## Quick Start
-
-Start every session with:
-- `/0-session-start` - Full context load (first session of day)
-- `/0-session-continue` - Quick continue existing session
-- `/0-session-recover` - Recovery after /compact
-
-End sessions with:
-- `/9-git-ship` - Git workflow (test + commit + push)
-
-**All commands support `[project-id]` argument:**
-```bash
-/0-session-continue echo      # Continue ECHO project
-/0-session-start synapse      # Start SYNAPSE session
-/9-git-ship mechvision        # Ship MechVision changes
-```
-
-## Token Monitoring Features
-
-- Real token counts from JSONL transcripts (not estimates!)
-- Separate Input ($5/M) / Output ($25/M) / Cache ($0.50/M) tracking
-- Responsive status line adapts to terminal width
-- Cache savings calculator (up to 90% savings!)
-
-**Cost Optimization:**
-- Prompt Caching: 90% reduction on repeated context
-- Lazy-Loading: Load agents/rules only when needed
-- Model Routing: Haiku for simple tasks, Sonnet for code, Opus for architecture
-
-See: `.claude/docs/token-monitoring.md`, `.claude/docs/cost-optimization.md`
