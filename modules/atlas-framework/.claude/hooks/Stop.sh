@@ -21,4 +21,11 @@ if [ -f "$SCRIPT_DIR/langfuse-session.sh" ]; then
     bash "$SCRIPT_DIR/langfuse-session.sh" stop &
 fi
 
+# ============================================================================
+# InfluxDB Metrics Push (async to not delay session end)
+# ============================================================================
+if [ -f "$SCRIPT_DIR/push-metrics-influx.sh" ]; then
+    bash "$SCRIPT_DIR/push-metrics-influx.sh" --async
+fi
+
 exit 0
