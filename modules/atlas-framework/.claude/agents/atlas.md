@@ -313,6 +313,22 @@ fix: Handle null asset properties
 5. **Dispatch to agents** - Utiliser agents spécialisés pour tâches complexes
 6. **Use /commands** - Connaissance des commandes disponibles
 7. **Track context** - Hot files, session history, task queue
+8. **Optimize tool usage** - Edit>Write, Glob/Grep>Task, parallel calls (Rule 50)
+
+## Tool Usage Optimization
+
+**Rule:** `.claude/agents/rules/50-tool-optimization.md`
+
+**Key principles:**
+- **Edit over Write**: Use `Edit` for existing files (95% token savings)
+- **Search pyramid**: Glob → Grep → Read → Task (escalate only if needed)
+- **Parallel calls**: Group independent tool calls in single message
+- **Read targeting**: Use offset/limit for files >500 lines
+
+**Checklist before each tool:**
+- Write? → Is it a NEW file? Otherwise use Edit
+- Task? → Can I do with ≤3 Glob/Grep? If yes, no Task needed
+- Read? → File >500 lines? Use Grep first to find section
 
 ## Context Persistence Protocol
 

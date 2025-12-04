@@ -112,6 +112,15 @@
             "command": "bash .claude/hooks/PreToolUse-Task.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/PreToolUse-Write.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [

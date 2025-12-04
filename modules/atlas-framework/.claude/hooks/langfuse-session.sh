@@ -4,6 +4,9 @@
 # Sends session events to Langfuse for LLM observability
 # ============================================================================
 
+# Source Langfuse configuration (Claude Code doesn't inherit .bashrc)
+[ -f ~/.atlas/langfuse.env ] && source ~/.atlas/langfuse.env
+
 # Configuration
 LANGFUSE_ENABLED="${LANGFUSE_ENABLED:-false}"
 LANGFUSE_HOST="${LANGFUSE_HOST:-http://localhost:3001}"
@@ -27,21 +30,25 @@ EVENT_TYPE="${1:-unknown}"
 SESSION_ID="${CLAUDE_SESSION_ID:-session-$(date +%Y%m%d-%H%M%S)}"
 AGENT="${ATLAS_CURRENT_AGENT:-ATLAS}"
 PROJECT=$(basename "$(pwd)")
-TIMESTAMP=$(date -Iseconds)
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+BATCH_ID=$(uuidgen 2>/dev/null || echo "batch-$(date +%s)-$$")
+TRACE_ID=$(uuidgen 2>/dev/null || echo "trace-$(date +%s)-$$")
 
-# Build JSON payload
+# Build JSON payload - Langfuse v2 format requires id/timestamp at batch item level
 PAYLOAD=$(cat << EOF
 {
   "batch": [{
+    "id": "$BATCH_ID",
+    "timestamp": "$TIMESTAMP",
     "type": "trace-create",
     "body": {
-      "id": "$SESSION_ID",
-      "name": "atlas-session",
+      "id": "$TRACE_ID",
+      "name": "atlas-$EVENT_TYPE",
       "metadata": {
         "event": "$EVENT_TYPE",
         "agent": "$AGENT",
         "project": "$PROJECT",
-        "timestamp": "$TIMESTAMP"
+        "session_id": "$SESSION_ID"
       },
       "tags": ["atlas", "$EVENT_TYPE", "$AGENT"]
     }

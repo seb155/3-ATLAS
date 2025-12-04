@@ -113,6 +113,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 | `zz-react-component` | React components |
 | `zz-backlog-manager` | Backlog management |
 | `zz-init-cli` | CLI customization templates |
+| `zz-fabric` | Fabric AI pattern bridge (summarize, extract_wisdom, etc.) |
 
 **Optional:** `optional/homeassistant.md` - Home Assistant MCP integration (60 tools)
 
@@ -347,5 +348,8 @@ End sessions with:
 - Prompt Caching: 90% reduction on repeated context
 - Lazy-Loading: Load agents/rules only when needed
 - Model Routing: Haiku for simple tasks, Sonnet for code, Opus for architecture
+- **Tool Usage**: Edit>Write, Glob/Grep>Task, parallel calls (70-95% savings!)
 
 See: `.claude/docs/token-monitoring.md`, `.claude/docs/cost-optimization.md`
+
+**IMPORTANT - Tool Usage Rule:** Always prefer `Edit` over `Write` for existing files (95% token savings). See: `.claude/agents/rules/50-tool-optimization.md`

@@ -247,17 +247,20 @@ model metamodel_edges {
 }
 
 model metamodel_nodes {
-  id            String           @id @db.VarChar
-  name          String           @db.VarChar
-  type          String           @db.VarChar
-  discipline    disciplinetype?
-  semantic_type String?          @db.VarChar
-  lod           Int?
-  isa95_level   Int?
-  properties    Json?            @db.Json
-  project_id    String?          @db.VarChar
-  data_status   assetdatastatus?
-  projects      projects?        @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String           @id @db.VarChar
+  name             String           @db.VarChar
+  type             String           @db.VarChar
+  discipline       disciplinetype?
+  semantic_type    String?          @db.VarChar
+  lod              Int?
+  isa95_level      Int?
+  properties       Json?            @db.Json
+  project_id       String?          @db.VarChar
+  data_status      assetdatastatus?
+  description      String?          @db.VarChar
+  confidence_score Float?           @default(1.0)
+  data_source_id   String?          @db.VarChar
+  projects         projects?        @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([data_status], map: "ix_metamodel_nodes_data_status")
   @@index([discipline], map: "ix_metamodel_nodes_discipline")
@@ -564,6 +567,7 @@ enum disciplinetype {
   PROCUREMENT
   MECHANICAL
   PROJECT
+  GENERAL
 }
 
 enum importstatus {

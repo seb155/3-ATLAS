@@ -22,3 +22,14 @@ providers:
     allowUiUpdates: true
     options:
       path: /etc/grafana/provisioning/dashboards/claude-code
+
+  - name: 'Langfuse Dashboards'
+    orgId: 1
+    folder: 'Langfuse'
+    folderUid: 'langfuse'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/langfuse

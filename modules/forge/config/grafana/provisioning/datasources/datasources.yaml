@@ -23,3 +23,23 @@ datasources:
       timeInterval: "15s"
       httpMethod: POST
       queryTimeout: "60s"
+
+  # Langfuse PostgreSQL - LLM Observability Data
+  - name: Langfuse
+    type: postgres
+    uid: langfuse-postgres
+    access: proxy
+    url: forge-postgres:5432
+    database: langfuse
+    user: postgres
+    isDefault: false
+    editable: false
+    secureJsonData:
+      password: postgres
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false

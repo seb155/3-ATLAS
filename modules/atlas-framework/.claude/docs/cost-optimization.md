@@ -167,6 +167,21 @@ templates/**/*.md                           ~130 lignes  ~220 tokens
 
 ## Stratégies d'Optimisation
 
+### 0. Tool Usage Optimization (NEW - 70-90% économie)
+
+**La plus grande source d'économie immédiate!**
+
+| Pattern | Économie | Impact |
+|---------|----------|--------|
+| Edit au lieu de Write | 70-95% | Très élevé |
+| Glob/Grep au lieu de Task | 90-99% | Élevé |
+| Read ciblé (offset/limit) | 50-80% | Moyen |
+| Appels parallèles | 30-50% | Moyen |
+
+**Règle clé:** Utiliser `Edit` pour toute modification de fichier existant (économie ~95% vs Write).
+
+**Référence complète:** [Rule 50: Tool Optimization](../agents/rules/50-tool-optimization.md)
+
 ### 1. Prompt Caching (90% économie sur input)
 
 Les fichiers systématiques sont identiques chaque session.

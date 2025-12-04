@@ -12,6 +12,27 @@ const https = require("https");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
+
+// Auto-source langfuse.env if variables not set (Claude Code doesn't inherit .bashrc)
+function loadEnvFile() {
+  const envPath = path.join(process.env.HOME || "", ".atlas", "langfuse.env");
+  if (fs.existsSync(envPath) && !process.env.LANGFUSE_PUBLIC_KEY) {
+    try {
+      const content = fs.readFileSync(envPath, "utf-8");
+      content.split("\n").forEach((line) => {
+        const match = line.match(/^export\s+(\w+)=(.*)$/);
+        if (match) {
+          process.env[match[1]] = match[2].replace(/^["']|["']$/g, "");
+        }
+      });
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+}
+
+loadEnvFile();
 
 // Configuration from environment
 const config = {
