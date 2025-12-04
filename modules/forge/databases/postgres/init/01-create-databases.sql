@@ -11,6 +11,9 @@ CREATE DATABASE reportportal;
 -- Analytics / Owner dashboards
 CREATE DATABASE synapse_analytics;
 
+-- LANGFUSE - LLM Observability
+CREATE DATABASE langfuse;
+
 -- Future projects can be added here
 -- CREATE DATABASE analytics;
 -- CREATE DATABASE mobile_api;

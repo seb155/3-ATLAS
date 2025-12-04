@@ -67,4 +67,14 @@ LOG_DIR="$HOME/.claude/logs"
 mkdir -p "$LOG_DIR"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Session started: $SESSION_ID" >> "$LOG_DIR/sessions.log"
 
+# Export session ID for other hooks
+export CLAUDE_SESSION_ID="$SESSION_ID"
+
+# ============================================================================
+# Langfuse Integration (if enabled)
+# ============================================================================
+if [ -f "$SCRIPT_DIR/langfuse-session.sh" ]; then
+    bash "$SCRIPT_DIR/langfuse-session.sh" start &
+fi
+
 exit 0

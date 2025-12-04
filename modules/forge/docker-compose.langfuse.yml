@@ -1,0 +1,62 @@
+# FORGE - Langfuse LLM Observability
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.langfuse.yml up -d
+#
+# Langfuse provides:
+#   - LLM call tracing and analytics
+#   - Cost tracking per session/model
+#   - Latency monitoring
+#   - Conversation replay and debugging
+#
+# Endpoints:
+#   - http://localhost:3001        - Langfuse Web UI
+#   - https://langfuse.axoiq.com   - Via Traefik (with SSL)
+#
+# Integration:
+#   - Uses shared forge-postgres database
+#   - Compatible with ATLAS session tracking
+
+services:
+  # Langfuse - LLM Observability Platform
+  langfuse:
+    image: langfuse/langfuse:2
+    container_name: forge-langfuse
+    environment:
+      # Database - reuse forge-postgres
+      DATABASE_URL: postgresql://postgres:postgres@forge-postgres:5432/langfuse
+
+      # Auth
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-atlas-langfuse-secret-change-in-prod}
+      NEXTAUTH_URL: ${LANGFUSE_URL:-http://localhost:3001}
+      SALT: ${LANGFUSE_SALT:-atlas-salt-change-in-prod}
+
+      # Telemetry (disable for privacy)
+      TELEMETRY_ENABLED: "false"
+
+      # Optional: Enable public sign-up for first user
+      NEXT_PUBLIC_SIGN_UP_DISABLED: "false"
+
+      # Optional: Enable demo project
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "true"
+    ports:
+      - "3001:3000"
+    networks:
+      - forge-network
+    depends_on:
+      forge-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.langfuse.rule=Host(`langfuse.axoiq.com`)"
+      - "traefik.http.routers.langfuse.tls=true"
+      - "traefik.http.services.langfuse.loadbalancer.server.port=3000"
+
+networks:
+  forge-network:
+    external: true
