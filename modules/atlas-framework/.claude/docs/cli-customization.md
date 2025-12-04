@@ -82,9 +82,53 @@ echo '{"model":{"display_name":"Opus"}}' | bash /home/seb/atlas-framework/.claud
 | `hooks/SessionStart.sh` | Démarrage session | Banner + init state |
 | `hooks/SessionEnd.sh` | Fin session | Log fermeture |
 | `hooks/PreToolUse-Task.sh` | Avant Task tool | Push agent sur stack |
+| `hooks/PreToolUse-Write.sh` | Avant Write tool | Bloque Write sur fichiers existants |
 | `hooks/SubagentStop.sh` | Fin subagent | Pop agent du stack |
 | `hooks/PostToolUse-Edit.sh` | Après Edit/Write | (extensible) |
 | `hooks/Stop.sh` | Stop agent | (extensible) |
+
+### Exit Codes pour Hooks
+
+**IMPORTANT:** Les hooks `PreToolUse` utilisent des exit codes spécifiques pour contrôler l'exécution:
+
+| Exit Code | Comportement | Output |
+|-----------|--------------|--------|
+| `exit 0` | ✅ Autoriser l'outil | stdout (info seulement) |
+| `exit 1` | ⚠️ Erreur ignorée | Aucun effet sur l'outil |
+| `exit 2` | ❌ **BLOQUER** l'outil | stderr (message affiché) |
+
+**Exemple de hook bloquant:**
+
+```bash
+#!/bin/bash
+# PreToolUse hook qui bloque
+
+# Logique de vérification...
+if [ condition_invalide ]; then
+    # Messages vers stderr (requis pour exit 2)
+    echo "❌ Opération bloquée: raison" >&2
+    exit 2
+fi
+
+# Autoriser
+exit 0
+```
+
+**Alternative JSON (exit 0 avec deny):**
+
+```bash
+#!/bin/bash
+cat <<'EOF'
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Message explicatif"
+  }
+}
+EOF
+exit 0
+```
 
 ### State File
 
