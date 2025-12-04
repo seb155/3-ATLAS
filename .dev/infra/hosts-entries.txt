@@ -22,7 +22,8 @@
 127.0.0.1 api-nexus.axoiq.com
 127.0.0.1 cortex.axoiq.com
 127.0.0.1 atlas.axoiq.com
-127.0.0.1 prism.axoiq.com
+127.0.0.1 apex.axoiq.com
+127.0.0.1 echo.axoiq.com
 
 # ------------------------------------------
 # FORGE Infrastructure
@@ -46,6 +47,7 @@
 # Personal Projects
 # ------------------------------------------
 127.0.0.1 findash.axoiq.com
+127.0.0.1 mechvision.axoiq.com
 127.0.0.1 pulse.axoiq.com
 127.0.0.1 trilium.axoiq.com
 127.0.0.1 neo4j.axoiq.com

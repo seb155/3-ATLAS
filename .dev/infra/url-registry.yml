@@ -6,13 +6,45 @@
 #
 # ALL agents, documentation, and configurations MUST reference this file.
 #
-# Last Updated: 2025-11-29
-# Version: 1.0.0
+# Last Updated: 2025-12-03
+# Version: 1.1.0
 # ============================================================================
 
-version: "1.0.0"
-last_updated: "2025-11-29T00:00:00Z"
+version: "1.1.0"
+last_updated: "2025-12-03T00:00:00Z"
 maintainer: "AXIOM Platform"
+
+# ============================================================================
+# ENVIRONMENTS - Multi-Environment Configuration
+# ============================================================================
+
+environments:
+
+  forge:
+    name: "FORGE"
+    description: "Development environment on Laptop WSL"
+    domain: "axoiq.com"
+    reverse_proxy: "traefik"
+    location: "/home/seb/projects/AXIOM/modules/forge/"
+    network: "forge-network"
+    access:
+      - "localhost ports (direct)"
+      - "*.axoiq.com (via Traefik + hosts file)"
+
+  homelab:
+    name: "HOMELAB"
+    description: "Production environment on Proxmox cluster"
+    domain: "s-gagnon.com"
+    reverse_proxy: "nginx"
+    dns: "pihole"
+    location: "/home/seb/projects/homelab/"
+    nodes:
+      pve1: "192.168.1.20"   # Web Services, TrueNAS
+      pve2: "192.168.1.21"   # Gaming, AI/ML (2x GPU)
+      docker_vm: "192.168.10.55"  # Docker containers
+      udm_se: "192.168.1.1"  # UniFi Router
+    access:
+      - "*.s-gagnon.com (via nginx + pihole DNS)"
 
 # ============================================================================
 # AXIOM CORE APPLICATIONS
@@ -182,12 +214,20 @@ personal_projects:
 
   findash:
     name: "FinDash"
-    description: "Personal Finance Dashboard (Gemini AI Studio app)"
-    url: "https://findash.axoiq.com"
-    port: 6400
+    description: "Personal Finance Dashboard (Envelope Budgeting + Bank Sync)"
+    version: "0.4.0"
+    tech_stack: ["React", "TypeScript", "Vite", "Tailwind", "Recharts"]
     status: "active"
-    traefik_enabled: true
-    tech_stack: ["React", "TypeScript", "Vite", "Gemini AI"]
+    # Dual-environment deployment
+    forge:
+      url: "https://findash.axoiq.com"
+      port: 6400
+      traefik_enabled: true
+      docker_compose: "/home/seb/projects/perso/FinDash/docker-compose.yml"
+    homelab:
+      url: "https://findash.s-gagnon.com"
+      port: 6400
+      deploy_target: "docker_vm"  # 192.168.10.55
 
   pulse:
     name: "Pulse"
@@ -318,6 +358,14 @@ related_files:
 # ============================================================================
 
 changelog:
+  - version: "1.1.0"
+    date: "2025-12-03"
+    changes:
+      - "Added environments section (forge, homelab)"
+      - "Updated FinDash with dual-environment config"
+      - "Added homelab infrastructure details (PVE1/PVE2, Docker VM, pihole)"
+      - "Documented s-gagnon.com domain for production"
+
   - version: "1.0.0"
     date: "2025-11-29"
     changes:
