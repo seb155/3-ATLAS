@@ -80,19 +80,23 @@ function generateTraceId() {
  */
 async function traceSession(event, metadata = {}) {
   const traceId = metadata.sessionId || generateTraceId();
+  const timestamp = new Date().toISOString();
+  const batchItemId = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
 
   const payload = {
     batch: [
       {
+        id: batchItemId,           // Required by Langfuse v2
+        timestamp: timestamp,       // Required by Langfuse v2
         type: "trace-create",
         body: {
           id: traceId,
           name: `atlas-${event}`,
+          timestamp: timestamp,
           metadata: {
             event,
             agent: metadata.agent || process.env.ATLAS_CURRENT_AGENT || "ATLAS",
             project: metadata.project || path.basename(process.cwd()),
-            timestamp: new Date().toISOString(),
             ...metadata,
           },
           tags: ["atlas", event, metadata.agent || "ATLAS"].filter(Boolean),
@@ -109,16 +113,23 @@ async function traceSession(event, metadata = {}) {
  * Log token usage for a session
  */
 async function logUsage(traceId, usage) {
+  const timestamp = new Date().toISOString();
+  const obsId = `obs-${Date.now()}`;
+  const batchItemId = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+
   const payload = {
     batch: [
       {
-        type: "observation-create",
+        id: batchItemId,           // Required by Langfuse v2
+        timestamp: timestamp,       // Required by Langfuse v2
+        type: "generation-create",  // Use generation-create for token usage
         body: {
-          id: `obs-${Date.now()}`,
+          id: obsId,
           traceId,
-          type: "GENERATION",
           name: "claude-usage",
           model: usage.model || "claude-opus-4-5-20251101",
+          startTime: timestamp,
+          endTime: timestamp,
           usage: {
             input: usage.inputTokens || 0,
             output: usage.outputTokens || 0,
