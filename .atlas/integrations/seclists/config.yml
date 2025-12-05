@@ -1,0 +1,14 @@
+# SecLists Integration Configuration
+# Reference: https://github.com/danielmiessler/SecLists
+
+seclists:
+  enabled: false
+  path: "~/.cache/seclists"
+  repo: "https://github.com/danielmiessler/SecLists"
+  install: "git clone --depth 1 https://github.com/danielmiessler/SecLists.git ~/.cache/seclists"
+  categories:
+    - Discovery/Web-Content
+    - Fuzzing
+    - Passwords
+    - Usernames
+    - Pattern-Matching
