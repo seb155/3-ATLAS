@@ -1,0 +1,56 @@
+{
+  "$schema": "atlas-skill-registry-v1",
+  "version": "3.0.0",
+  "description": "ATLAS 3.0 Skill Registry - 3-tier resolution system",
+  
+  "tiers": {
+    "core": {
+      "description": "PAI Foundation - Immutable vendored skills",
+      "path": "core/skills/CORE",
+      "precedence": 1,
+      "editable": false
+    },
+    "domain": {
+      "description": "Fabric patterns and specialized skills",
+      "path": "integrations/fabric/patterns",
+      "precedence": 2,
+      "editable": false
+    },
+    "custom": {
+      "description": "User-created and project-specific skills",
+      "paths": [
+        "extensions/skills",
+        "integrations/fabric/custom"
+      ],
+      "precedence": 3,
+      "editable": true
+    }
+  },
+  
+  "skills": {
+    "CORE": {
+      "tier": "core",
+      "path": "CORE/SKILL.md",
+      "auto_load": true,
+      "description": "PAI Core - Identity, response format, stack preferences"
+    },
+    "Createskill": {
+      "tier": "core",
+      "path": "Createskill/Createskill.md",
+      "auto_load": false,
+      "description": "Meta-skill for generating new skills"
+    },
+    "Fabric": {
+      "tier": "core",
+      "path": "Fabric/Fabric.md",
+      "auto_load": false,
+      "description": "Bridge to Fabric 248+ patterns"
+    }
+  },
+  
+  "resolution": {
+    "order": "top-down",
+    "fallback": true,
+    "cache": true
+  }
+}
