@@ -2,27 +2,19 @@
   "$schema": "atlas-config-schema",
   "version": "2.1",
   "project": {
-    "id": "axiom",
-    "name": "AXIOM Monorepo",
-    "type": "parent"
+    "id": "atlas",
+    "name": "ATLAS Framework",
+    "type": "standalone"
   },
   "framework": {
-    "source": "symlink",
-    "path": "/home/seb/atlas-framework/.claude",
-    "version": "2.1.0"
+    "source": "local",
+    "path": "./.claude",
+    "version": "2.3.0"
   },
   "layering": {
     "mode": "merge",
     "priority": ["framework", "overrides", "local"]
   },
-  "children": [
-    "apps/synapse",
-    "apps/nexus",
-    "apps/cortex",
-    "apps/apex",
-    "apps/echo",
-    "forge"
-  ],
   "shared_resources": {
     "credentials": ".dev/context/credentials.md",
     "infrastructure": ".dev/infra/registry.yml"
