@@ -1,27 +1,79 @@
 {
-  "$schema": "atlas-config-schema",
-  "version": "2.1",
+  "$schema": "atlas-config-v3",
+  "version": "3.0.0-dev",
+
   "project": {
     "id": "atlas",
     "name": "ATLAS Framework",
     "type": "standalone"
   },
-  "framework": {
-    "source": "local",
-    "path": "./.claude",
-    "version": "2.3.0"
+
+  "core": {
+    "pai_version": "1.0.0",
+    "skills": {
+      "tiers": ["core", "domain", "custom"],
+      "resolution": "top-down"
+    },
+    "hooks": {
+      "enabled": true,
+      "types": ["PreToolUse", "PostToolUse", "UserFeedback", "SessionStart", "SessionEnd"]
+    },
+    "history": {
+      "format": "uocs",
+      "retention_days": 90
+    }
   },
-  "layering": {
-    "mode": "merge",
-    "priority": ["framework", "overrides", "local"]
+
+  "integrations": {
+    "fabric": {
+      "enabled": true,
+      "auto_sync": false,
+      "patterns_path": "integrations/fabric/patterns"
+    },
+    "telos": {
+      "enabled": true,
+      "templates_path": "integrations/telos/templates"
+    },
+    "substrate": {
+      "enabled": false,
+      "knowledge_path": "integrations/substrate/knowledge"
+    },
+    "daemon": {
+      "enabled": false
+    },
+    "seclists": {
+      "enabled": false,
+      "external_path": "~/.cache/seclists"
+    }
   },
-  "shared_resources": {
-    "credentials": ".dev/context/credentials.md",
-    "infrastructure": ".dev/infra/registry.yml"
+
+  "extensions": {
+    "sessions": {
+      "enabled": true,
+      "checkpoint_threshold": 70,
+      "auto_archive": true
+    },
+    "routing": {
+      "enabled": true,
+      "default_model": "sonnet",
+      "cost_optimization": true
+    },
+    "layering": {
+      "enabled": true,
+      "mode": "merge",
+      "priority": ["core", "domain", "custom"]
+    }
   },
-  "overrides": {
-    "agents": {},
-    "commands": {},
-    "settings": {}
+
+  "tokens": {
+    "budget": {
+      "session_max": 100000,
+      "alert_threshold": 70
+    },
+    "optimization": {
+      "edit_over_write": true,
+      "lazy_loading": true,
+      "agent_modes": ["lite", "standard", "expert"]
+    }
   }
 }
